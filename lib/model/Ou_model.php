@@ -33,7 +33,8 @@ class Ou_model {
 		$this -> ou_name      = isset($row['ou_name'])      ? $row['ou_name']     : '';
 
 		/* Fields from related tables */
-		$this -> Ou = new Ou_model($row);
+		/* Self-reference excluded to prevent an infinite loop */
+//		$this -> Ou = new Ou_model($row);
 	}
 
 	public static function get($ou_id) {

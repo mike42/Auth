@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 29, 2013 at 11:58 AM
+-- Generation Time: Apr 29, 2013 at 02:49 PM
 -- Server version: 5.5.28
 -- PHP Version: 5.4.4-12
 
@@ -261,7 +261,7 @@ ALTER TABLE `OwnerUserGroup`
 -- Constraints for table `Service`
 --
 ALTER TABLE `Service`
-  ADD CONSTRAINT `Service_ibfk_2` FOREIGN KEY (`service_type`) REFERENCES `Service` (`service_id`),
+  ADD CONSTRAINT `Service_ibfk_3` FOREIGN KEY (`service_type`) REFERENCES `ListServiceType` (`service_type`),
   ADD CONSTRAINT `Service_ibfk_1` FOREIGN KEY (`domain_id`) REFERENCES `ListDomain` (`domain_id`);
 
 --

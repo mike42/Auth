@@ -151,6 +151,9 @@ foreach($table as $name => $current) {
 	if(isset($current['references'])) {
 		$str .= "\n\t\t/* Fields from related tables */\n";
 		foreach($current['references'] as $references => $fields) {
+			if($references == $name) {
+				$str .= "\t\t/* Self-reference excluded to prevent an infinite loop */\n//";
+			}
 			$str .= "\t\t\$this -> " . $references . " = new $references"."_model(\$row);\n";
 		}
 	}

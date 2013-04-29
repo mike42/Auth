@@ -47,7 +47,8 @@ class Service_model {
 		$this -> domain_id        = isset($row['domain_id'])        ? $row['domain_id']       : '';
 
 		/* Fields from related tables */
-		$this -> Service = new Service_model($row);
+		/* Self-reference excluded to prevent an infinite loop */
+//		$this -> Service = new Service_model($row);
 		$this -> ListDomain = new ListDomain_model($row);
 	}
 
