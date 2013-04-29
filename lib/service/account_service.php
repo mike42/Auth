@@ -49,6 +49,13 @@ abstract class account_service {
 	 * @param Account_model $a
 	 */
 	abstract protected function accountRelocate(Account_model $a);
+
+	/**
+	 * Set the password on an account.
+	 *
+	 * @param Account_model $a
+	 */
+	abstract protected function accountPassword(Account_model $a, string $p);
 	
 	/**
 	 * Search an organizational unit recursively, looking for changes.
@@ -77,7 +84,7 @@ abstract class account_service {
 	 * @param Account_model $a The user account to add
 	 * @param Group_model $g The group to add it to
 	 */
-	abstract protected function groupJoin(Account_model $a, Group_model $g);
+	abstract protected function groupJoin(Account_model $a, UserGroup_model $g);
 	
 	/**
 	 * Remove a user account from a group.
@@ -85,7 +92,7 @@ abstract class account_service {
 	 * @param Account_model $a The user account to remove
 	 * @param Group_model $g The group to remove it from
 	 */
-	abstract protected function groupLeave(Account_model $a, Group_model $g);
+	abstract protected function groupLeave(Account_model $a, UserGroup_model $g);
 	
 	/**
 	 * Add a group to a group.
@@ -93,7 +100,7 @@ abstract class account_service {
 	 * @param Group_model $parent The parent group
 	 * @param Group_model $child The group to add
 	 */
-	abstract protected function groupAddChild(Group_model $parent, Group_model $child);
+	abstract protected function groupAddChild(UserGroup_model $parent, UserGroup_model $child);
 
 	/**
 	 * Remove a group from a group.
@@ -101,7 +108,7 @@ abstract class account_service {
 	 * @param Group_model $parent The parent group
 	 * @param Group_model $child The group to remove
 	 */
-	abstract protected function groupDelChild(Group_model $parent, Group_model $child);
+	abstract protected function groupDelChild(UserGroup_model $parent, UserGroup_model $child);
 
 	/**
 	 * Create a new organizational unit.
