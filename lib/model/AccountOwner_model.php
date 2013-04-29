@@ -17,10 +17,10 @@ class AccountOwner_model {
 	 * Load all related models.
 	*/
 	public static function init() {
-		sjcAuth::loadClass("Database");
-		sjcAuth::loadClass("Ou_model");
-		sjcAuth::loadClass("Account_model");
-		sjcAuth::loadClass("OwnerUserGroup_model");
+		Auth::loadClass("Database");
+		Auth::loadClass("Ou_model");
+		Auth::loadClass("Account_model");
+		Auth::loadClass("OwnerUserGroup_model");
 	}
 
 	/**

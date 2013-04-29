@@ -15,11 +15,11 @@ class ListDomain_model {
 	 * Load all related models.
 	*/
 	public static function init() {
-		sjcAuth::loadClass("Database");
-		sjcAuth::loadClass("Account_model");
-		sjcAuth::loadClass("ActionQueue_model");
-		sjcAuth::loadClass("ListServiceDomain_model");
-		sjcAuth::loadClass("Service_model");
+		Auth::loadClass("Database");
+		Auth::loadClass("Account_model");
+		Auth::loadClass("ActionQueue_model");
+		Auth::loadClass("ListServiceDomain_model");
+		Auth::loadClass("Service_model");
 	}
 
 	/**

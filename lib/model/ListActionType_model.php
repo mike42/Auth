@@ -10,8 +10,8 @@ class ListActionType_model {
 	 * Load all related models.
 	*/
 	public static function init() {
-		sjcAuth::loadClass("Database");
-		sjcAuth::loadClass("ActionQueue_model");
+		Auth::loadClass("Database");
+		Auth::loadClass("ActionQueue_model");
 	}
 
 	/**

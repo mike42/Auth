@@ -11,8 +11,8 @@ class SubUserGroup_model {
 	 * Load all related models.
 	*/
 	public static function init() {
-		sjcAuth::loadClass("Database");
-		sjcAuth::loadClass("UserGroup_model");
+		Auth::loadClass("Database");
+		Auth::loadClass("UserGroup_model");
 	}
 
 	/**

@@ -22,10 +22,10 @@ class ActionQueue_model {
 	 * Load all related models.
 	*/
 	public static function init() {
-		sjcAuth::loadClass("Database");
-		sjcAuth::loadClass("Service_model");
-		sjcAuth::loadClass("ListDomain_model");
-		sjcAuth::loadClass("ListActionType_model");
+		Auth::loadClass("Database");
+		Auth::loadClass("Service_model");
+		Auth::loadClass("ListDomain_model");
+		Auth::loadClass("ListActionType_model");
 	}
 
 	/**

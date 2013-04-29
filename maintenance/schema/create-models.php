@@ -132,9 +132,9 @@ foreach($table as $name => $current) {
 	if(isset($isrelated)) {
 		$str .= "\n".blockComment(1, array("Load all related models."));
 		$str .= "\tpublic static function init() {\n";
-		$str .= "\t\tsjcAuth::loadClass(\"Database\");\n";
+		$str .= "\t\tAuth::loadClass(\"Database\");\n";
 		foreach($isrelated as $related_table => $true) {
-			$str .= "\t\tsjcAuth::loadClass(\"" . $related_table . "_model\");\n";
+			$str .= "\t\tAuth::loadClass(\"" . $related_table . "_model\");\n";
 		}
 		$str .= "\t}\n";
 	}
