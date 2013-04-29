@@ -7,6 +7,10 @@
  * @author Michael Billington <michael.billington@gmail.com>
  */
 class Ou_api {
+	function init() {
+		Auth::loadClass("Ou_model");
+	}
+	
 	/**
 	 * Load the full hierarchy of organizational units.
 	 * 
@@ -15,6 +19,7 @@ class Ou_api {
 	function getHierarchy(Ou_model $parent = null) {
 		if($parent == null) {
 			$parent = Ou_model::get_by_ou_name("root");
+			// TODO: If root does not exist.
 		}
 		
 		$parent -> populate_list_Ou();
