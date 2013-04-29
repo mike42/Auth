@@ -3,6 +3,17 @@ class ListServiceType_model {
 	/* Fields */
 	public $service_type;
 
+	/* Tables which reference this */
+	public $list_Service              = array();
+
+	/**
+	 * Load all related models.
+	*/
+	public static function init() {
+		Auth::loadClass("Database");
+		Auth::loadClass("Service_model");
+	}
+
 	/**
 	 * Create new ListServiceType based on a row from the database.
 	 * @param array $row The database row to use.
@@ -18,6 +29,10 @@ class ListServiceType_model {
 			return new ListServiceType_model($row);
 		}
 		return false;
+	}
+
+	public function populate_list_Service() {
+		$this -> list_Service = Service_model::list_by_service_type($this -> service_type);
 	}
 
 	public function insert() {

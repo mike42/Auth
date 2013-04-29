@@ -33,7 +33,7 @@ class ListServiceDomain_model {
 	}
 
 	public static function get($service_id, $domain_id) {
-		$sql = "SELECT * FROM ListServiceDomain LEFT JOIN Service ON ListServiceDomain.service_id = Service.service_id LEFT JOIN ListDomain ON ListServiceDomain.domain_id = ListDomain.domain_id WHERE ListServiceDomain.service_id='%s' AND ListServiceDomain.domain_id='%s'";
+		$sql = "SELECT * FROM ListServiceDomain LEFT JOIN Service ON ListServiceDomain.service_id = Service.service_id LEFT JOIN ListDomain ON ListServiceDomain.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ListServiceDomain.service_id='%s' AND ListServiceDomain.domain_id='%s'";
 		$res = Database::retrieve($sql, array($service_id, $domain_id));
 		if($row = Database::get_row($res)) {
 			return new ListServiceDomain_model($row);
@@ -42,7 +42,7 @@ class ListServiceDomain_model {
 	}
 
 	public static function list_by_domain_id($domain_id) {
-		$sql = "SELECT * FROM ListServiceDomain LEFT JOIN Service ON ListServiceDomain.service_id = Service.service_id LEFT JOIN ListDomain ON ListServiceDomain.domain_id = ListDomain.domain_id WHERE ListServiceDomain.domain_id='%s';";
+		$sql = "SELECT * FROM ListServiceDomain LEFT JOIN Service ON ListServiceDomain.service_id = Service.service_id LEFT JOIN ListDomain ON ListServiceDomain.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ListServiceDomain.domain_id='%s';";
 		$res = Database::retrieve($sql, array($domain_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -52,7 +52,7 @@ class ListServiceDomain_model {
 	}
 
 	public static function list_by_service_id($service_id) {
-		$sql = "SELECT * FROM ListServiceDomain LEFT JOIN Service ON ListServiceDomain.service_id = Service.service_id LEFT JOIN ListDomain ON ListServiceDomain.domain_id = ListDomain.domain_id WHERE ListServiceDomain.service_id='%s';";
+		$sql = "SELECT * FROM ListServiceDomain LEFT JOIN Service ON ListServiceDomain.service_id = Service.service_id LEFT JOIN ListDomain ON ListServiceDomain.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ListServiceDomain.service_id='%s';";
 		$res = Database::retrieve($sql, array($service_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {

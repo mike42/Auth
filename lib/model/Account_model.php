@@ -42,7 +42,7 @@ class Account_model {
 	}
 
 	public static function get($account_id) {
-		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.account_id='%s'";
+		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.account_id='%s'";
 		$res = Database::retrieve($sql, array($account_id));
 		if($row = Database::get_row($res)) {
 			return new Account_model($row);
@@ -51,7 +51,7 @@ class Account_model {
 	}
 
 	public static function get_by_service_owner_unique($service_id, $owner_id) {
-		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.service_id='%s' AND Account.owner_id='%s'";
+		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.service_id='%s' AND Account.owner_id='%s'";
 		$res = Database::retrieve($sql, array($service_id, $owner_id));
 		if($row = Database::get_row($res)) {
 			return new Account_model($row);
@@ -60,7 +60,7 @@ class Account_model {
 	}
 
 	public static function get_by_account_login($account_login, $service_id, $account_domain) {
-		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.account_login='%s' AND Account.service_id='%s' AND Account.account_domain='%s'";
+		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.account_login='%s' AND Account.service_id='%s' AND Account.account_domain='%s'";
 		$res = Database::retrieve($sql, array($account_login, $service_id, $account_domain));
 		if($row = Database::get_row($res)) {
 			return new Account_model($row);
@@ -69,7 +69,7 @@ class Account_model {
 	}
 
 	public static function list_by_owner_id($owner_id) {
-		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.owner_id='%s';";
+		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.owner_id='%s';";
 		$res = Database::retrieve($sql, array($owner_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -79,7 +79,7 @@ class Account_model {
 	}
 
 	public static function list_by_service_id($service_id) {
-		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.service_id='%s';";
+		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.service_id='%s';";
 		$res = Database::retrieve($sql, array($service_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -89,7 +89,7 @@ class Account_model {
 	}
 
 	public static function list_by_account_domain($account_domain) {
-		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.account_domain='%s';";
+		$sql = "SELECT * FROM Account LEFT JOIN Service ON Account.service_id = Service.service_id LEFT JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id LEFT JOIN ListDomain ON Account.account_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE Account.account_domain='%s';";
 		$res = Database::retrieve($sql, array($account_domain));
 		$ret = array();
 		while($row = Database::get_row($res)) {

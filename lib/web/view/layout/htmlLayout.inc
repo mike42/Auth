@@ -59,7 +59,7 @@
 			<div class="span12">
 				<ul class="nav nav-tabs">
 					<li<?php if($data['current'] == "Dashboard")	{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('Page',		'view', array(''), 'html'); ?>">Dashboard</a></li>
-					<li<?php if($data['current'] == "Accounts")		{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('Account',	'view', array(''), 'html'); ?>">Accounts</a></li>
+					<li<?php if($data['current'] == "Ou")			{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('Ou',		'view', array(''), 'html'); ?>">Organization</a></li>
 					<li<?php if($data['current'] == "Utility")		{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('Utility',	'view', array(''), 'html'); ?>">Utilities</a></li>
 				</ul>
 			</div>

@@ -77,7 +77,7 @@ class Database {
 		/* Die on database errors */
 		if(!$res) {
 			$errmsg = 'Query failed:' . $query." ". mysql_error();;
-			die($errmsg);
+			throw new Exception($errmsg);
 		}
 		
 		return $res;

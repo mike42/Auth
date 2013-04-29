@@ -52,7 +52,7 @@ class ActionQueue_model {
 	}
 
 	public static function get($aq_id) {
-		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type WHERE ActionQueue.aq_id='%s'";
+		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ActionQueue.aq_id='%s'";
 		$res = Database::retrieve($sql, array($aq_id));
 		if($row = Database::get_row($res)) {
 			return new ActionQueue_model($row);
@@ -61,7 +61,7 @@ class ActionQueue_model {
 	}
 
 	public static function list_by_service_id($service_id) {
-		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type WHERE ActionQueue.service_id='%s';";
+		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ActionQueue.service_id='%s';";
 		$res = Database::retrieve($sql, array($service_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -71,7 +71,7 @@ class ActionQueue_model {
 	}
 
 	public static function list_by_domain_id($domain_id) {
-		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type WHERE ActionQueue.domain_id='%s';";
+		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ActionQueue.domain_id='%s';";
 		$res = Database::retrieve($sql, array($domain_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -81,7 +81,7 @@ class ActionQueue_model {
 	}
 
 	public static function list_by_action_type($action_type) {
-		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type WHERE ActionQueue.action_type='%s';";
+		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ActionQueue.action_type='%s';";
 		$res = Database::retrieve($sql, array($action_type));
 		$ret = array();
 		while($row = Database::get_row($res)) {
