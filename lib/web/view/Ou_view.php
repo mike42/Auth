@@ -7,6 +7,11 @@ class Ou_view {
 	function view_html($data) {
 		self::useTemplate("view", $data);
 	}
+	
+	function create_html($data) {
+		self::useTemplate("create", $data);
+	}
+	
 
 	function useTemplate($template, $data) {
 		$template = "Ou/".$template;
