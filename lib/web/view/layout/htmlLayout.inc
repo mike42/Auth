@@ -41,6 +41,9 @@
 	ul#tree.treeview ul {
 		background: none;
 	}
+	.table-bordered td, .table-bordered th {
+		padding: 0.5em;
+	}
 </style>
 </head>
 <body>

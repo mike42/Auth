@@ -1,6 +1,6 @@
 <script type="text/javascript">
 	$(function() {
-		$("#ou-name").focus();
+		$("#group-cn").focus();
 	});
 </script>
 
@@ -8,31 +8,24 @@
 	<div class="row">
 		<div class="span4">
 			<div class="well">
-				<b>What is an organizational unit?</b>
-				<p>An OU is a container where
-				accounts and groups are kept. Unlike groups, a user can only be in
-				one OU at a time.</p>
+				<b>What is a group?</b>
+				<p>A group is a collection of users, used for security purposes. A user account can be in many different groups, and will receive email messages sent to the group address.</p>
 			</div>
 		</div>
 		<div class="span8">
 			<div class="alert alert-info">
-				<h3>Create Organizational Unit</h3>
+				<h3>Create Group</h3>
 			</div>
 
-			<?php 
-				if(isset($data['message'])) {
-					echo "<div class=\notice\">".web::escapeHTML($data['message']) . "</div>";
-				}
-			?>
 			<div>
-				<form action="<?php echo web::constructURL("Ou", "create", array((int)$data['Parent'] -> ou_id), 'html'); ?>" method="post">
+				<form action="<?php echo web::constructURL("UserGroup", "create", array((int)$data['Parent'] -> ou_id), 'html'); ?>" method="post">
 					<table class="table-bordered" style="margin-left: auto; margin-right: auto">
 						<tr>
 							<th>
-								New unit name:
+								New group name:
 							</th>
 							<td>
-								<input type="text" name="ou_name" id="ou-name" />
+								<input type="text" name="group_cn" id="group_cn" />
 							</td>
 						</tr>
 						<tr>

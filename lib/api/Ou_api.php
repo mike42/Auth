@@ -19,14 +19,17 @@ class Ou_api {
 	function getHierarchy(Ou_model $parent = null) {
 		if($parent == null) {
 			$parent = Ou_model::get_by_ou_name("root");
-			// TODO: If root does not exist.
+			if(!$parent) {
+				/* Special case for non-existent root */
+				throw new Exception("Root does not exist");
+			}
 		}
-		
+
 		$parent -> populate_list_Ou();
 		foreach($parent -> list_Ou as $key => $ou) {
 			$parent -> list_Ou[$key] = self::getHierarchy($ou);
 		}
-		
+
 		$parent -> populate_list_AccountOwner();
 		$parent -> populate_list_UserGroup();
 		return $parent;
@@ -39,27 +42,30 @@ class Ou_api {
 	 * @return Ou_model The newly created organizational unit
 	 */
 	function create($ou_name, $ou_parent_id) {
+		$ou_name = trim($ou_name);
+		$ou_parent_id = (int)$ou_parent_id;
+		
 		/* Check name */
-		if($ou = Ou_model::get_by_name($ou_name)) {
+		if($ou = Ou_model::get_by_ou_name($ou_name)) {
 			throw new Exception("An organizational unit with that name already exists");
 		}
-		
-		/* Parent does not exist */
-		if(!$parent = Ou_model::get($parent -> parent_id)) {
+
+		/* Check parent is real */
+		if(!$parent = Ou_model::get($ou_parent_id)) {
 			throw new Exception("The parent organizational unit could not be found (did somebody delete it?)");
 		}
-		
+
+		/* Attempt to insert */
 		$ou =  new Ou_model();
 		$ou -> ou_name = $ou_name;
-		$ou -> ou_parent_id = $parent_id;
-		if(!$ou -> insert()) {
+		$ou -> ou_parent_id = $ou_parent_id;
+		if(!$ou -> ou_id = $ou -> insert()) {
 			throw new Exception("There was an error adding the unit to the database. Please try again.");
 		}
 
 		// TODO: ActionQueue.
 		return $ou;
 	}
-	
 }
 
 ?>

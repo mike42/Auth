@@ -12,7 +12,6 @@ class Ou_view {
 		self::useTemplate("create", $data);
 	}
 	
-
 	function useTemplate($template, $data) {
 		$template = "Ou/".$template;
 		include(dirname(__FILE__) . "/layout/htmlLayout.inc");
