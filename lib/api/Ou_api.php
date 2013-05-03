@@ -98,6 +98,10 @@ class Ou_api {
 		$ou -> delete();
 	}
 	
+	/**
+	 * @param unknown_type $ou_id
+	 * @param unknown_type $ou_parent_id
+	 */
 	function move($ou_id, $ou_parent_id) {
 		$ou = self::get($ou_id);
 		$parent = self::get($ou_parent_id);
@@ -109,6 +113,11 @@ class Ou_api {
 		// TODO: ActionQueue.
 	}
 	
+	/**
+	 * @param unknown_type $ou_id
+	 * @param unknown_type $ou_name
+	 * @throws Exception
+	 */
 	function rename($ou_id, $ou_name) {
 		$ou = self::get($ou_id);
 		$ou_name = Auth::normaliseName($ou_name);
@@ -129,6 +138,11 @@ class Ou_api {
 		$ou -> update();
 	}
 	
+	/**
+	 * @param unknown_type $ou_id
+	 * @throws Exception
+	 * @return unknown
+	 */
 	function get($ou_id) {
 		if(!$ou = Ou_model::get((int)$ou_id)) {
 			throw new Exception("No such organizational unit");

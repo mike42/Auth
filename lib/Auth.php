@@ -46,6 +46,11 @@ class Auth {
 		}
 	}
 	
+	/**
+	 * @param unknown_type $section
+	 * @throws Exception
+	 * @return unknown
+	 */
 	static public function getConfig($section) {
 		include(dirname(__FILE__) . "/../site/config.php");
 		if(!isset($config[$section])) {
