@@ -25,7 +25,7 @@
 								New group name:
 							</th>
 							<td>
-								<input type="text" name="group_cn" id="group_cn" />
+								<input type="text" name="group_cn" id="group-cn" />
 							</td>
 						</tr>
 						<tr>

@@ -9,10 +9,18 @@
 		});
 	})
 	
-	function deleteOU(accountId, accountName) {
-		if(confirm('Do you REALLY want to delete the organizational unit? Anything in it will be moved.')) {
+	function deleteOu() {
+		if(confirm('Are you sure you want to delete this organizational unit? Anything in it will be moved up a level.')) {
 			$("#deleteOu").submit();
 		}
+	}
+
+	function moveOu() {
+		$("#moveOu").submit();
+	}
+
+	function renameOu() {
+		$("#renameOu").submit();
 	}
 </script>
 
@@ -20,12 +28,12 @@
 	<div class="row">
 		<div class="span4">
 			<?php
-			if(count($data['Ou'] -> list_Ou) > 0) {
+			if(count($data['Ou_root'] -> list_Ou) > 0) {
 
 				echo '
 				<div class="well">
-				<ul class="treeview" id="tree" style="padding: 10px;">';
-				group_tree($data['Ou']);
+				<ul class="treeview" id="tree" style="padding: 5px;">';
+				group_tree($data['Ou_root']);
 
 				echo '<div id="sidetreecontrol">
 				<a class="btn btn-link" href="#">Collapse All</a>
@@ -47,8 +55,8 @@
 				}
 				?>
 			</div>
-			<div>
-				<?php 
+			<?php 
+				echo "<div>";
 				echo "<table class='table table-bordered'>" .
 						"<thead>\n" .
 						"<tr>\n" .
@@ -58,7 +66,12 @@
 						"</div></th>\n" .
 						"</tr>\n" .
 						"</thead>\n";
-				// For each OU
+				foreach($data['Ou'] -> list_Ou as $ou) {
+					echo "<tr><td>" .
+							"<a href=\"".web::constructURL("Ou", "view", array($ou -> ou_id), "html")."\">" .
+							web::escapeHTML($ou -> ou_name) . "</a>" .
+							"</td></td>";
+				}
 				echo "</table>";
 
 				echo "<table class='table table-bordered'>" .
@@ -82,17 +95,27 @@
 						"</div></th>\n" .
 						"</tr>\n" .
 						"</thead>\n";
-				// For each Users
+				// For each User
 				echo "</table>";
+				echo "</div>";
+				
+				if($data['Ou_root'] -> ou_id != $data['Ou'] -> ou_id) {
+					echo "<div class='well'>" .
+							"<h3>Unit options</h3>" .
+							"<p>Renaming or moving an organizational unit may affect email distribution, or affect users' ability to access some services. Proceed with care.</p>" .
+							"<input type=\"button\" class='btn' value=\"Rename Unit\" onClick=\"renameOu()\" />" .
+							"<input type=\"button\" class='btn' value=\"Move Unit\" onClick=\"moveOu()\" />" .
+						"</div>";
+					
+					echo "<div class='alert alert-danger'>" .
+							"<h3>Danger zone</h3>" .
+							"<p>Deleting an organizational unit cannot be undone!</p>" .
+							"<input type=\"button\" class='btn btn-danger' value=\"Delete Unit\" onClick=\"deleteOu()\" />" .
+							"</div>";
+				}
 				?>
-			</div>
 
-			<div class='alert alert-danger'>
-				<h3>Danger zone</h3>
-				<p>Deleting an organizational unit cannot be undone!</p>
-				<input type="button" class='btn btn-danger' value="Delete Unit"
-					onClick="deleteOu()" />
-			</div>
+
 		</div>
 	</div>
 </div>
@@ -102,6 +125,16 @@
 	action="<?php echo web::constructURL("Ou", "view", array($data['Ou'] -> ou_id), 'html'); ?>"
 	method="post">
 	<input type="hidden" name="action" value="delete">
+</form>
+
+<form style="display: none" id="renameOu"
+	action="<?php echo web::constructURL("Ou", "rename", array($data['Ou'] -> ou_id), 'html'); ?>"
+	method="get">
+</form>
+
+<form style="display: none" id="moveOu"
+	action="<?php echo web::constructURL("Ou", "move", array($data['Ou'] -> ou_id), 'html'); ?>"
+	method="post">
 </form>
 
 <?php 

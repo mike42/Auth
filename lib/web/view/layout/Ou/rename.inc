@@ -8,15 +8,14 @@
 	<div class="row">
 		<div class="span4">
 			<div class="well">
-				<b>What is an organizational unit?</b>
-				<p>An OU is a container where
-				accounts and groups are kept. Unlike groups, a user can only be in
-				one OU at a time.</p>
+				<b>What is renaming?</b>
+				<p>Changing the unit name affects every object in the organizational unit! If you rename a large unit, then you can expect issues to arise with authentication.</p>
+				<p>You should only rename a unit if its current name is incorrect.</p>
 			</div>
 		</div>
 		<div class="span8">
 			<div class="alert alert-info">
-				<h3>Create Organizational Unit</h3>
+				<h3>Rename Organizational Unit</h3>
 			</div>
 
 			<?php 
@@ -25,27 +24,19 @@
 				}
 			?>
 			<div>
-				<form action="<?php echo web::constructURL("Ou", "create", array((int)$data['Parent'] -> ou_id), 'html'); ?>" method="post">
+				<form action="<?php echo web::constructURL("Ou", "rename", array((int)$data['Ou'] -> ou_id), 'html'); ?>" method="post">
 					<table class="table-bordered" style="margin-left: auto; margin-right: auto">
 						<tr>
 							<th>
 								New unit name:
 							</th>
 							<td>
-								<input type="text" name="ou_name" id="ou-name" />
-							</td>
-						</tr>
-						<tr>
-							<th>
-								Create in:
-							</th>
-							<td>
-								<?php echo web::escapeHTML($data['Parent'] -> ou_name); ?>
+								<input type="text" name="ou_name" id="ou-name" value="<?php echo web::escapeHTML($data['Ou'] -> ou_name); ?>" />
 							</td>
 						</tr>
 						<tr>
 							<td colspan=2 style="text-align: right">
-								<input class="btn" type="submit" value="Create">
+								<input class="btn" type="submit" value="Rename">
 							</td>
 						</tr>
 					</table>

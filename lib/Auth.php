@@ -63,4 +63,13 @@ class Auth {
 	static public function alphanumeric($inp) {
 		return preg_replace("#[^-a-zA-Z0-9]+#", "_", $inp);
 	}
+	
+	/**
+	 * This function cleans up a string for use in a group/user name, to enforce simple names
+	 * 
+	 * @param string $inp
+	 */
+	static public function normaliseName($inp) {
+		return strtolower(preg_replace("#[^-a-zA-Z0-9]+#", "", trim($inp)));
+	}
 }

@@ -44,7 +44,7 @@ class Web {
 	static function redirect($to) {
 		global $config;
 		header('location: ' . $to);
-		die();
+		exit(0);
 	}
 	
 	static public function constructURL($controller, $action, $arg, $fmt) {

@@ -8,6 +8,14 @@ class Ou_view {
 		self::useTemplate("view", $data);
 	}
 	
+	function move_html($data) {
+		self::useTemplate("move", $data);
+	}
+	
+	function rename_html($data) {
+		self::useTemplate("rename", $data);
+	}
+	
 	function create_html($data) {
 		self::useTemplate("create", $data);
 	}
