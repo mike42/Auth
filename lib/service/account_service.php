@@ -18,7 +18,7 @@ abstract class account_service {
 	 * @param string $account_login The login name of the account
 	 * @param string $account_domain The domain which the account is on (services may serve multiple domains)
 	 */
-	abstract protected function accountDelete(string $account_login, string $account_domain);
+	abstract protected function accountDelete($account_login, $account_domain);
 	
 
 	/**
@@ -27,7 +27,7 @@ abstract class account_service {
 	 * @param Account_model $a The new account details
 	 * @param string $account_login The username to search for -- If an account has been renamed, then this will be different to the username stored in the above object.
 	 */
-	abstract protected function accountUpdate(Account_model $a, string $account_login);
+	abstract protected function accountUpdate(Account_model $a, $account_login);
 
 	/**
 	 * Disable a user account.
@@ -53,9 +53,10 @@ abstract class account_service {
 	/**
 	 * Set the password on an account.
 	 *
-	 * @param Account_model $a
+	 * @param Account_model $a The account to set
+	 * @param string p The password to use
 	 */
-	abstract protected function accountPassword(Account_model $a, string $p);
+	abstract protected function accountPassword(Account_model $a, $p);
 	
 	/**
 	 * Search an organizational unit recursively, looking for changes.
@@ -121,8 +122,10 @@ abstract class account_service {
 	/**
 	 * Delete an organizational unit.
 	 * 
-	 * @param string $ou_id The name of the unit
+	 * @param string $ou_name The name of the unit
 	 */
-	abstract protected function ouDelete(string $ou_id);
+	abstract protected function ouDelete($ou_name);
+	
+	// TODO: ouMove and ouRename
 }
 ?>
