@@ -56,64 +56,69 @@
 				?>
 			</div>
 			<?php 
-				echo "<div>";
-				echo "<table class='table table-bordered'>" .
-						"<thead>\n" .
-						"<tr>\n" .
-						"<th colspan='1'>Organizational units\n" .
-						"<div class='btn-group pull-right'>\n" .
-						"<a class='btn' href=\"".web::constructURL("Ou", "create", array($data['Ou'] -> ou_id), "html")."\">New Unit</a>\n" .
-						"</div></th>\n" .
-						"</tr>\n" .
-						"</thead>\n";
-				foreach($data['Ou'] -> list_Ou as $ou) {
-					echo "<tr><td>" .
-							"<a href=\"".web::constructURL("Ou", "view", array($ou -> ou_id), "html")."\">" .
-							web::escapeHTML($ou -> ou_name) . "</a>" .
-							"</td></td>";
-				}
-				echo "</table>";
+			echo "<div>";
+			echo "<table class='table table-bordered'>" .
+					"<thead>\n" .
+					"<tr>\n" .
+					"<th colspan='1'>Organizational units\n" .
+					"<div class='btn-group pull-right'>\n" .
+					"<a class='btn' href=\"".web::constructURL("Ou", "create", array($data['Ou'] -> ou_id), "html")."\">New Unit</a>\n" .
+					"</div></th>\n" .
+					"</tr>\n" .
+					"</thead>\n";
+			foreach($data['Ou'] -> list_Ou as $ou) {
+				echo "<tr><td>" .
+						"<a href=\"".web::constructURL("Ou", "view", array($ou -> ou_id), "html")."\">" .
+						web::escapeHTML($ou -> ou_name) . "</a>" .
+						"</td></td>";
+			}
+			echo "</table>";
 
-				echo "<table class='table table-bordered'>" .
-						"<thead>\n" .
-						"<tr>\n" .
-						"<th colspan='1'>Groups\n" .
-						"<div class='btn-group pull-right'>\n" .
-						"<a class='btn' href=\"".web::constructURL("UserGroup", "create", array($data['Ou'] -> ou_id), "html")."\">New Group</a>\n" .
-						"</div></th>\n" .
-						"</tr>\n" .
-						"</thead>\n";
-				// For each UserGroup
-				echo "</table>";
+			echo "<table class='table table-bordered'>" .
+					"<thead>\n" .
+					"<tr>\n" .
+					"<th colspan='1'>Groups\n" .
+					"<div class='btn-group pull-right'>\n" .
+					"<a class='btn' href=\"".web::constructURL("UserGroup", "create", array($data['Ou'] -> ou_id), "html")."\">New Group</a>\n" .
+					"</div></th>\n" .
+					"</tr>\n" .
+					"</thead>\n";
+			foreach($data['Ou'] -> list_UserGroup as $ug) {
+				echo "<tr><td>" .
+						"<a href=\"".web::constructURL("UserGroup", "view", array($ug -> group_id), "html")."\">" .
+						web::escapeHTML($ug -> group_name . " (" . $ug -> group_cn . ")") . "</a>" .
+						"</td></td>";
+			}
+			echo "</table>";
 
-				echo "<table class='table table-bordered'>" .
-						"<thead>\n" .
-						"<tr>\n" .
-						"<th colspan='1'>Users\n" .
-						"<div class='btn-group pull-right'>\n" .
-						"<a class='btn' href=\"".web::constructURL("AccountOwner", "create", array($data['Ou'] -> ou_id), "html")."\">New User</a>\n" .
-						"</div></th>\n" .
-						"</tr>\n" .
-						"</thead>\n";
-				// For each User
-				echo "</table>";
-				echo "</div>";
-				
-				if($data['Ou_root'] -> ou_id != $data['Ou'] -> ou_id) {
-					echo "<div class='well'>" .
-							"<h3>Unit options</h3>" .
-							"<p>Renaming or moving an organizational unit may affect email distribution, or affect users' ability to access some services. Proceed with care.</p>" .
-							"<input type=\"button\" class='btn' value=\"Rename Unit\" onClick=\"renameOu()\" />" .
-							"<input type=\"button\" class='btn' value=\"Move Unit\" onClick=\"moveOu()\" />" .
+			echo "<table class='table table-bordered'>" .
+					"<thead>\n" .
+					"<tr>\n" .
+					"<th colspan='1'>Users\n" .
+					"<div class='btn-group pull-right'>\n" .
+					"<a class='btn' href=\"".web::constructURL("AccountOwner", "create", array($data['Ou'] -> ou_id), "html")."\">New User</a>\n" .
+					"</div></th>\n" .
+					"</tr>\n" .
+					"</thead>\n";
+			// For each User
+			echo "</table>";
+			echo "</div>";
+
+			if($data['Ou_root'] -> ou_id != $data['Ou'] -> ou_id) {
+				echo "<div class='well'>" .
+						"<h3>Unit options</h3>" .
+						"<p>Renaming or moving an organizational unit may affect email distribution, or affect users' ability to access some services. Proceed with care.</p>" .
+						"<input type=\"button\" class='btn' value=\"Rename Unit\" onClick=\"renameOu()\" />" .
+						"<input type=\"button\" class='btn' value=\"Move Unit\" onClick=\"moveOu()\" />" .
 						"</div>";
 					
-					echo "<div class='alert alert-danger'>" .
-							"<h3>Danger zone</h3>" .
-							"<p>Deleting an organizational unit cannot be undone!</p>" .
-							"<input type=\"button\" class='btn btn-danger' value=\"Delete Unit\" onClick=\"deleteOu()\" />" .
-							"</div>";
-				}
-				?>
+				echo "<div class='alert alert-danger'>" .
+						"<h3>Danger zone</h3>" .
+						"<p>Deleting an organizational unit cannot be undone!</p>" .
+						"<input type=\"button\" class='btn btn-danger' value=\"Delete Unit\" onClick=\"deleteOu()\" />" .
+						"</div>";
+			}
+			?>
 
 
 		</div>
@@ -129,13 +134,11 @@
 
 <form style="display: none" id="renameOu"
 	action="<?php echo web::constructURL("Ou", "rename", array($data['Ou'] -> ou_id), 'html'); ?>"
-	method="get">
-</form>
+	method="post"></form>
 
 <form style="display: none" id="moveOu"
 	action="<?php echo web::constructURL("Ou", "move", array($data['Ou'] -> ou_id), 'html'); ?>"
-	method="post">
-</form>
+	method="post"></form>
 
 <?php 
 function group_tree(Ou_model $ou) {

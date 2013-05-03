@@ -12,6 +12,22 @@ class UserGroup_view {
 		self::useTemplate("create", $data);
 	}
 	
+	function rename_html($data) {
+		self::useTemplate("rename", $data);
+	}
+	
+	function addparent_html($data) {
+		self::useTemplate("addparent", $data);
+	}
+	
+	function addchild_html($data) {
+		self::useTemplate("addchild", $data);
+	}
+	
+	function adduser_html($data) {
+		self::useTemplate("adduser", $data);
+	}
+	
 	function useTemplate($template, $data) {
 		$template = "UserGroup/".$template;
 		include(dirname(__FILE__) . "/layout/htmlLayout.inc");

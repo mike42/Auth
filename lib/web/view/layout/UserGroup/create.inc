@@ -1,7 +1,16 @@
 <script type="text/javascript">
 	$(function() {
-		$("#group-cn").focus();
+		$("#group-name").focus();
 	});
+
+	$('#group-name').live('input', function() {
+		/* This is a simulation of Auth::normaliseName(),
+			which will be used to derive the alias on the server.
+		*/
+		alias = $('#group-name').val().replace(/[^a-z0-9]/gi, '').toLowerCase();
+		
+		$('#group-cn').val(alias);
+	})
 </script>
 
 <div class="container">
@@ -16,16 +25,28 @@
 			<div class="alert alert-info">
 				<h3>Create Group</h3>
 			</div>
-
+			<?php 
+				if(isset($data['message'])) {
+					echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+				}
+			?>
 			<div>
 				<form action="<?php echo web::constructURL("UserGroup", "create", array((int)$data['Parent'] -> ou_id), 'html'); ?>" method="post">
 					<table class="table-bordered" style="margin-left: auto; margin-right: auto">
 						<tr>
 							<th>
-								New group name:
+								Group name:
 							</th>
 							<td>
-								<input type="text" name="group_cn" id="group-cn" />
+								<input type="text" name="group_name" id="group-name" />
+							</td>
+						</tr>
+						<tr>
+							<th>
+								Alias:
+							</th>
+							<td>
+								<input type="text" name="group_cn" id="group-cn" disabled/>
 							</td>
 						</tr>
 						<tr>
