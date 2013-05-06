@@ -33,7 +33,7 @@
 				echo '
 				<div class="well">
 				<ul class="treeview" id="tree" style="padding: 5px;">';
-				group_tree($data['Ou_root']);
+				ou_tree($data['Ou_root']);
 
 				echo '<div id="sidetreecontrol">
 				<a class="btn btn-link" href="#">Collapse All</a>
@@ -56,6 +56,10 @@
 				?>
 			</div>
 			<?php 
+			if(isset($data['message'])) {
+				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+			}
+
 			echo "<div>";
 			echo "<table class='table table-bordered'>" .
 					"<thead>\n" .
@@ -141,7 +145,7 @@
 	method="post"></form>
 
 <?php 
-function group_tree(Ou_model $ou) {
+function ou_tree(Ou_model $ou) {
 	foreach($ou -> list_Ou as $subOu) {
 		if(count($subOu -> list_Ou) > 0) {
 			echo "<li class=\"expandable\"><div class=\"hitarea expandable-hitarea\"></div>";
@@ -153,7 +157,7 @@ function group_tree(Ou_model $ou) {
 				. "\">" . Web::escapeHTML($subOu -> ou_name) . "</a>";
 		if(count($subOu -> list_Ou) > 0) {
 			echo "<ul style=\"display: none;\">";
-			group_tree($subOu);
+			ou_tree($subOu);
 			echo "</ul>";
 
 		}

@@ -28,7 +28,7 @@ class Ou_controller {
 					web::redirect(web::constructURL("Ou", "view", array($data['Ou'] -> ou_parent_id), "html"));
 					return $data;
 				} catch(Exception $e) {
-					$data['error'] = "500";
+					$data['message'] = $e -> getMessage();
 				}
 			}
 		}

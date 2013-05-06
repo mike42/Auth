@@ -87,5 +87,20 @@ class UserGroup_model {
 		$sql = "DELETE FROM UserGroup WHERE group_id ='%s';";
 		return Database::delete($sql, array($this -> group_id));
 	}
+	
+	/* Non-generated functions */
+	public static function search($term) {
+		$sql = "SELECT * FROM UserGroup " .
+				"WHERE UserGroup.group_cn LIKE \"%%%s%%\" OR UserGroup.group_name LIKE \"%%%s%%\" " .
+				"ORDER BY group_name " .
+				"LIMIT 0 , 20;";
+		$term = str_replace("%", "\"%", $term);
+		$res = Database::retrieve($sql, array($term, $term));
+		$ret = array();
+		while($row = Database::get_row($res)) {
+			$ret[] = new UserGroup_model($row);
+		}
+		return $ret;
+	}
 }
 ?>

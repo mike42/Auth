@@ -43,7 +43,7 @@
 						</tr>
 						<tr>
 							<th>
-								Alias:
+								Short name:
 							</th>
 							<td>
 								<input type="text" name="group_cn" id="group-cn" disabled/>

@@ -9,6 +9,7 @@
 class Ou_api {
 	function init() {
 		Auth::loadClass("Ou_model");
+		Auth::loadClass("UserGroup_api");
 	}
 	
 	/**
@@ -91,7 +92,7 @@ class Ou_api {
 		}
 		
 		foreach($ou -> list_UserGroup as $group) {
-			// TODO
+			UserGroup_api::move($group -> group_id, $ou -> ou_parent_id);
 		}
 		
 		// TODO: ActionQueue.

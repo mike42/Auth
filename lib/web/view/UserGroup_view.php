@@ -16,6 +16,10 @@ class UserGroup_view {
 		self::useTemplate("rename", $data);
 	}
 	
+	function move_html($data) {
+		self::useTemplate("move", $data);
+	}
+	
 	function addparent_html($data) {
 		self::useTemplate("addparent", $data);
 	}
@@ -37,4 +41,12 @@ class UserGroup_view {
 		page_view::error_html($data);
 	}
 	
+	function search_json($data) {
+		echo json_encode($data['UserGroups']);
+		exit();
+	}
+	
+	function error_json($data) {
+		self::error_html($data);
+	}
 }

@@ -41,7 +41,7 @@
 				<ul class="treeview" id="tree" style="padding: 5px;">
 				<li><a href="#" onClick='moveOu(<?php echo (int)$data['Ou'] -> ou_id; ?>,<?php echo (int)$data['Ou_root'] -> ou_id; ?>)'>root</a>
 				<ul>
-				<?php group_tree($data['Ou_root'], $data['Ou'] -> ou_id); ?>
+				<?php ou_tree($data['Ou_root'], $data['Ou'] -> ou_id); ?>
 				</ul>
 				</li>
 				</ul>
@@ -58,7 +58,7 @@
 </form>
 
 <?php 
-function group_tree(Ou_model $ou, $ou_id) {
+function ou_tree(Ou_model $ou, $ou_id) {
 	foreach($ou -> list_Ou as $subOu) {
 		if($subOu -> ou_id == $ou_id) {
 			/* Don't bother showing subtree of this one */
@@ -72,7 +72,7 @@ function group_tree(Ou_model $ou, $ou_id) {
 			echo "<a href=\"#\" onClick='moveOu(". (int)$ou_id. "," . (int)$subOu -> ou_id . ")'>" . Web::escapeHTML($subOu -> ou_name) . "</a>";
 			if(count($subOu -> list_Ou) > 0) {
 				echo "<ul>";
-				group_tree($subOu, $ou_id);
+				ou_tree($subOu, $ou_id);
 				echo "</ul>";
 	
 			}
