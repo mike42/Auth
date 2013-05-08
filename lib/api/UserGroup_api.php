@@ -221,8 +221,6 @@ class UserGroup_api {
 		
 		return $group;
 	}
-	
-	
 }
 
 ?>

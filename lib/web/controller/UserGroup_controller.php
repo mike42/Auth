@@ -104,8 +104,16 @@ class UserGroup_controller {
 		}
 		
 		if(isset($_POST['ou_id']) && isset($_POST['group_id'])) {
-			// TODO check group_id is same, move, and redirect
-			$data['message'] = "Unimplemented";
+			try {
+				if($_POST['group_id'] != $group_id) {
+					throw new Exception("Bad group number. Please try again");
+				}
+				$ou_id = (int)$_POST['ou_id'];
+				UserGroup_api::move($group_id, $ou_id);
+				Web::redirect(Web::constructURL("UserGroup", "view", array($ug -> group_id), "html"));
+			} catch(Exception $e) {
+				$data['message'] = $e -> getMessage();
+			}
 		}
 		// TODO: Check post data
 		

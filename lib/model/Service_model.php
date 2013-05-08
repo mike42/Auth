@@ -11,8 +11,8 @@ class Service_model {
 	public $domain_id;
 
 	/* Referenced tables */
-	public $ListServiceType;
 	public $ListDomain;
+	public $ListServiceType;
 
 	/* Tables which reference this */
 	public $list_Account              = array();
@@ -24,8 +24,8 @@ class Service_model {
 	*/
 	public static function init() {
 		Auth::loadClass("Database");
-		Auth::loadClass("ListServiceType_model");
 		Auth::loadClass("ListDomain_model");
+		Auth::loadClass("ListServiceType_model");
 		Auth::loadClass("Account_model");
 		Auth::loadClass("ActionQueue_model");
 		Auth::loadClass("ListServiceDomain_model");
@@ -46,12 +46,12 @@ class Service_model {
 		$this -> domain_id        = isset($row['domain_id'])        ? $row['domain_id']       : '';
 
 		/* Fields from related tables */
-		$this -> ListServiceType = new ListServiceType_model($row);
 		$this -> ListDomain = new ListDomain_model($row);
+		$this -> ListServiceType = new ListServiceType_model($row);
 	}
 
 	public static function get($service_id) {
-		$sql = "SELECT * FROM Service LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id WHERE Service.service_id='%s'";
+		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_id='%s'";
 		$res = Database::retrieve($sql, array($service_id));
 		if($row = Database::get_row($res)) {
 			return new Service_model($row);
@@ -60,7 +60,7 @@ class Service_model {
 	}
 
 	public static function list_by_service_enabled($service_enabled) {
-		$sql = "SELECT * FROM Service LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id WHERE Service.service_enabled='%s';";
+		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_enabled='%s';";
 		$res = Database::retrieve($sql, array($service_enabled));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -70,7 +70,7 @@ class Service_model {
 	}
 
 	public static function list_by_domain_id($domain_id) {
-		$sql = "SELECT * FROM Service LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id WHERE Service.domain_id='%s';";
+		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.domain_id='%s';";
 		$res = Database::retrieve($sql, array($domain_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -80,7 +80,7 @@ class Service_model {
 	}
 
 	public static function list_by_service_type($service_type) {
-		$sql = "SELECT * FROM Service LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id WHERE Service.service_type='%s';";
+		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_type='%s';";
 		$res = Database::retrieve($sql, array($service_type));
 		$ret = array();
 		while($row = Database::get_row($res)) {

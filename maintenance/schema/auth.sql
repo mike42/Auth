@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 3.4.11.1deb1
+-- version 3.4.11.1deb2
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Apr 29, 2013 at 02:49 PM
--- Server version: 5.5.28
--- PHP Version: 5.4.4-12
+-- Generation Time: May 08, 2013 at 02:16 PM
+-- Server version: 5.5.30
+-- PHP Version: 5.4.4-14
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `Account` (
   KEY `owner_id` (`owner_id`),
   KEY `service_id` (`service_id`),
   KEY `account_domain` (`account_domain`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12480 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `AccountOwner` (
   `ou_id` int(11) NOT NULL,
   PRIMARY KEY (`owner_id`),
   KEY `ou_id` (`ou_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=9630 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `ActionQueue` (
   KEY `service_id` (`service_id`),
   KEY `domain_id` (`domain_id`),
   KEY `action_type` (`action_type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=6 ;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -115,6 +115,7 @@ CREATE TABLE IF NOT EXISTS `ListServiceDomain` (
   `service_id` varchar(12) NOT NULL,
   `domain_id` varchar(12) NOT NULL,
   `sd_root` varchar(64) NOT NULL COMMENT 'The root domain name for this domain, in the format it is used on this service',
+  `sd_secondary` int(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`service_id`,`domain_id`),
   KEY `domain_id` (`domain_id`),
   KEY `service_id` (`service_id`)
@@ -144,7 +145,7 @@ CREATE TABLE IF NOT EXISTS `Ou` (
   PRIMARY KEY (`ou_id`),
   UNIQUE KEY `ou_name` (`ou_name`),
   KEY `ou_parent_id` (`ou_parent_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COMMENT='Organizational units' AUTO_INCREMENT=2 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COMMENT='Organizational units' AUTO_INCREMENT=17 ;
 
 -- --------------------------------------------------------
 
@@ -209,7 +210,7 @@ CREATE TABLE IF NOT EXISTS `UserGroup` (
   PRIMARY KEY (`group_id`),
   UNIQUE KEY `group_cn` (`group_cn`),
   KEY `ou_id` (`ou_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=94 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=20 ;
 
 --
 -- Constraints for dumped tables
@@ -261,8 +262,8 @@ ALTER TABLE `OwnerUserGroup`
 -- Constraints for table `Service`
 --
 ALTER TABLE `Service`
-  ADD CONSTRAINT `Service_ibfk_3` FOREIGN KEY (`service_type`) REFERENCES `ListServiceType` (`service_type`),
-  ADD CONSTRAINT `Service_ibfk_1` FOREIGN KEY (`domain_id`) REFERENCES `ListDomain` (`domain_id`);
+  ADD CONSTRAINT `Service_ibfk_1` FOREIGN KEY (`domain_id`) REFERENCES `ListDomain` (`domain_id`),
+  ADD CONSTRAINT `Service_ibfk_3` FOREIGN KEY (`service_type`) REFERENCES `ListServiceType` (`service_type`);
 
 --
 -- Constraints for table `SubUserGroup`

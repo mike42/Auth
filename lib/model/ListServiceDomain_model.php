@@ -4,6 +4,7 @@ class ListServiceDomain_model {
 	public $service_id;
 	public $domain_id;
 	public $sd_root;
+	public $sd_secondary;
 
 	/* Referenced tables */
 	public $Service;
@@ -23,9 +24,10 @@ class ListServiceDomain_model {
 	 * @param array $row The database row to use.
 	*/
 	public function ListServiceDomain_model(array $row = array()) {
-		$this -> service_id = isset($row['service_id']) ? $row['service_id']: '';
-		$this -> domain_id  = isset($row['domain_id'])  ? $row['domain_id'] : '';
-		$this -> sd_root    = isset($row['sd_root'])    ? $row['sd_root']   : '';
+		$this -> service_id   = isset($row['service_id'])   ? $row['service_id']  : '';
+		$this -> domain_id    = isset($row['domain_id'])    ? $row['domain_id']   : '';
+		$this -> sd_root      = isset($row['sd_root'])      ? $row['sd_root']     : '';
+		$this -> sd_secondary = isset($row['sd_secondary']) ? $row['sd_secondary']: '';
 
 		/* Fields from related tables */
 		$this -> Service = new Service_model($row);
@@ -62,13 +64,13 @@ class ListServiceDomain_model {
 	}
 
 	public function insert() {
-		$sql = "INSERT INTO ListServiceDomain(service_id, domain_id, sd_root) VALUES ('%s', '%s', '%s');";
-		return Database::insert($sql, array($this -> service_id, $this -> domain_id, $this -> sd_root));
+		$sql = "INSERT INTO ListServiceDomain(service_id, domain_id, sd_root, sd_secondary) VALUES ('%s', '%s', '%s', '%s');";
+		return Database::insert($sql, array($this -> service_id, $this -> domain_id, $this -> sd_root, $this -> sd_secondary));
 	}
 
 	public function update() {
-		$sql = "UPDATE ListServiceDomain SET sd_root ='%s' WHERE service_id ='%s' AND domain_id ='%s';";
-		return Database::update($sql, array($this -> sd_root, $this -> service_id, $this -> domain_id));
+		$sql = "UPDATE ListServiceDomain SET sd_root ='%s', sd_secondary ='%s' WHERE service_id ='%s' AND domain_id ='%s';";
+		return Database::update($sql, array($this -> sd_root, $this -> sd_secondary, $this -> service_id, $this -> domain_id));
 	}
 
 	public function delete() {

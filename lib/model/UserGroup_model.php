@@ -87,7 +87,7 @@ class UserGroup_model {
 		$sql = "DELETE FROM UserGroup WHERE group_id ='%s';";
 		return Database::delete($sql, array($this -> group_id));
 	}
-	
+
 	/* Non-generated functions */
 	public static function search($term) {
 		$sql = "SELECT * FROM UserGroup " .
