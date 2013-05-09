@@ -112,6 +112,14 @@ class UserGroup_api {
 		return true;
 	}
 	
+	/**
+	 * Add a group to another group (as a sub-group).
+	 * 
+	 * @param int $parent_group_id The ID of the parent group
+	 * @param int $child_group_id The ID of the child group
+	 * @throws Exception If something goes wrong, with a description of what happened.
+	 * @return boolean True always (unless an exception is thrown)
+	 */
 	static public function addchild($parent_group_id, $child_group_id) {
 		$parent = self::get($parent_group_id);
 		$child = self::get($child_group_id);
@@ -121,7 +129,7 @@ class UserGroup_api {
 		
 		if($sg = SubUserGroup_model::get($parent_group_id, $child_group_id)) {
 			/* Already added */
-			return;
+			return true;
 		}
 		
 		// TODO: Verify that there are no circular references

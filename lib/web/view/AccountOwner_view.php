@@ -1,7 +1,15 @@
 <?php
 class AccountOwner_view {
+	function init() {
+		Web::loadView("Page_view");
+	}
+	
 	function create_html($data) {
 		self::useTemplate("create", $data);
+	}
+	
+	function error_html($data) {
+		page_view::error_html($data);
 	}
 	
 	function useTemplate($template, $data) {

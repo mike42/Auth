@@ -45,7 +45,7 @@
 			?>
 			<div>
 				<form
-					action="<?php echo web::constructURL("Ou", "rename", array((int)$data['Ou'] -> ou_id), 'html'); ?>"
+					action="<?php echo web::constructURL("AccountOwner", "create", array((int)$data['Ou'] -> ou_id), 'html'); ?>"
 					method="post">
 					<table class="table-bordered"
 						style="margin-left: auto; margin-right: auto">
@@ -58,42 +58,45 @@
 						<tr>
 							<th>First name:</th>
 							<td><input type="text" name="owner_firstname"
-								id="owner-firstname" value="" />
+								id="owner-firstname"
+								value="<?php if(isset($_POST['owner_firstname'])) { echo web::escapeHTML($_POST['owner_firstname']); } ?>" />
 							</td>
 						</tr>
 						<tr>
 							<th>Surname:</th>
 							<td><input type="text" name="owner_surname" id="owner-surname"
-								value="" />
+								value="<?php if(isset($_POST['owner_surname'])) { echo web::escapeHTML($_POST['owner_surname']); } ?>" />
 							</td>
 						</tr>
 						<tr>
 							<th>Username:</th>
-							<td><input type="text" name="owner_surname" id="owner-surname"
-								value="" />
+							<td><input type="text" name="account_login" id="account-login"
+								value="<?php if(isset($_POST['account_login'])) { echo web::escapeHTML($_POST['account_login']); } ?>" />
 							</td>
 						</tr>
 						<tr>
 							<th>Accounts for:</th>
-							<td>
-									<?php
-									/* Domain select box */ 
-									echo "<select id=\"sel-domain\">\n" .
-											"<option value=\"\">(select domain)</option>";
-									foreach($data['ListDomain'] as $domain) {
-										echo "<option value=\"".web::escapeHTML($domain -> domain_id)."\">" . web::escapeHTML($domain -> domain_name) . "</option>\n";
-									}
-									echo "</select>";
+							<td><?php
+							/* Domain select box */
+							echo "<select id=\"sel-domain\">\n" .
+									"<option value=\"\">(select domain)</option>";
+							foreach($data['ListDomain'] as $domain) {
+								echo "<option value=\"".web::escapeHTML($domain -> domain_id)."\">" . web::escapeHTML($domain -> domain_name) . "</option>\n";
+							}
+							echo "</select>";
 
-									foreach($data['ListDomain'] as $domain) {
-										echo "<div style=\"display: none\" id=\"domain-".web::escapeHTML($domain -> domain_id)."\">";
-										echo web::escapeHTML($domain -> domain_id);
-										//print_r($domain);
-										// TODO: Show list of services for this domain
-										echo "</div>";
-									}
+							foreach($data['ListDomain'] as $domain) {
+								echo "<div style=\"display: none\" id=\"domain-".web::escapeHTML($domain -> domain_id)."\">";
+								foreach($domain -> list_ListServiceDomain as $sd) {
+									$s = $sd -> Service; // Shorthand
+									echo "<div><input type=\"checkbox\" name=\"" . web::escapeHTML($s -> service_id) . "\" /> " .
+											web::escapeHTML($s -> service_name);
+									echo "</div>";
+								}
+								echo "</div>";
+							}
 
-								?>
+							?>
 							</td>
 						</tr>
 						<tr>
