@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 08, 2013 at 02:16 PM
+-- Generation Time: May 10, 2013 at 02:32 PM
 -- Server version: 5.5.30
 -- PHP Version: 5.4.4-14
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `Account` (
   KEY `owner_id` (`owner_id`),
   KEY `service_id` (`service_id`),
   KEY `account_domain` (`account_domain`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
 
 -- --------------------------------------------------------
 
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `AccountOwner` (
   `ou_id` int(11) NOT NULL,
   PRIMARY KEY (`owner_id`),
   KEY `ou_id` (`ou_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12 ;
 
 -- --------------------------------------------------------
 
@@ -175,11 +175,11 @@ CREATE TABLE IF NOT EXISTS `Service` (
   `service_address` varchar(256) NOT NULL,
   `service_username` varchar(256) NOT NULL,
   `service_password` varchar(256) NOT NULL,
-  `domain_id` varchar(12) NOT NULL,
+  `service_domain` varchar(12) NOT NULL,
   PRIMARY KEY (`service_id`),
   KEY `service_enabled` (`service_enabled`),
-  KEY `domain_id` (`domain_id`),
-  KEY `service_type` (`service_type`)
+  KEY `service_type` (`service_type`),
+  KEY `service_domain` (`service_domain`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -262,7 +262,7 @@ ALTER TABLE `OwnerUserGroup`
 -- Constraints for table `Service`
 --
 ALTER TABLE `Service`
-  ADD CONSTRAINT `Service_ibfk_1` FOREIGN KEY (`domain_id`) REFERENCES `ListDomain` (`domain_id`),
+  ADD CONSTRAINT `Service_ibfk_4` FOREIGN KEY (`service_domain`) REFERENCES `ListDomain` (`domain_id`),
   ADD CONSTRAINT `Service_ibfk_3` FOREIGN KEY (`service_type`) REFERENCES `ListServiceType` (`service_type`);
 
 --

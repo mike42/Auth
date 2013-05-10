@@ -8,7 +8,7 @@ class Service_model {
 	public $service_address;
 	public $service_username;
 	public $service_password;
-	public $domain_id;
+	public $service_domain;
 
 	/* Referenced tables */
 	public $ListDomain;
@@ -43,7 +43,7 @@ class Service_model {
 		$this -> service_address  = isset($row['service_address'])  ? $row['service_address'] : '';
 		$this -> service_username = isset($row['service_username']) ? $row['service_username']: '';
 		$this -> service_password = isset($row['service_password']) ? $row['service_password']: '';
-		$this -> domain_id        = isset($row['domain_id'])        ? $row['domain_id']       : '';
+		$this -> service_domain   = isset($row['service_domain'])   ? $row['service_domain']  : '';
 
 		/* Fields from related tables */
 		$this -> ListDomain = new ListDomain_model($row);
@@ -51,7 +51,7 @@ class Service_model {
 	}
 
 	public static function get($service_id) {
-		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_id='%s'";
+		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.service_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_id='%s'";
 		$res = Database::retrieve($sql, array($service_id));
 		if($row = Database::get_row($res)) {
 			return new Service_model($row);
@@ -60,7 +60,7 @@ class Service_model {
 	}
 
 	public static function list_by_service_enabled($service_enabled) {
-		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_enabled='%s';";
+		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.service_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_enabled='%s';";
 		$res = Database::retrieve($sql, array($service_enabled));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -69,9 +69,9 @@ class Service_model {
 		return $ret;
 	}
 
-	public static function list_by_domain_id($domain_id) {
-		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.domain_id='%s';";
-		$res = Database::retrieve($sql, array($domain_id));
+	public static function list_by_service_type($service_type) {
+		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.service_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_type='%s';";
+		$res = Database::retrieve($sql, array($service_type));
 		$ret = array();
 		while($row = Database::get_row($res)) {
 			$ret[] = new Service_model($row);
@@ -79,9 +79,9 @@ class Service_model {
 		return $ret;
 	}
 
-	public static function list_by_service_type($service_type) {
-		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.domain_id = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_type='%s';";
-		$res = Database::retrieve($sql, array($service_type));
+	public static function list_by_service_domain($service_domain) {
+		$sql = "SELECT * FROM Service LEFT JOIN ListDomain ON Service.service_domain = ListDomain.domain_id LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE Service.service_domain='%s';";
+		$res = Database::retrieve($sql, array($service_domain));
 		$ret = array();
 		while($row = Database::get_row($res)) {
 			$ret[] = new Service_model($row);
@@ -102,13 +102,13 @@ class Service_model {
 	}
 
 	public function insert() {
-		$sql = "INSERT INTO Service(service_id, service_name, service_enabled, service_type, service_address, service_username, service_password, domain_id) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');";
-		return Database::insert($sql, array($this -> service_id, $this -> service_name, $this -> service_enabled, $this -> service_type, $this -> service_address, $this -> service_username, $this -> service_password, $this -> domain_id));
+		$sql = "INSERT INTO Service(service_id, service_name, service_enabled, service_type, service_address, service_username, service_password, service_domain) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');";
+		return Database::insert($sql, array($this -> service_id, $this -> service_name, $this -> service_enabled, $this -> service_type, $this -> service_address, $this -> service_username, $this -> service_password, $this -> service_domain));
 	}
 
 	public function update() {
-		$sql = "UPDATE Service SET service_name ='%s', service_enabled ='%s', service_type ='%s', service_address ='%s', service_username ='%s', service_password ='%s', domain_id ='%s' WHERE service_id ='%s';";
-		return Database::update($sql, array($this -> service_name, $this -> service_enabled, $this -> service_type, $this -> service_address, $this -> service_username, $this -> service_password, $this -> domain_id, $this -> service_id));
+		$sql = "UPDATE Service SET service_name ='%s', service_enabled ='%s', service_type ='%s', service_address ='%s', service_username ='%s', service_password ='%s', service_domain ='%s' WHERE service_id ='%s';";
+		return Database::update($sql, array($this -> service_name, $this -> service_enabled, $this -> service_type, $this -> service_address, $this -> service_username, $this -> service_password, $this -> service_domain, $this -> service_id));
 	}
 
 	public function delete() {

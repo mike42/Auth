@@ -64,7 +64,7 @@ class ListDomain_model {
 	}
 
 	public function populate_list_Service() {
-		$this -> list_Service = Service_model::list_by_domain_id($this -> domain_id);
+		$this -> list_Service = Service_model::list_by_service_domain($this -> domain_id);
 	}
 
 	public function insert() {
