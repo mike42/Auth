@@ -60,6 +60,7 @@
 				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
 			}
 
+			/* Displaying sub-units */
 			echo "<div>";
 			echo "<table class='table table-bordered'>" .
 					"<thead>\n" .
@@ -78,6 +79,7 @@
 			}
 			echo "</table>";
 
+			/* Displaying groups */
 			echo "<table class='table table-bordered'>" .
 					"<thead>\n" .
 					"<tr>\n" .
@@ -95,6 +97,7 @@
 			}
 			echo "</table>";
 
+			/* Displaying user accounts */
 			echo "<table class='table table-bordered'>" .
 					"<thead>\n" .
 					"<tr>\n" .
@@ -104,7 +107,12 @@
 					"</div></th>\n" .
 					"</tr>\n" .
 					"</thead>\n";
-			// For each User
+			foreach($data['Ou'] -> list_AccountOwner as $ao) {
+				echo "<tr><td>" .
+						"<a href=\"".web::constructURL("AccountOwner", "view", array($ao -> owner_id), "html")."\">" .
+						web::escapeHTML($ao -> owner_firstname . " " . $ao -> owner_surname) . "</a>" .
+						"</td></td>";
+			}
 			echo "</table>";
 			echo "</div>";
 

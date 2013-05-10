@@ -88,12 +88,26 @@ class AccountOwner_api {
 		foreach($accounts as $account) {
 			$account -> owner_id = $owner -> owner_id;
 			$account -> account_id = $account -> insert();
-			
+
 			// TODO: ActionQueue
 		}
 
 		$owner -> populate_List_Account();
 		return $owner;		
+	}
+	
+	/**
+	 * Get a user by ID, throwing an exception if the account does not exist.
+	 * 
+	 * @param string $owner_id
+	 */
+	function get($owner_id) {
+		if(!$owner = AccountOwner_model::get($owner_id)) {
+			throw new Exception("Account owner not found");
+		}
+		$owner -> populate_List_Account();
+		$owner -> populate_List_OwnerUserGroup();
+		return $owner;
 	}
 }
 

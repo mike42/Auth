@@ -19,6 +19,6 @@ class AccountOwner_view {
 	function useTemplate($template, $data) {
 		$template = "AccountOwner/".$template;
 		include(dirname(__FILE__) . "/layout/htmlLayout.inc");
-	}	
+	}
 }
 ?>
