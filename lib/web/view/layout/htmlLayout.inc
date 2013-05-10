@@ -26,6 +26,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="/a/public/admin/js/bootstrap/css/bootstrap.min.css" />
 <script language="javascript" src="/a/public/admin/js/bootstrap/js/bootstrap.min.js"></script>
+<script language="javascript">
+	function normaliseName(inp) {
+	/* This is a simulation of Auth::normaliseName(),
+		which will be used to derive the alias on the server.
+		*/
+		return inp.replace(/[^a-z0-9]/gi, '').toLowerCase();
+	}
+</script>
+
 
 <style type="text/css">
 	body {

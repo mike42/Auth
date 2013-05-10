@@ -1,19 +1,42 @@
 <script type="text/javascript">
 	var sel = '';
+	function genUname() {
+		var uname = $('#owner-surname').val();
+		if($('#owner-firstname').val() != '') {
+			uname = $('#owner-firstname').val().substr(0 , 1) + uname;
+		}
+		$('#account-login').val(normaliseName(uname));
+	}
+	
+	function boxCheck() {
+    	if(sel != $('#sel-domain').val()) {
+	    	if(sel != '') {
+				$('#domain-' + sel).hide();
+				$('#domain-' + sel + ' input:checked').removeAttr('checked');
+	    	}
+			sel = $('#sel-domain').val();
+	    	if(sel != '') {
+				$('#domain-' + sel).show();
+				/* Not being used, as it prevents the boxes from being left how they were when submitted (when an error pops up etc) */
+				//$('#domain-' + sel + ' input').attr('checked', true);
+	    	}
+    	}
+	}
 
 	$(function() {
 		$("#owner-firstname").focus();
 	    $('#sel-domain').change(function() {
-	    	if(sel != $('#sel-domain').val()) {
-		    	if(sel != '') {
-					$('#domain-' + sel).hide();
-		    	}
-				sel = $('#sel-domain').val();
-		    	if(sel != '') {
-					$('#domain-' + sel).show();
-		    	}
+			boxCheck();
+	     });
+	    $('#account-login').focusin(function() {
+	    	if($('#account-login').val() == '') {
+				genUname();
 	    	}
 	     });
+	    $('#account-login').dblclick(function() {
+			genUname();
+	     });
+	     boxCheck();
 	});
 </script>
 
@@ -78,10 +101,11 @@
 							<th>Accounts for:</th>
 							<td><?php
 							/* Domain select box */
-							echo "<select id=\"sel-domain\">\n" .
+							echo "<select id=\"sel-domain\" name=\"domain_id\" >\n" .
 									"<option value=\"\">(select domain)</option>";
 							foreach($data['ListDomain'] as $domain) {
-								echo "<option value=\"".web::escapeHTML($domain -> domain_id)."\">" . web::escapeHTML($domain -> domain_name) . "</option>\n";
+								$selected = (isset($_POST['domain_id']) && $_POST['domain_id'] == $domain -> domain_id) ? " selected": "";
+								echo "<option value=\"".web::escapeHTML($domain -> domain_id)."\"$selected>" . web::escapeHTML($domain -> domain_name) . "</option>\n";
 							}
 							echo "</select>";
 
@@ -89,13 +113,16 @@
 								echo "<div style=\"display: none\" id=\"domain-".web::escapeHTML($domain -> domain_id)."\">";
 								foreach($domain -> list_ListServiceDomain as $sd) {
 									$s = $sd -> Service; // Shorthand
-									echo "<div><input type=\"checkbox\" name=\"" . web::escapeHTML($s -> service_id) . "\" /> " .
+									$checked = "";
+									if(isset($_POST['domain_id']) && isset($_POST['service-' . $sd -> service_id]) && $_POST['domain_id'] == $sd -> domain_id) {
+										$checked = "checked";
+									}
+									echo "<div><input type=\"checkbox\" name=\"service-" . web::escapeHTML($s -> service_id) . "\" $checked/> " .
 											web::escapeHTML($s -> service_name);
 									echo "</div>";
 								}
 								echo "</div>";
 							}
-
 							?>
 							</td>
 						</tr>

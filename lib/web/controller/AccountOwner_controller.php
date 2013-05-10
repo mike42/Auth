@@ -18,11 +18,20 @@ class AccountOwner_controller {
 			foreach($data['ListDomain'] as $key => $domain) {
 				$domain -> populate_list_ListServiceDomain();
 			}
-		
+
 			if(isset($_POST['owner_firstname']) && isset($_POST['owner_surname']) && isset($_POST['account_login'])) {
-				throw new Exception("Account creation unimplemented");
-				//$ao = AccountOwner_api::create($ou_id, $owner_firstname, $owner_surname, $account_login, $domain_id, $services);
-				//core::redirect(core::constructURL("AccountOwner", "view", array((int)$ao -> owner_id), "html");
+				$owner_firstname = $_POST['owner_firstname'];
+				$owner_surname = $_POST['owner_surname'];
+				$account_login = $_POST['account_login'];
+				$domain_id = $_POST['domain_id'];
+				$services = array();
+				foreach($domain -> list_ListServiceDomain as $sd) {
+					if(isset($_POST['service-' . $sd -> service_id])) {
+						$services[] = $sd -> service_id;
+					}
+				}
+				$ao = AccountOwner_api::create($ou_id, $owner_firstname, $owner_surname, $account_login, $domain_id, $services);
+				web::redirect(web::constructURL("AccountOwner", "view", array((int)$ao -> owner_id), "html"));
 			}
 		} catch(Exception $e) {
 			$data['message'] = $e -> getMessage();

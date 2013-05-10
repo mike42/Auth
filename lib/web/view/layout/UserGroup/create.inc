@@ -4,11 +4,7 @@
 	});
 
 	$('#group-name').live('input', function() {
-		/* This is a simulation of Auth::normaliseName(),
-			which will be used to derive the alias on the server.
-		*/
-		alias = $('#group-name').val().replace(/[^a-z0-9]/gi, '').toLowerCase();
-		
+		alias = normaliseName($('#group-name').val());	
 		$('#group-cn').val(alias);
 	})
 </script>

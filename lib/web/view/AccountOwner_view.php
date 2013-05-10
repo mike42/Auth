@@ -8,6 +8,10 @@ class AccountOwner_view {
 		self::useTemplate("create", $data);
 	}
 	
+	function view_html($data) {
+		self::useTemplate("view", $data);
+	}
+	
 	function error_html($data) {
 		page_view::error_html($data);
 	}
