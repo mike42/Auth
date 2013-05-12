@@ -19,6 +19,9 @@ class AccountOwner_controller {
 		} catch(Exception $e) {
 			$data['error'] = '404';
 		}
+		
+		// TODO: Check POST data for action=delete
+		
 		return $data;
 	}
 	
@@ -67,12 +70,55 @@ class AccountOwner_controller {
 		return $data;
 	}
 	
-	/**
-	 * @param unknown_type $ou_id
-	 * @return multitype:string 
-	 */
-	public static function addgroup($ou_id) {
-		// TODO;
-		return array('current' => 'Ou', 'error' => '404');
+	public static function addgroup($owner_id) {
+		$data = array('current' => 'Ou');
+		try {
+			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
+		} catch(Exception $e) {
+			$data['error'] = '404';
+		}
+		return $data;
+	}
+	
+	public static function pwreset($owner_id) {
+		$data = array('current' => 'Ou');
+		try {
+			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
+		} catch(Exception $e) {
+			$data['error'] = '404';
+		}
+		
+		// TODO: Check POST data
+		
+		return $data;
+	}
+	
+	public static function rename($owner_id) {
+		$data = array('current' => 'Ou');
+		try {
+			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
+		} catch(Exception $e) {
+			$data['error'] = '404';
+		}
+		
+		// TODO: CHeck POST data
+		
+		return $data;
+	}
+	
+	public static function move($owner_id) {
+		$data = array('current' => 'Ou');
+		
+		try {
+			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
+		} catch(Exception $e) {
+			$data['error'] = '404';
+		}
+		
+		// TODO: Load list of Ou's
+		
+		// TODO: Check POST data
+		
+		return $data;
 	}
 }

@@ -1,3 +1,10 @@
+<script type="text/javascript">
+	function deleteAo() {
+		if(confirm('Are you sure you want to delete this user? This will permanently delete all of their accounts.')) {
+			$("#deleteAo").submit();
+		}
+	}
+</script>
 
 <div class="container">
 	<div class="row">
@@ -32,7 +39,7 @@
 			}
 			echo "</table>";
 			?>
-			
+
 			<?php
 			/* Displaying accounts */
 			echo "<table class='table table-bordered'>" .
@@ -43,12 +50,12 @@
 					"<a class='btn' href=\"".web::constructURL("Account", "create", array($data['AccountOwner'] -> owner_id), "html")."\">Create account</a>\n" .
 					"</div></th>\n" .
 					"</tr>\n" .
-					"<th>Login</th><th>Service</th><th>Domain</th>" . 
+					"<th>Login</th><th>Service</th><th>Domain</th>" .
 					"</thead>\n";
 			foreach($data['AccountOwner'] -> list_Account as $account) {
 				echo "<tr>" .
 						"<td><a href=\"" . web::constructURL("Account", "view", array($account -> account_id), "html") . "\">" . web::escapeHTML($account -> account_login) . "</a></td>" .
-						"<td>" . web::escapeHTML($account -> Service -> service_name) . "</td>" . 
+						"<td>" . web::escapeHTML($account -> Service -> service_name) . "</td>" .
 						"<td>" . web::escapeHTML($account -> account_domain) . "</td>" .
 						"</td>";
 			}
@@ -58,20 +65,25 @@
 					"<h3>Credentials</h3>" .
 					"<a class='btn' href=\"".web::constructURL("AccountOwner", "pwreset", array($data['AccountOwner'] -> owner_id), "html")."\">Reset Password</a>" .
 					"</div>";
-			
+
 			echo "<div class='well'>" .
 					"<h3>User options</h3>" .
 					"<p>Moving or renaming accounts can seriously break some things (eg, windows logons). Use with caution.</p>" .
 					"<a class='btn' href=\"" . web::constructURL("AccountOwner", "rename", array($data['AccountOwner'] -> owner_id), "html") . "\">Rename User</a>" .
 					"<a class='btn' href=\"" . web::constructURL("AccountOwner", "move", array($data['AccountOwner'] -> owner_id), "html") . "\">Move user</a>" .
 					"</div>";
-				
+
 			echo "<div class='alert alert-danger'>" .
 					"<h3>Danger zone</h3>" .
 					"<p>Deleting a user deletes all their accounts. It cannot be undone!</p>" .
-					"<input type=\"button\" class='btn btn-danger' value=\"Delete User\" onClick=\"deleteUser()\" />" .
+					"<input type=\"button\" class='btn btn-danger' value=\"Delete User\" onClick=\"deleteAo()\" />" .
 					"</div>";
 			?>
 		</div>
 	</div>
 </div>
+	<?php echo "<form style=\"display: none\" id=\"deleteAo\" " .
+				"action=\"" . web::constructURL("AccountOwner", "view", array($data['AccountOwner'] -> owner_id), 'html') ."\" " .
+				"method=\"post\">\n " .
+				"<input type=\"hidden\" name=\"action\" value=\"delete\">" .
+				"</form>";
