@@ -42,7 +42,7 @@
 						</tr>
 						<tr>
 							<td colspan=2 style="text-align: right">
-								<a class="btn" href="<?php echo web::constructURL("UserGroup", "rename", array((int)$data['UserGroup'] -> group_id), 'html'); ?>">Cancel</a>
+								<a class="btn" href="<?php echo web::constructURL("UserGroup", "view", array((int)$data['UserGroup'] -> group_id), 'html'); ?>">Cancel</a>
 								<input class="btn" type="submit" value="Rename">
 							</td>
 						</tr>
