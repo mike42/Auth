@@ -30,12 +30,9 @@
 					<p>Enter the name of the group to add:</p>
 					<div class="input-append">
 						<input type="hidden" name="group_cn" id="group_cn" /> <input
-							type="text" name="gname" id="gname" class="span2" /> <a
-							class="btn"
-							href="<?php echo web::constructURL("UserGroup", "view", array($data['UserGroup'] -> group_id), "html"); ?>" />Cancel</a>
-						<button class="btn" type="submit" />
-						Add
-						</button>
+							type="text" name="gname" id="gname" class="span2" />
+						<?php echo "<a class=\"btn\" href=\"" . web::constructURL("UserGroup", "view", array($data['UserGroup'] -> group_id), "html") . "\" />Cancel</a>"; ?>
+						<button class="btn" type="submit">Add</button>
 					</div>
 				</form>
 			</div>

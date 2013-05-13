@@ -20,7 +20,21 @@ class AccountOwner_controller {
 			$data['error'] = '404';
 		}
 		
-		// TODO: Check POST data for action=delete
+		try {
+			if(isset($_POST['action'])) {
+				$action = $_POST['action'];
+				if($action == "delete") {
+					AccountOwner_api::delete($data['AccountOwner'] -> owner_id);
+					Web::redirect(Web::constructURL("Ou", "view", array($data['AccountOwner'] -> ou_id), "html"));
+				} else if($action == "delGroup" && isset($_POST['group_id'])) {
+					$group_id = (int)$_POST['group_id'];
+					AccountOwner_api::rmfromgroup($owner_id, $group_id);
+					Web::redirect(Web::constructURL("AccountOwner", "view", array($data['AccountOwner'] -> owner_id), "html"));
+				}
+			}
+		} catch(Exception $e) {
+			$data['message'] = $e -> getMessage();
+		}
 		
 		return $data;
 	}
@@ -77,6 +91,24 @@ class AccountOwner_controller {
 		} catch(Exception $e) {
 			$data['error'] = '404';
 		}
+		
+		if(isset($_POST['group_cn']) || isset($_POST['gname'])) {
+			/* Add parent if information checks out */
+			$group_cn = trim($_POST['group_cn']);
+			$gname = trim($_POST['gname']);
+			if($group_cn == "") {
+				$group_cn = $gname;
+			}
+
+			try {
+				$group = UserGroup_api::get_by_group_cn($group_cn);
+				AccountOwner_api::addtogroup($data['AccountOwner'] -> owner_id, $group -> group_id);
+				web::redirect(web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), "html"));
+			} catch(Exception $e) {
+				$data['message'] = $e -> getMessage();
+			}
+		}
+		
 		return $data;
 	}
 	
@@ -118,7 +150,16 @@ class AccountOwner_controller {
 			$data['error'] = '404';
 		}
 		
-		// TODO: Check POST data
+		if(isset($_POST['owner_firstname']) && isset($_POST['owner_surname'])) {
+			$owner_firstname = $_POST['owner_firstname'];
+			$owner_surname = $_POST['owner_surname'];
+			try {
+				AccountOwner_api::rename($data['AccountOwner'] -> owner_id, $owner_firstname, $owner_surname);
+				Web::redirect(Web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), "html"));
+			} catch(Exception $e) {
+				$data['message'] = $e -> getMessage();
+			}
+		}
 		
 		return $data;
 	}
@@ -140,6 +181,7 @@ class AccountOwner_controller {
 			$ou_id = $_POST['ou_id'];
 			try {
 				AccountOwner_api::move($owner_id, $ou_id);
+				Web::redirect(Web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), "html"));
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();
 			}

@@ -37,10 +37,4 @@ $(function() {
 	});
 });
 </script>
-
-<input type="hidden" name="owner_id" id="owner_id" />
-<div class="ui-widget">
-<label for="uname">Name or login: </label>
-<input id="uname" />
-</div>
 <!--  End of user account selector -->

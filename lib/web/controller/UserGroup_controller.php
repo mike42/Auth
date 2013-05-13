@@ -27,6 +27,13 @@ class UserGroup_controller {
 						throw new Exception("Cannot delete from a group that isn't being viewed.");
 					}
 					UserGroup_api::delchild($parent_group_id, $child_group_id);
+				} elseif($_POST['action'] == "delAo" && isset($_POST['owner_id']) && isset($_POST['group_id'])) {
+					$owner_id = (int)$_POST['owner_id'];
+					if($group_id != (int)$_POST['group_id']) {
+						throw new Exception("Cannot delete user from a group that isn't being viewed.");
+					}
+					AccountOwner_api::rmfromgroup($owner_id, $group_id);
+					web::redirect(web::constructURL("UserGroup", "view", array($group_id), "html"));
 				}
 			}
 		} catch(Exception $e) {
@@ -192,7 +199,15 @@ class UserGroup_controller {
 			return $data;
 		}
 
-		// TODO: Check post data
+		try {
+			if(isset($_POST['owner_id'])) {
+				$owner_id = (int)$_POST['owner_id'];
+				AccountOwner_api::addtogroup($owner_id, $group_id);
+				web::redirect(web::constructURL("UserGroup", "view", array((int)$group_id), "html"));
+			}
+		} catch(Exception $e) {
+			$data['message'] = $e -> getMessage();
+		}
 		
 		return $data;
 	}

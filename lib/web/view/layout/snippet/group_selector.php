@@ -37,4 +37,4 @@ $(function() {
 	});
 });
 </script>
-<!--  Group selector -->
+<!--  End of group selector -->

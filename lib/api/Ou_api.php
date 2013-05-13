@@ -10,6 +10,7 @@ class Ou_api {
 	function init() {
 		Auth::loadClass("Ou_model");
 		Auth::loadClass("UserGroup_api");
+		Auth::loadClass("AccountOwner_api");
 	}
 	
 	/**
@@ -88,7 +89,7 @@ class Ou_api {
 		}
 		
 		foreach($ou -> list_AccountOwner as $owner) {
-			// TODO
+			AccountOwner_api::move($owner -> owner_id, $ou -> ou_parent_id);
 		}
 		
 		foreach($ou -> list_UserGroup as $group) {
@@ -126,7 +127,7 @@ class Ou_api {
 		if($ou = $ou -> get_by_ou_name($ou_name)) {
 			throw new Exception("An organizational unit with that name already exists");
 		}
-
+		
 		if(!$ou = Ou_model::get((int)$ou_id)) {
 			throw new Exception("No such organizational unit");
 		}

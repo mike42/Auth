@@ -19,6 +19,13 @@ function delchild(parent, child) {
 	$("#delchild").submit();
 }
 
+function delAo(group_id, owner_id) {
+	$("#delAo-group_id").val(group_id);
+	$("#delAo-owner_id").val(owner_id);
+	$("#delAo").submit();
+}
+
+
 </script>
 
 <div class="container">
@@ -88,7 +95,12 @@ function delchild(parent, child) {
 					"</div></th>\n" .
 					"</tr>\n" .
 					"</thead>\n";
-			// For each user
+			foreach($data['UserGroup'] -> list_OwnerUserGroup as $oug) {
+					echo "<tr><td>";
+					echo "<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delAo(" . (int)$data['UserGroup'] -> group_id . ", " . (int)$oug -> AccountOwner -> owner_id . ");\"><img src=\"/admin/img/delete.png\" /></a></div>";
+					echo "<a href=\"".web::constructURL("AccountOwner", "view", array((int)$oug -> AccountOwner -> owner_id), "html")."\">" . web::escapeHTML($oug -> AccountOwner -> owner_firstname) . " " . $oug -> AccountOwner -> owner_surname . "</a>";
+					echo "</td></tr>";
+			}
 			echo "</table>";
 
 			echo "<div class='well'>" .
@@ -117,10 +129,18 @@ function delchild(parent, child) {
 	action="<?php echo web::constructURL("UserGroup", "move", array($data['UserGroup'] -> group_id), 'html'); ?>"
 	method="post"></form>
 	
+<form style="display: none" id="delAo"
+	action="<?php echo web::constructURL("UserGroup", "view", array($data['UserGroup'] -> group_id), 'html'); ?>"
+	method="post">
+	<input type="hidden" name="action" value="delAo" />
+	<input type="hidden" name="owner_id" id="delAo-owner_id" value="" />
+	<input type="hidden" name="group_id" id="delAo-group_id" value="" />
+</form>
+	
 <form style="display: none" id="delchild"
 	action="<?php echo web::constructURL("UserGroup", "view", array($data['UserGroup'] -> group_id), 'html'); ?>"
 	method="post">
-	<input type="hidden" name="action" value="delchild">
+	<input type="hidden" name="action" value="delchild" />
 	<input type="hidden" name="parent_group_id" id="delchild-parent_group_id" value="" />
 	<input type="hidden" name="group_id" id="delchild-group_id" value="" />
 </form>

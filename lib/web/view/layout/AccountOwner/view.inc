@@ -4,6 +4,11 @@
 			$("#deleteAo").submit();
 		}
 	}
+
+	function delGroup(group_id) {
+		$("#delGroup-group_id").val(group_id);
+		$("#delGroup").submit();
+	}
 </script>
 
 <div class="container">
@@ -33,6 +38,7 @@
 					"</thead>\n";
 			foreach($data['AccountOwner'] -> list_OwnerUserGroup as $oug) {
 				echo "<tr><td>" .
+						"<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delGroup(" . (int)$oug -> group_id . ");\"><img src=\"/admin/img/delete.png\" /></a></div>" .
 						"<a href=\"".web::constructURL("UserGroup", "view", array($oug -> UserGroup -> group_id), "html")."\">" .
 						web::escapeHTML($oug -> UserGroup -> group_name . " (" . $oug -> UserGroup -> group_cn . ")") . "</a>" .
 						"</td></td>";
@@ -82,8 +88,14 @@
 		</div>
 	</div>
 </div>
-	<?php echo "<form style=\"display: none\" id=\"deleteAo\" " .
-				"action=\"" . web::constructURL("AccountOwner", "view", array($data['AccountOwner'] -> owner_id), 'html') ."\" " .
-				"method=\"post\">\n " .
-				"<input type=\"hidden\" name=\"action\" value=\"delete\">" .
-				"</form>";
+<?php
+echo "<form style=\"display: none\" id=\"deleteAo\" " .
+		"action=\"" . web::constructURL("AccountOwner", "view", array($data['AccountOwner'] -> owner_id), 'html') ."\" " .
+		"method=\"post\">\n " .
+		"<input type=\"hidden\" name=\"action\" value=\"delete\">" .
+		"</form>";
+echo "<form style=\"display: none\" id=\"delGroup\" action=\"" . web::constructURL("AccountOwner", "view", array($data['AccountOwner'] -> owner_id), 'html') ."\" " .
+		" method=\"post\">" .
+		"<input type=\"hidden\" name=\"action\" value=\"delGroup\" />" .
+		"<input type=\"hidden\" name=\"group_id\" id=\"delGroup-group_id\" value=\"\" />" .
+		"</form>";

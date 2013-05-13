@@ -112,5 +112,23 @@ class Account_model {
 		$sql = "DELETE FROM Account WHERE account_id ='%s';";
 		return Database::delete($sql, array($this -> account_id));
 	}
+	
+	/* Non-generated functions */
+	public static function search($term) {
+		$sql = "SELECT DISTINCT Account.owner_id, account_login, owner_firstname, owner_surname, domain_name " .
+				"FROM Account " .
+				"JOIN ListDomain ON ListDomain.domain_id = Account.account_domain " .
+				"JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id " .
+				"WHERE account_login LIKE \"%%%s%%\" OR owner_firstname LIKE \"%%%s%%\" OR owner_surname LIKE \"%%%s%%\" " .
+				"ORDER BY domain_name, owner_surname, owner_firstname, account_login " .
+				"LIMIT 0 , 20;";
+		$term = str_replace("%", "\"%", $term);
+		$res = Database::retrieve($sql, array($term, $term, $term));
+		$ret = array();
+		while($row = Database::get_row($res)) {
+			$ret[] = new Account_model($row);
+		}
+		return $ret;
+	}
 }
 ?>

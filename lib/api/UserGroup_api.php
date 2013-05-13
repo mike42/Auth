@@ -63,9 +63,6 @@ class UserGroup_api {
 		}
 
 		$ug -> populate_list_OwnerUserGroup();
-
-		// TODO: ActionQueue.
-		
 		return $ug;
 	}
 	
@@ -82,9 +79,6 @@ class UserGroup_api {
 		}
 	
 		$ug -> populate_list_OwnerUserGroup();
-	
-		// TODO: ActionQueue.
-		
 		return $ug;
 	}
 	

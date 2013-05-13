@@ -17,4 +17,9 @@ class Account_view {
 		$template = "Account/".$template;
 		include(dirname(__FILE__) . "/layout/htmlLayout.inc");
 	}
+	
+	function search_json($data) {
+		echo json_encode($data['Accounts']);
+		exit();
+	}
 }

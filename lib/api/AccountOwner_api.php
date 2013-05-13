@@ -111,14 +111,111 @@ class AccountOwner_api {
 	}
 	
 	public static function pwreset($owner_id, $password) {
+		$owner = self::get($owner_id);
 		// TODO: Verify against services
 		// TODO: ActionQueue	
 		throw new Exception("Unimplemented");
+		
+		return $owner;
 	}
 	
 	public static function move($owner_id, $ou_id) {
-		throw new Exception("Unimplemented");
+		$owner = self::get($owner_id);
+		$ou = Ou_api::get($ou_id);
+		
+		if($owner -> ou_id == $ou -> ou_id) {
+			/* Nothing to do. */
+			return;
+		}
+		
+		/* Update */
+		$owner -> ou_id = $ou -> ou_id;
+		$owner -> update();
+		
+		// TODO: ActionQueue
+		
+		return $owner;
+	}
+	
+	public static function rename($owner_id, $owner_firstname, $owner_surname) {
+		$owner = self::get($owner_id);
+		$owner_firstname = trim($owner_firstname);
+		$owner_surname = trim($owner_surname);
+		if($owner_firstname == "") {
+			throw new Exception("Firstname cannot be blank");
+		}
+		
+		if($owner_surname == "") {
+			throw new Exception("Surname cannot be blank");
+		}
+		
+		$owner -> owner_firstname = $owner_firstname;
+		$owner -> owner_surname = $owner_surname;
+		$owner -> update();
+		
+		// TODO: ActionQueue
+		
+		return $owner;
+	}
+	
+	public static function delete($owner_id) {
+		$owner = self::get($owner_id);
+		
+		// TODO: ActionQueue
+		foreach($owner -> list_Account as $account) {
+			$account -> delete();
+		}
+		
+		foreach($owner -> list_OwnerUserGroup as $oug) {
+			$oug -> delete();
+		}
+		
+		$owner -> delete();
+	}
+	
+	public static function addtogroup($owner_id, $group_id) {
+		if(self::ismember($owner_id, $group_id)) { // This also checks that the user and group exist
+			throw new Exception("The user is already in that group! (or is in a group that is)");
+		}
+
+		$oug = new OwnerUserGroup_model();
+		$oug -> owner_id = $owner_id;
+		$oug -> group_id = $group_id;
+		$oug -> insert();
+		
+		// TODO: ActionQueue
+		
+	}
+	
+	public static function rmfromgroup($owner_id, $group_id) {
+		$owner = self::get($owner_id);
+		$group = UserGroup_api::get($group_id);
+		
+		if(!$oug = OwnerUserGroup_model::get($owner_id, $group_id)) {
+			throw new Exception("User is not in that group");
+		}
+		
+		$oug -> delete();
+		
+		// TODO: ActionQueue
+
+	}
+	
+	/**
+	 * Tests whether a user is in a given group
+	 * 
+	 * @param unknown_type $owner_id
+	 * @param unknown_type $group_id
+	 * @return boolean
+	 */
+	public static function ismember($owner_id, $group_id) {
+		$owner = self::get($owner_id);
+		$group = UserGroup_api::get($group_id);
+		
+		if($oug = OwnerUserGroup_model::get($owner_id, $group_id)) {
+			return true;
+		}
+		return false;
 	}
 }
-
 ?>
