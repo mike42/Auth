@@ -88,7 +88,24 @@ class AccountOwner_controller {
 			$data['error'] = '404';
 		}
 		
-		// TODO: Check POST data
+		if(isset($_POST['source']) && isset($_POST['password1']) && isset($_POST['password2'])) {
+			try {
+				if($_POST['source'] == "auto") {
+					Auth::loadClass("PasswordGen");
+					$password = PasswordGen::generate();
+					$data['message'] = "Password changed to \"".$password . "\"";
+				} else {
+					if($_POST['password1'] != $_POST['password2']) {
+						throw new Exception("Passwords did not match!");
+					}
+					$password = $_POST['password1'];
+					$data['message'] = "Password set";
+				}
+				AccountOwner_api::pwreset($owner_id, $password);
+			} catch(Exception $e) {
+				$data['message'] = $e -> getMessage();
+			}
+		}
 		
 		return $data;
 	}
@@ -101,7 +118,7 @@ class AccountOwner_controller {
 			$data['error'] = '404';
 		}
 		
-		// TODO: CHeck POST data
+		// TODO: Check POST data
 		
 		return $data;
 	}
@@ -109,16 +126,24 @@ class AccountOwner_controller {
 	public static function move($owner_id) {
 		$data = array('current' => 'Ou');
 		
+		/* Load hierarchy */
+		$root = Ou_api::getHierarchy();
+		$data['Ou_root'] = $root;
+		
 		try {
 			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
 		} catch(Exception $e) {
 			$data['error'] = '404';
 		}
-		
-		// TODO: Load list of Ou's
-		
-		// TODO: Check POST data
-		
+
+		if(isset($_POST['ou_id'])) {
+			$ou_id = $_POST['ou_id'];
+			try {
+				AccountOwner_api::move($owner_id, $ou_id);
+			} catch(Exception $e) {
+				$data['message'] = $e -> getMessage();
+			}
+		}
 		return $data;
 	}
 }

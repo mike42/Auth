@@ -109,6 +109,16 @@ class AccountOwner_api {
 		$owner -> populate_List_OwnerUserGroup();
 		return $owner;
 	}
+	
+	public static function pwreset($owner_id, $password) {
+		// TODO: Verify against services
+		// TODO: ActionQueue	
+		throw new Exception("Unimplemented");
+	}
+	
+	public static function move($owner_id, $ou_id) {
+		throw new Exception("Unimplemented");
+	}
 }
 
 ?>

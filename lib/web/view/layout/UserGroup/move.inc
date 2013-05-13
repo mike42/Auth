@@ -23,7 +23,8 @@
 		<div class="span4">
 			<div class="well">
 				<b>What is moving?</b>
-				<p>You can re-locate a group to a different organizational group for housekeeping. This will not affect distribution of email.</p>
+				<p>You can re-locate a group to a different organizational group for
+					housekeeping. This will not affect distribution of email.</p>
 			</div>
 		</div>
 		<div class="span8">
@@ -40,15 +41,21 @@
 				Select the organizational unit which <b><?php echo web::escapeHTML($data['UserGroup'] -> group_name . " (" . $data['UserGroup'] -> group_cn . ")"); ?>
 				</b> should go in:
 				<ul class="treeview" id="tree" style="padding: 5px;">
-					<li><a href="#"
-						onClick='moveGroup(<?php echo (int)$data['UserGroup'] -> ou_id; ?>,<?php echo (int)$data['Ou_root'] -> ou_id; ?>)'>root</a>
+					<li><?php 
+					if($data['UserGroup'] -> ou_id == $data['Ou_root'] -> ou_id) {
+						echo "root";
+					} else {
+						echo "<a href=\"#\" onClick='moveGroup(" . (int)$data['UserGroup'] -> group_id . "," . (int)$data['Ou_root'] -> ou_id . ")'>root</a>";
+					} ?>
 						<ul>
 							<?php ou_tree($data['Ou_root'], $data['UserGroup'] -> ou_id, $data['UserGroup'] -> group_id); ?>
 						</ul>
 					</li>
 				</ul>
 
-				<a class="btn">Cancel</a>
+				<?php 
+				echo "<a class=\"btn\" href=\"" . Web::constructURL("UserGroup", "view", array((int)$data['UserGroup'] -> group_id), "html"). "\">Cancel</a>";
+				?>
 			</div>
 		</div>
 	</div>
@@ -57,8 +64,8 @@
 <form id="moveGroup"
 	action="<?php echo Web::constructURL("UserGroup", "move", array($data['UserGroup'] -> group_id), "html"); ?>"
 	method="post">
-	<input type="hidden" id="group-id" name="group_id" /> <input type="hidden"
-		id="ou-id" name="ou_id" />
+	<input type="hidden" id="group-id" name="group_id" /> <input
+		type="hidden" id="ou-id" name="ou_id" />
 </form>
 
 <?php 
@@ -76,6 +83,7 @@ function ou_tree(Ou_model $ou, $ou_id, $group_id) {
 		} else {
 			echo "<a href=\"#\" onClick='moveGroup(". (int)$group_id. "," . (int)$subOu -> ou_id . ")'>" . Web::escapeHTML($subOu -> ou_name) . "</a>";
 		}
+
 		if(count($subOu -> list_Ou) > 0) {
 			echo "<ul>";
 			ou_tree($subOu, $ou_id, $group_id);
