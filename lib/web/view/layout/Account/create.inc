@@ -12,7 +12,6 @@
     	if(sel != $('#sel-domain').val()) {
 	    	if(sel != '') {
 				$('#domain-' + sel).hide();
-				$('#domain-' + sel + ' input:checked').removeAttr('checked');
 	    	}
 			sel = $('#sel-domain').val();
 	    	if(sel != '') {
@@ -42,21 +41,14 @@
 	<div class="row">
 		<div class="span4">
 			<div class="well">
-				<b>Create user</b>
-				<p>Users are people who control multiple accounts. Auth will track
-					these accounts, and set their password and permissions at the same
-					time.</p>
-				<p>The 'domain' feature allows you to include some users only on
-					some services. This simply defines where accounts are (or aren't)
-					created. For some services, such as email, the domain will affect
-					the user's email address. Other services, such as active directory,
-					only really support one domain, and this is taken into account
-					whern displaying the domain of an account below.</p>
+				<b>Create account</b>
+				<p>Adding a new account will give the user access to another service.</p>
+				<p>After creating the account, set the user's password so that they can log in.</p>
 			</div>
 		</div>
 		<div class="span8">
 			<div class="alert alert-info">
-				<h3>Create user</h3>
+				<h3>Create account</h3>
 			</div>
 
 			<?php 
@@ -66,37 +58,24 @@
 			?>
 			<div>
 				<form
-					action="<?php echo web::constructURL("AccountOwner", "create", array((int)$data['Ou'] -> ou_id), 'html'); ?>"
+					action="<?php echo web::constructURL("Account", "create", array((int)$data['AccountOwner'] -> owner_id), 'html'); ?>"
 					method="post">
 					<table class="table-bordered"
 						style="margin-left: auto; margin-right: auto">
 						<tr>
-							<th>Organizational unit:</th>
+							<th>User:</th>
 							<td><input type="text" disabled
-								value="<?php echo Web::escapeHTML($data['Ou'] -> ou_name) ?>" />
+								value="<?php echo Web::escapeHTML($data['AccountOwner'] -> owner_firstname . " " . $data['AccountOwner'] -> owner_surname) ?>" />
 							</td>
 						</tr>
 						<tr>
-							<th>First name:</th>
-							<td><input type="text" name="owner_firstname"
-								id="owner-firstname"
-								value="<?php if(isset($_POST['owner_firstname'])) { echo web::escapeHTML($_POST['owner_firstname']); } ?>" />
-							</td>
-						</tr>
-						<tr>
-							<th>Surname:</th>
-							<td><input type="text" name="owner_surname" id="owner-surname"
-								value="<?php if(isset($_POST['owner_surname'])) { echo web::escapeHTML($_POST['owner_surname']); } ?>" />
-							</td>
-						</tr>
-						<tr>
-							<th>Username:</th>
+							<th>Login name:</th>
 							<td><input type="text" name="account_login" id="account-login"
 								value="<?php if(isset($_POST['account_login'])) { echo web::escapeHTML($_POST['account_login']); } ?>" />
 							</td>
 						</tr>
 						<tr>
-							<th>Accounts for:</th>
+							<th>Domain:</th>
 							<td><?php
 							/* Domain select box */
 							echo "<select id=\"sel-domain\" name=\"domain_id\" >\n" .
@@ -126,7 +105,7 @@
 						</tr>
 						<tr>
 							<td colspan=2 style="text-align: right">
-								<?php echo "<a class=\"btn\" href=\"" . Web::constructURL("Ou", "view", array((int)$data['Ou'] -> ou_id), 'html') . "\">Cancel</a>"; ?>
+								<?php echo "<a class=\"btn\" href=\"" . Web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), 'html') . "\">Cancel</a>"; ?>
 								<input class="btn" type="submit" value="Create">
 							</td>
 						</tr>

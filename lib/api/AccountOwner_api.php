@@ -101,7 +101,7 @@ class AccountOwner_api {
 	 * 
 	 * @param string $owner_id
 	 */
-	function get($owner_id) {
+	static function get($owner_id) {
 		if(!$owner = AccountOwner_model::get($owner_id)) {
 			throw new Exception("Account owner not found");
 		}
@@ -217,5 +217,7 @@ class AccountOwner_api {
 		}
 		return false;
 	}
+	
+
 }
 ?>

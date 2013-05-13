@@ -1,15 +1,32 @@
 <?php 
 class Account_controller {
 	function init() {
-		Auth::loadClass("Account_model");
+		Auth::loadClass("Account_api");
+		Auth::loadClass("AccountOwner_api");
 	}
 	
 	function view($account_id = false) {
-		// TODO: If no account is given, go to Ou_controller::view();
+		$data = array('current' => "Ou");
+		try {
+			$data['Account'] = Account_api::get($account_id);
+		} catch(Exception $e) {
+			$data['error'] = '404';
+		}
+		return $data;
 	}
 
-	function create() {
-		return array('current' => 'Ou', 'error' => '404');
+	function create($owner_id) {
+		$data = array('current' => "Ou");
+		try {
+			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
+			$data['ListDomain'] = ListDomain_model::list_by_domain_enabled('1');
+			foreach($data['ListDomain'] as $key => $domain) {
+				$domain -> populate_list_ListServiceDomain();
+			}
+		} catch(Exception $e) {
+			$data['error'] = '404';
+		}
+		return $data;		
 	}
 	
 	function search($term) {

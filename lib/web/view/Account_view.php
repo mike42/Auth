@@ -5,6 +5,10 @@ class Account_view {
 		web::loadView("Page_view");
 	}
 	
+	public static function create_html($data) {
+		self::useTemplate("create", $data);
+	}
+	
 	public static function view_html($data) {
 		self::useTemplate("view", $data);
 	}
