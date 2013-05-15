@@ -161,14 +161,15 @@ class AccountOwner_api {
 	public static function delete($owner_id) {
 		$owner = self::get($owner_id);
 		
-		// TODO: ActionQueue
 		foreach($owner -> list_Account as $account) {
-			$account -> delete();
+			Account_model::delete($account -> account_id);
 		}
 		
 		foreach($owner -> list_OwnerUserGroup as $oug) {
 			$oug -> delete();
 		}
+		
+		// TODO: ActionQueue
 		
 		$owner -> delete();
 	}

@@ -12,6 +12,7 @@
     	if(sel != $('#sel-domain').val()) {
 	    	if(sel != '') {
 				$('#domain-' + sel).hide();
+				$('#services-' + sel).val(0);
 	    	}
 			sel = $('#sel-domain').val();
 	    	if(sel != '') {
@@ -21,7 +22,7 @@
 	}
 
 	$(function() {
-		$("#owner-firstname").focus();
+		$("#account-login").focus();
 	    $('#sel-domain').change(function() {
 			boxCheck();
 	     });
@@ -88,17 +89,19 @@
 
 							foreach($data['ListDomain'] as $domain) {
 								echo "<div style=\"display: none\" id=\"domain-".web::escapeHTML($domain -> domain_id)."\">";
+								echo "<select name=\"services-".web::escapeHTML($domain -> domain_id)."\">";
+								echo "<option value=\"\">(select a service)</option>\n";
 								foreach($domain -> list_ListServiceDomain as $sd) {
 									$s = $sd -> Service; // Shorthand
-									$checked = "";
-									if(isset($_POST['domain_id']) && isset($_POST['service-' . $sd -> service_id]) && $_POST['domain_id'] == $sd -> domain_id) {
-										$checked = "checked";
+									$selected = "";
+									if(isset($_POST['domain_id']) && isset($_POST['services-' . $sd -> domain_id]) && $_POST['domain_id'] == $sd -> domain_id && $_POST['services-' . $sd -> domain_id] == $sd -> service_id) {
+										$selected = " selected";
 									}
-									echo "<div><input type=\"checkbox\" name=\"service-" . web::escapeHTML($s -> service_id) . "\" $checked/> " .
+									echo "<option value=\"" . web::escapeHTML($s -> service_id) . "\"$selected> " .
 											web::escapeHTML($s -> service_name);
-									echo "</div>";
+									echo "</option>\n";
 								}
-								echo "</div>";
+								echo "</select></div>";
 							}
 							?>
 							</td>

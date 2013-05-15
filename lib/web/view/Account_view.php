@@ -13,6 +13,10 @@ class Account_view {
 		self::useTemplate("view", $data);
 	}
 	
+	public static function rename_html($data) {
+		self::useTemplate("rename", $data);
+	}
+	
 	public static function error_html($data) {
 		page_view::error_html($data);
 	}
