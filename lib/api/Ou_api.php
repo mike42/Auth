@@ -11,8 +11,9 @@ class Ou_api {
 		Auth::loadClass("Ou_model");
 		Auth::loadClass("UserGroup_api");
 		Auth::loadClass("AccountOwner_api");
+		Auth::loadClass("ActionQueue_api");
 	}
-	
+
 	/**
 	 * Load the full hierarchy of organizational units.
 	 * 
@@ -69,12 +70,15 @@ class Ou_api {
 			throw new Exception("There was an error adding the unit to the database. Please try again.");
 		}
 
-		// TODO: ActionQueue.
+		/* ActionQueue */
+		ActionQueue_api::submitToEverything('ouCreate', $ou -> ou_name, $parent -> ou_name);
 		return $ou;
 	}
 	
 	/**
-	 * @param int $ou_id
+	 * Delete an organizational unit.
+	 * 
+	 * @param integer $ou_id The ID of the unit to delete.
 	 * @throws Exception
 	 */
 	function delete($ou_id) {
@@ -96,13 +100,17 @@ class Ou_api {
 			UserGroup_api::move($group -> group_id, $ou -> ou_parent_id);
 		}
 		
-		// TODO: ActionQueue.
+		/* ActionQueue */
+		ActionQueue_api::submitToEverything('ouDelete', $ou -> ou_name);
+		
 		$ou -> delete();
 	}
 	
 	/**
-	 * @param unknown_type $ou_id
-	 * @param unknown_type $ou_parent_id
+	 * Re-base an organizational unit, to go under a different parent
+	 * 
+	 * @param int $ou_id The unit to move.
+	 * @param int $ou_parent_id The new parent unit.
 	 */
 	function move($ou_id, $ou_parent_id) {
 		$ou = self::get($ou_id);
@@ -112,12 +120,15 @@ class Ou_api {
 		$ou -> ou_parent_id = $parent -> ou_id;
 		$ou -> update();
 		
-		// TODO: ActionQueue.
+		/* ActionQueue */
+		ActionQueue_api::submitToEverything('ouMove', $ou -> ou_name, $parent -> ou_name);
 	}
 	
 	/**
-	 * @param unknown_type $ou_id
-	 * @param unknown_type $ou_name
+	 * Change the name of an organizational unit.
+	 * 
+	 * @param int $ou_id
+	 * @param string $ou_name The new name of the unit (this will be filtered for sanity)
 	 * @throws Exception
 	 */
 	function rename($ou_id, $ou_name) {
@@ -136,14 +147,20 @@ class Ou_api {
 			throw new Exception("There is a group which goes by this name. Please use a different name.");
 		}
 		
+		$oldname = $ou -> ou_name;
 		$ou -> ou_name = $ou_name;
 		$ou -> update();
+		
+		/* ActionQueue */
+		ActionQueue_api::submitToEverything('ouMove', $oldname, $ou -> ou_name);
 	}
 	
 	/**
-	 * @param unknown_type $ou_id
-	 * @throws Exception
-	 * @return unknown
+	 * Get an organizational unit by its numeric ID.
+	 * 
+	 * @param int $ou_id
+	 * @throws Exception If it cannot be found
+	 * @return Ou_model the Organizational unit.
 	 */
 	function get($ou_id) {
 		if(!$ou = Ou_model::get((int)$ou_id)) {

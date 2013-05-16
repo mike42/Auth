@@ -7,6 +7,7 @@ class Account_api {
 	public static function init() {
 		Auth::loadClass("Account_model");
 		Auth::loadClass("AccountOwner_api");
+		Auth::loadClass("ActionQueue_api");
 	}
 	
 	public static function get($account_id) {

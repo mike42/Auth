@@ -12,6 +12,7 @@ class AccountOwner_api {
 		Auth::loadClass("Ou_api");
 		Auth::loadClass("Account_model");
 		Auth::loadClass("ListServiceDomain_model");
+		Auth::loadClass("ActionQueue_api");
 	}
 	
 	/**

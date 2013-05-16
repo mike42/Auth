@@ -10,6 +10,7 @@ class UserGroup_api {
 	function init() {
 		Auth::loadClass("Ou_api");
 		Auth::loadClass("UserGroup_model");
+		Auth::loadClass("ActionQueue_api");
 	}
 	
 	function create($group_cn, $group_name, $ou_id, $domain_id) {
