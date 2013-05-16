@@ -9,6 +9,7 @@ class UserGroup_controller {
 		try {
 			$ug = UserGroup_api::get($group_id);
 			$data['UserGroup'] = $ug;
+			$data['UserGroup'] -> ListDomain -> populate_list_ListServiceDomain();
 		} catch(Exception $e) {
 			$data['error'] = '404';
 			return $data;
@@ -49,21 +50,25 @@ class UserGroup_controller {
 	 * @param string $ou_id The ID of the organizational unit for this group to go in.
 	 */
 	function create($ou_id = null) {
-		$data = array('current' => 'Ou');
-		if($ou_id == null) {
+		$data = array('current' => 'Ou');		
+		if($ou_id == null || !$parent = Ou_model::get($ou_id)) {
 			$data['error'] = '404';
 			return $data;
 		}
-			
-		if(!$parent = Ou_model::get($ou_id)) {
-			return $data;
-		}
 
-		if(isset($_POST['group_name'])) {
+		$data['ListDomain'] = ListDomain_model::list_by_domain_enabled('1');
+		if(isset($_POST['group_name']) && isset($_POST['domain_id'])) {
 			$group_name = $_POST['group_name'];
+			$domain_id = $_POST['domain_id'];
 			$group_cn = Auth::normaliseName($group_name);
 			try {
-				$ug = UserGroup_api::create($group_cn, $group_name, $parent -> ou_id);
+				if($group_cn == '') {
+					throw new Exception("Please enter a name for the group");
+				}
+				if($domain_id == '') {
+					throw new Exception("Please select a domain for the group");
+				}
+				$ug = UserGroup_api::create($group_cn, $group_name, $parent -> ou_id, $domain_id);
 				Web::redirect(Web::constructURL("UserGroup", "view", array($ug -> group_id), "html"));
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();

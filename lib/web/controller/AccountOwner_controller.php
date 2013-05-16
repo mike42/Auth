@@ -18,6 +18,7 @@ class AccountOwner_controller {
 			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
 		} catch(Exception $e) {
 			$data['error'] = '404';
+			return $data;
 		}
 		
 		try {
@@ -49,6 +50,7 @@ class AccountOwner_controller {
 			$data['Ou'] = Ou_api::get($ou_id);
 		} catch(Exception $e) {
 			$data['error'] = '404';
+			return $data;
 		}
 		
 		try {
@@ -90,6 +92,7 @@ class AccountOwner_controller {
 			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
 		} catch(Exception $e) {
 			$data['error'] = '404';
+			return $data;
 		}
 		
 		if(isset($_POST['group_cn']) || isset($_POST['gname'])) {
@@ -118,6 +121,7 @@ class AccountOwner_controller {
 			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
 		} catch(Exception $e) {
 			$data['error'] = '404';
+			return $data;
 		}
 		
 		if(isset($_POST['source']) && isset($_POST['password1']) && isset($_POST['password2'])) {
@@ -148,6 +152,7 @@ class AccountOwner_controller {
 			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
 		} catch(Exception $e) {
 			$data['error'] = '404';
+			return $data;
 		}
 		
 		if(isset($_POST['owner_firstname']) && isset($_POST['owner_surname'])) {
@@ -175,6 +180,7 @@ class AccountOwner_controller {
 			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
 		} catch(Exception $e) {
 			$data['error'] = '404';
+			return $data;
 		}
 
 		if(isset($_POST['ou_id'])) {

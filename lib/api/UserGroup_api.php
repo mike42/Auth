@@ -12,10 +12,16 @@ class UserGroup_api {
 		Auth::loadClass("UserGroup_model");
 	}
 	
-	function create($group_cn, $group_name, $ou_id) {
+	function create($group_cn, $group_name, $ou_id, $domain_id) {
 		/* Normalise inputs */
 		$group_cn = Auth::normaliseName($group_cn);
 		$group_name = trim($group_name);
+		
+		/* Check domain exists */
+		if(!$domain = ListDomain_model::get($domain_id)) {
+			throw new Exception("No such domain");
+		}
+		
 		if($group_cn == "") {
 			throw new Exception("Please enter a valid short name for the group.");
 		}
@@ -27,7 +33,7 @@ class UserGroup_api {
 		if($group = UserGroup_model::get_by_group_cn($group_cn)) {
 			throw new Exception("A user group with that name already exists.");
 		}
-		
+				
 		/* Also check for OU clashes */
 		if($ou = Ou_model::get_by_ou_name($group_cn)) {
 			throw new Exception("An organizational unit exists with that name.");
@@ -41,6 +47,8 @@ class UserGroup_api {
 		$group -> group_name = $group_name;
 		$group -> group_cn = $group_cn;
 		$group -> ou_id = $ou -> ou_id;
+		$group -> group_domain = $domain -> domain_id;
+		print_r($group);
 		if(!$group -> group_id = $group -> insert()) {
 			throw new Exception("There was an error adding the group to the database. Please try again.");
 		}

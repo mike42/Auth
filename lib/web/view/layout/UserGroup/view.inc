@@ -24,8 +24,6 @@ function delAo(group_id, owner_id) {
 	$("#delAo-owner_id").val(owner_id);
 	$("#delAo").submit();
 }
-
-
 </script>
 
 <div class="container">
@@ -108,7 +106,13 @@ function delAo(group_id, owner_id) {
 					"<p>Renaming a group may affect email distribution, or affect users' ability to access some services. Proceed with care.</p>" .
 					"<input type=\"button\" class='btn' value=\"Rename Group\" onClick=\"renameGroup()\" />" .
 					"<input type=\"button\" class='btn' value=\"Move Group\" onClick=\"moveGroup()\" />" .
-					"</div>";
+					"<h4>Parent Domain</h4>" .
+					"This group is on the <b>" . web::escapeHTML($data['UserGroup'] -> ListDomain -> domain_name) . "</b> domain. It is available on the following services:" .
+					"<ol>";
+			foreach($data['UserGroup'] -> ListDomain -> list_ListServiceDomain as $sd) {
+				echo "<li>" . web::escapeHTML($sd -> Service -> service_name) . "</li>";
+			}
+			echo "</ol></div>";
 
 			echo "<div class='alert alert-danger'>" .
 					"<h3>Danger zone</h3>" .

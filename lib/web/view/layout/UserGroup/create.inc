@@ -54,6 +54,21 @@
 							</td>
 						</tr>
 						<tr>
+							<th>
+								Domain:
+							</th>
+							<td>
+							<?php
+							echo "<select id=\"sel-domain\" name=\"domain_id\" >\n" .
+									"<option value=\"\">(select domain)</option>";
+							foreach($data['ListDomain'] as $domain) {
+								$selected = (isset($_POST['domain_id']) && $_POST['domain_id'] == $domain -> domain_id) ? " selected": "";
+								echo "<option value=\"".web::escapeHTML($domain -> domain_id)."\"$selected>" . web::escapeHTML($domain -> domain_name) . "</option>\n";
+							}
+							?>
+							</td>
+						</tr>
+						<tr>
 							<td colspan=2 style="text-align: right">
 								<input class="btn" type="submit" value="Create">
 							</td>
