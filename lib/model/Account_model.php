@@ -112,7 +112,7 @@ class Account_model {
 		$sql = "DELETE FROM Account WHERE account_id ='%s';";
 		return Database::delete($sql, array($this -> account_id));
 	}
-	
+
 	/* Non-generated functions */
 	public static function search($term) {
 		$sql = "SELECT DISTINCT Account.owner_id, account_login, owner_firstname, owner_surname, domain_name " .

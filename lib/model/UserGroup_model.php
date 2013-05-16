@@ -5,8 +5,10 @@ class UserGroup_model {
 	public $group_cn;
 	public $group_name;
 	public $ou_id;
+	public $group_domain;
 
 	/* Referenced tables */
+	public $ListDomain;
 	public $Ou;
 
 	/* Tables which reference this */
@@ -18,6 +20,7 @@ class UserGroup_model {
 	*/
 	public static function init() {
 		Auth::loadClass("Database");
+		Auth::loadClass("ListDomain_model");
 		Auth::loadClass("Ou_model");
 		Auth::loadClass("OwnerUserGroup_model");
 		Auth::loadClass("SubUserGroup_model");
@@ -28,17 +31,19 @@ class UserGroup_model {
 	 * @param array $row The database row to use.
 	*/
 	public function UserGroup_model(array $row = array()) {
-		$this -> group_id   = isset($row['group_id'])   ? $row['group_id']  : '';
-		$this -> group_cn   = isset($row['group_cn'])   ? $row['group_cn']  : '';
-		$this -> group_name = isset($row['group_name']) ? $row['group_name']: '';
-		$this -> ou_id      = isset($row['ou_id'])      ? $row['ou_id']     : '';
+		$this -> group_id     = isset($row['group_id'])     ? $row['group_id']    : '';
+		$this -> group_cn     = isset($row['group_cn'])     ? $row['group_cn']    : '';
+		$this -> group_name   = isset($row['group_name'])   ? $row['group_name']  : '';
+		$this -> ou_id        = isset($row['ou_id'])        ? $row['ou_id']       : '';
+		$this -> group_domain = isset($row['group_domain']) ? $row['group_domain']: '';
 
 		/* Fields from related tables */
+		$this -> ListDomain = new ListDomain_model($row);
 		$this -> Ou = new Ou_model($row);
 	}
 
 	public static function get($group_id) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.group_id='%s'";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.group_id='%s'";
 		$res = Database::retrieve($sql, array($group_id));
 		if($row = Database::get_row($res)) {
 			return new UserGroup_model($row);
@@ -47,7 +52,7 @@ class UserGroup_model {
 	}
 
 	public static function get_by_group_cn($group_cn) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.group_cn='%s'";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.group_cn='%s'";
 		$res = Database::retrieve($sql, array($group_cn));
 		if($row = Database::get_row($res)) {
 			return new UserGroup_model($row);
@@ -56,8 +61,18 @@ class UserGroup_model {
 	}
 
 	public static function list_by_ou_id($ou_id) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.ou_id='%s';";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.ou_id='%s';";
 		$res = Database::retrieve($sql, array($ou_id));
+		$ret = array();
+		while($row = Database::get_row($res)) {
+			$ret[] = new UserGroup_model($row);
+		}
+		return $ret;
+	}
+
+	public static function list_by_group_domain($group_domain) {
+		$sql = "SELECT * FROM UserGroup LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.group_domain='%s';";
+		$res = Database::retrieve($sql, array($group_domain));
 		$ret = array();
 		while($row = Database::get_row($res)) {
 			$ret[] = new UserGroup_model($row);
@@ -74,13 +89,13 @@ class UserGroup_model {
 	}
 
 	public function insert() {
-		$sql = "INSERT INTO UserGroup(group_cn, group_name, ou_id) VALUES ('%s', '%s', '%s');";
-		return Database::insert($sql, array($this -> group_cn, $this -> group_name, $this -> ou_id));
+		$sql = "INSERT INTO UserGroup(group_cn, group_name, ou_id, group_domain) VALUES ('%s', '%s', '%s', '%s');";
+		return Database::insert($sql, array($this -> group_cn, $this -> group_name, $this -> ou_id, $this -> group_domain));
 	}
 
 	public function update() {
-		$sql = "UPDATE UserGroup SET group_cn ='%s', group_name ='%s', ou_id ='%s' WHERE group_id ='%s';";
-		return Database::update($sql, array($this -> group_cn, $this -> group_name, $this -> ou_id, $this -> group_id));
+		$sql = "UPDATE UserGroup SET group_cn ='%s', group_name ='%s', ou_id ='%s', group_domain ='%s' WHERE group_id ='%s';";
+		return Database::update($sql, array($this -> group_cn, $this -> group_name, $this -> ou_id, $this -> group_domain, $this -> group_id));
 	}
 
 	public function delete() {

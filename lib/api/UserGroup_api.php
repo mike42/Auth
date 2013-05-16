@@ -215,6 +215,7 @@ class UserGroup_api {
 			throw new Exception("An organizational unit exists with that name.");
 		}
 		
+		/* Update in local database */
 		$group -> group_cn = $group_cn;
 		$group -> group_name = $group_name;
 		$group -> update();

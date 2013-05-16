@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 10, 2013 at 02:32 PM
+-- Generation Time: May 16, 2013 at 03:58 PM
 -- Server version: 5.5.30
 -- PHP Version: 5.4.4-14
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `Account` (
   KEY `owner_id` (`owner_id`),
   KEY `service_id` (`service_id`),
   KEY `account_domain` (`account_domain`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=54 ;
 
 -- --------------------------------------------------------
 
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS `AccountOwner` (
   `ou_id` int(11) NOT NULL,
   PRIMARY KEY (`owner_id`),
   KEY `ou_id` (`ou_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=12 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=24 ;
 
 -- --------------------------------------------------------
 
@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS `Ou` (
   PRIMARY KEY (`ou_id`),
   UNIQUE KEY `ou_name` (`ou_name`),
   KEY `ou_parent_id` (`ou_parent_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COMMENT='Organizational units' AUTO_INCREMENT=17 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COMMENT='Organizational units' AUTO_INCREMENT=18 ;
 
 -- --------------------------------------------------------
 
@@ -207,10 +207,12 @@ CREATE TABLE IF NOT EXISTS `UserGroup` (
   `group_cn` varchar(256) NOT NULL,
   `group_name` varchar(256) NOT NULL,
   `ou_id` int(11) NOT NULL,
+  `group_domain` varchar(12) NOT NULL,
   PRIMARY KEY (`group_id`),
   UNIQUE KEY `group_cn` (`group_cn`),
-  KEY `ou_id` (`ou_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=20 ;
+  KEY `ou_id` (`ou_id`),
+  KEY `group_domain` (`group_domain`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=23 ;
 
 --
 -- Constraints for dumped tables
@@ -262,8 +264,8 @@ ALTER TABLE `OwnerUserGroup`
 -- Constraints for table `Service`
 --
 ALTER TABLE `Service`
-  ADD CONSTRAINT `Service_ibfk_4` FOREIGN KEY (`service_domain`) REFERENCES `ListDomain` (`domain_id`),
-  ADD CONSTRAINT `Service_ibfk_3` FOREIGN KEY (`service_type`) REFERENCES `ListServiceType` (`service_type`);
+  ADD CONSTRAINT `Service_ibfk_3` FOREIGN KEY (`service_type`) REFERENCES `ListServiceType` (`service_type`),
+  ADD CONSTRAINT `Service_ibfk_4` FOREIGN KEY (`service_domain`) REFERENCES `ListDomain` (`domain_id`);
 
 --
 -- Constraints for table `SubUserGroup`
@@ -275,6 +277,7 @@ ALTER TABLE `SubUserGroup`
 -- Constraints for table `UserGroup`
 --
 ALTER TABLE `UserGroup`
+  ADD CONSTRAINT `UserGroup_ibfk_2` FOREIGN KEY (`group_domain`) REFERENCES `ListDomain` (`domain_id`),
   ADD CONSTRAINT `UserGroup_ibfk_1` FOREIGN KEY (`ou_id`) REFERENCES `Ou` (`ou_id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

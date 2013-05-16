@@ -10,6 +10,7 @@ class ListDomain_model {
 	public $list_ActionQueue          = array();
 	public $list_ListServiceDomain    = array();
 	public $list_Service              = array();
+	public $list_UserGroup            = array();
 
 	/**
 	 * Load all related models.
@@ -20,6 +21,7 @@ class ListDomain_model {
 		Auth::loadClass("ActionQueue_model");
 		Auth::loadClass("ListServiceDomain_model");
 		Auth::loadClass("Service_model");
+		Auth::loadClass("UserGroup_model");
 	}
 
 	/**
@@ -65,6 +67,10 @@ class ListDomain_model {
 
 	public function populate_list_Service() {
 		$this -> list_Service = Service_model::list_by_service_domain($this -> domain_id);
+	}
+
+	public function populate_list_UserGroup() {
+		$this -> list_UserGroup = UserGroup_model::list_by_group_domain($this -> domain_id);
 	}
 
 	public function insert() {
