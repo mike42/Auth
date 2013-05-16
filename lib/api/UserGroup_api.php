@@ -49,12 +49,13 @@ class UserGroup_api {
 		$group -> group_cn = $group_cn;
 		$group -> ou_id = $ou -> ou_id;
 		$group -> group_domain = $domain -> domain_id;
-		print_r($group);
+
 		if(!$group -> group_id = $group -> insert()) {
 			throw new Exception("There was an error adding the group to the database. Please try again.");
 		}
 		
-		// TODO: ActionQueue.
+		/* ActionQueue */
+		ActionQueue_api::submitByDomain($group -> group_domain, 'grpCreate', $group -> group_cn, $group -> group_name, $ou -> ou_name);
 		
 		return $group;
 	}
@@ -91,6 +92,12 @@ class UserGroup_api {
 		return $ug;
 	}
 	
+	/**
+	 * Delete a group
+	 * 
+	 * @param integer $group_id The ID of the group to delete
+	 * @return boolean
+	 */
 	function delete($group_id) {
 		$ug = self::get($group_id);
 		
@@ -107,11 +114,11 @@ class UserGroup_api {
 		foreach($ug -> list_OwnerUserGroup as $og) {
 			$og -> delete();
 		}
+
+		/* ActionQueue */
+		ActionQueue_api::submitByDomain($ug -> group_domain, 'grpDelete', $ug -> group_cn);
 		
 		$ug -> delete();
-		
-		// TODO: ActionQueue.
-		
 		return true;
 	}
 	
@@ -140,13 +147,22 @@ class UserGroup_api {
 		$sg = new SubUserGroup_model();
 		$sg -> group_id = $child_group_id;
 		$sg -> parent_group_id = $parent_group_id;
+		
+		/* ActionQueue */
+		ActionQueue_api::submitByDomain($parent -> group_domain, 'grpAddChild', $parent -> group_cn, $child -> group_cn);
+		
 		$sg -> insert();
-		
-		// TODO: ActionQueue.
-		
 		return true;
 	}
 	
+	/**
+	 * Remove a member group from a parent group
+	 * 
+	 * @param int $parent_group_id The ID of the parent group
+	 * @param int $child_group_id The ID of the child group
+	 * @throws Exception
+	 * @return boolean
+	 */
 	static public function delchild($parent_group_id, $child_group_id) {
 		$parent = self::get($parent_group_id);
 		$child = self::get($child_group_id);
@@ -154,12 +170,21 @@ class UserGroup_api {
 		if(!$sg = SubUserGroup_model::get($parent_group_id, $child_group_id)) {
 			throw new Exception("Groups are not related");
 		}
+				
+		/* ActionQueue */
+		ActionQueue_api::submitByDomain($parent -> group_domain, 'grpDelChild', $parent -> group_cn, $child -> group_cn);
 		
 		$sg -> delete();
-		
-		// TODO: ActionQueue.
+		return true;
 	}
 	
+	/**
+	 * Relocates a group under a different parent OU.
+	 * 
+	 * @param unknown_type $group_id
+	 * @param unknown_type $ou_id
+	 * @return void|boolean
+	 */
 	function move($group_id, $ou_id) {
 		$ug = self::get($group_id);
 		if($ug -> ou_id == $ou_id) {
@@ -169,13 +194,21 @@ class UserGroup_api {
 
 		$ou = Ou_model::get($ou_id);
 		$ug -> ou_id = $ou -> ou_id;
-		$ug -> update();
 		
-		// TODO: ActionQueue.
+		/* ActionQueue */
+		ActionQueue_api::submitByDomain($ug -> group_domain, 'grpMove', $ug -> group_cn, $ou -> ou_name);
+		
+		$ug -> update();
 		
 		return true;
 	}
 	
+	/**
+	 * Get a list of child groups
+	 * 
+	 * @param integer $group_id The ID of the group to check
+	 * @return multitype:NULL Array of SubUserGroup_model, containing child groups
+	 */
 	public static function list_children($group_id) {
 		$child_sg = SubUserGroup_model::list_by_parent_group_id($group_id);
 		$ret = array();
@@ -185,6 +218,12 @@ class UserGroup_api {
 		return $ret;
 	}
 	
+	/**
+	 * Get a list of parent groups
+	 *
+	 * @param integer $group_id The ID of the group to check
+	 * @return multitype:NULL Array of SubUserGroup_model, containing parent groups
+	 */
 	public static function list_parents($group_id) {
 		$parent_sg = SubUserGroup_model::list_by_group_id($group_id);
 		$ret = array();
@@ -195,6 +234,15 @@ class UserGroup_api {
 		return $ret;
 	}
 	
+	/**
+	 * Give a group a new name
+	 * 
+	 * @param int $group_id
+	 * @param string $group_name
+	 * @param string $group_cn
+	 * @throws Exception
+	 * @return UserGroup_model the group after the change is applied
+	 */
 	public static function rename($group_id, $group_name, $group_cn) {
 		/* Normalise inputs and load existing group */
 		$group_cn = Auth::normaliseName($group_cn);
@@ -203,7 +251,7 @@ class UserGroup_api {
 		
 		if($group -> group_name == $group_name && $group -> group_cn == $group_cn) {
 			/* No need to do anything */
-			return true;
+			return $group;
 		}
 		
 		/* The start of this is very similar to create() above */
@@ -225,12 +273,15 @@ class UserGroup_api {
 		}
 		
 		/* Update in local database */
+		$oldcn = $group -> group_cn;
 		$group -> group_cn = $group_cn;
 		$group -> group_name = $group_name;
+		
+		/* ActionQueue */
+		ActionQueue_api::submitByDomain($group -> group_domain, 'grpRename', $oldcn, $group -> group_cn, $group -> group_name);
+
 		$group -> update();
-		
-		// TODO: ActionQueue.
-		
+
 		return $group;
 	}
 }
