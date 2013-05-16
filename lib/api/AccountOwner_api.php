@@ -8,6 +8,7 @@
 class AccountOwner_api {	
 	public static function init() {
 		Auth::loadClass("AccountOwner_model");
+		Auth::loadClass("Account_api");
 		Auth::loadClass("Ou_api");
 		Auth::loadClass("Account_model");
 		Auth::loadClass("ListServiceDomain_model");
@@ -162,7 +163,7 @@ class AccountOwner_api {
 		$owner = self::get($owner_id);
 		
 		foreach($owner -> list_Account as $account) {
-			Account_model::delete($account -> account_id);
+			Account_api::delete($account -> account_id);
 		}
 		
 		foreach($owner -> list_OwnerUserGroup as $oug) {

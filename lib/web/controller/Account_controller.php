@@ -12,7 +12,7 @@ class Account_controller {
 		} catch(Exception $e) {
 			$data['error'] = '404';
 		}
-		
+
 		try {
 			if(isset($_POST['action'])) {
 				$action = $_POST['action'];
@@ -26,7 +26,7 @@ class Account_controller {
 						$data['Account'] = Account_api::disable($data['Account'] -> account_id);
 						break;
 					case "enable":
-						$data['Account'] = Account_api::disable($data['Account'] -> account_id);
+						$data['Account'] = Account_api::enable($data['Account'] -> account_id);
 						break;
 				}
 			}
@@ -58,7 +58,7 @@ class Account_controller {
 					if($service_id == "") {
 						throw new Exception("Please select a service for the account");
 					}
-						
+
 					/* Attempt to create the account */
 					Account_api::create($owner_id, $account_login, $domain_id, $service_id);
 					Web::redirect(Web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), "html"));
@@ -79,13 +79,23 @@ class Account_controller {
 		$results = Account_model::search($term);
 		return Array("current" => "Ou", "Accounts" => $results);
 	}
-	
+
 	function rename($account_id) {
 		$data = array('current' => "Ou");
 		try {
 			$data['Account'] = Account_api::get($account_id);
 		} catch(Exception $e) {
 			$data['error'] = '404';
+		}
+
+		if(isset($_POST['account_login'])) {
+			try {
+				$account_login = $_POST['account_login'];
+				Account_api::rename($data['Account'] -> account_id, $account_login);
+				web::redirect(web::constructURL("Account", "view", array($data['Account'] -> account_id), "html"));
+			} catch(Exception $e) {
+				$data['message'] = $e -> getMessage();
+			}
 		}
 		return $data;
 	}

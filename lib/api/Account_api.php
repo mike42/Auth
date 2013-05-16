@@ -71,20 +71,66 @@ class Account_api {
 
 	
 	public static function delete($account_id) {
-		throw new Exception("Unimplemented");
+		$account = self::get($account_id);
+		
+		/* This one is straightforward */
+		$account -> delete();
 		
 		// TODO: ActionQueue
+		
+		return $account;
 	}
 	
 	public static function enable($account_id) {
-		throw new Exception("Unimplemented");
+		$account = self::get($account_id);
+		
+		if((int)$account -> account_enabled == 1) {
+			throw new Exception("The account is already enabled");
+		}
+		$account -> account_enabled = 1;
+		$account -> update();
 		
 		// TODO: ActionQueue
+		
+		return $account;
 	}
 	
 	public static function disable($account_id) {
-		throw new Exception("Unimplemented");
+		$account = self::get($account_id);
+		
+		if((int)$account -> account_enabled == 0) {
+			throw new Exception("The account is already disabled");
+		}
+		
+		$account -> account_enabled = 0;
+		$account -> update();
+
+		// TODO: ActionQueue
+		return $account;
+	}
+	
+	public static function rename($account_id, $account_login) {
+		/* Check inputs */
+		$account = self::get($account_id);
+		$account_login = Auth::normaliseName($account_login);
+		if($account_login == "") {
+			throw new Exception("Username cannot be blank");
+		}
+		
+		if($account_login == $account -> account_login) {
+			/* Account name has not changed, do nothing */
+			return;
+		}
+		
+		if($a = Account_model::get_by_account_login($account_login, $account -> service_id, $account -> account_domain)) {
+			/* Wont create duplicate account */
+			throw new Exception("Login name '$account_login' is already in use on '".$account -> service_id."' (".$account -> account_domain.").");
+		}
+		
+		$account -> account_login = $account_login;
+		$account -> update();
 		
 		// TODO: ActionQueue
+		return $account;
 	}
 }
