@@ -9,6 +9,7 @@ class Service_model {
 	public $service_username;
 	public $service_password;
 	public $service_domain;
+	public $service_pwd_regex;
 
 	/* Referenced tables */
 	public $ListServiceType;
@@ -36,14 +37,15 @@ class Service_model {
 	 * @param array $row The database row to use.
 	*/
 	public function Service_model(array $row = array()) {
-		$this -> service_id       = isset($row['service_id'])       ? $row['service_id']      : '';
-		$this -> service_name     = isset($row['service_name'])     ? $row['service_name']    : '';
-		$this -> service_enabled  = isset($row['service_enabled'])  ? $row['service_enabled'] : '';
-		$this -> service_type     = isset($row['service_type'])     ? $row['service_type']    : '';
-		$this -> service_address  = isset($row['service_address'])  ? $row['service_address'] : '';
-		$this -> service_username = isset($row['service_username']) ? $row['service_username']: '';
-		$this -> service_password = isset($row['service_password']) ? $row['service_password']: '';
-		$this -> service_domain   = isset($row['service_domain'])   ? $row['service_domain']  : '';
+		$this -> service_id        = isset($row['service_id'])        ? $row['service_id']       : '';
+		$this -> service_name      = isset($row['service_name'])      ? $row['service_name']     : '';
+		$this -> service_enabled   = isset($row['service_enabled'])   ? $row['service_enabled']  : '';
+		$this -> service_type      = isset($row['service_type'])      ? $row['service_type']     : '';
+		$this -> service_address   = isset($row['service_address'])   ? $row['service_address']  : '';
+		$this -> service_username  = isset($row['service_username'])  ? $row['service_username'] : '';
+		$this -> service_password  = isset($row['service_password'])  ? $row['service_password'] : '';
+		$this -> service_domain    = isset($row['service_domain'])    ? $row['service_domain']   : '';
+		$this -> service_pwd_regex = isset($row['service_pwd_regex']) ? $row['service_pwd_regex']: '';
 
 		/* Fields from related tables */
 		$this -> ListServiceType = new ListServiceType_model($row);
@@ -102,13 +104,13 @@ class Service_model {
 	}
 
 	public function insert() {
-		$sql = "INSERT INTO Service(service_id, service_name, service_enabled, service_type, service_address, service_username, service_password, service_domain) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');";
-		return Database::insert($sql, array($this -> service_id, $this -> service_name, $this -> service_enabled, $this -> service_type, $this -> service_address, $this -> service_username, $this -> service_password, $this -> service_domain));
+		$sql = "INSERT INTO Service(service_id, service_name, service_enabled, service_type, service_address, service_username, service_password, service_domain, service_pwd_regex) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s');";
+		return Database::insert($sql, array($this -> service_id, $this -> service_name, $this -> service_enabled, $this -> service_type, $this -> service_address, $this -> service_username, $this -> service_password, $this -> service_domain, $this -> service_pwd_regex));
 	}
 
 	public function update() {
-		$sql = "UPDATE Service SET service_name ='%s', service_enabled ='%s', service_type ='%s', service_address ='%s', service_username ='%s', service_password ='%s', service_domain ='%s' WHERE service_id ='%s';";
-		return Database::update($sql, array($this -> service_name, $this -> service_enabled, $this -> service_type, $this -> service_address, $this -> service_username, $this -> service_password, $this -> service_domain, $this -> service_id));
+		$sql = "UPDATE Service SET service_name ='%s', service_enabled ='%s', service_type ='%s', service_address ='%s', service_username ='%s', service_password ='%s', service_domain ='%s', service_pwd_regex ='%s' WHERE service_id ='%s';";
+		return Database::update($sql, array($this -> service_name, $this -> service_enabled, $this -> service_type, $this -> service_address, $this -> service_username, $this -> service_password, $this -> service_domain, $this -> service_pwd_regex, $this -> service_id));
 	}
 
 	public function delete() {

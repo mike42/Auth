@@ -8,8 +8,8 @@ class UserGroup_model {
 	public $group_domain;
 
 	/* Referenced tables */
-	public $ListDomain;
 	public $Ou;
+	public $ListDomain;
 
 	/* Tables which reference this */
 	public $list_OwnerUserGroup       = array();
@@ -20,8 +20,8 @@ class UserGroup_model {
 	*/
 	public static function init() {
 		Auth::loadClass("Database");
-		Auth::loadClass("ListDomain_model");
 		Auth::loadClass("Ou_model");
+		Auth::loadClass("ListDomain_model");
 		Auth::loadClass("OwnerUserGroup_model");
 		Auth::loadClass("SubUserGroup_model");
 	}
@@ -38,12 +38,12 @@ class UserGroup_model {
 		$this -> group_domain = isset($row['group_domain']) ? $row['group_domain']: '';
 
 		/* Fields from related tables */
-		$this -> ListDomain = new ListDomain_model($row);
 		$this -> Ou = new Ou_model($row);
+		$this -> ListDomain = new ListDomain_model($row);
 	}
 
 	public static function get($group_id) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.group_id='%s'";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE UserGroup.group_id='%s'";
 		$res = Database::retrieve($sql, array($group_id));
 		if($row = Database::get_row($res)) {
 			return new UserGroup_model($row);
@@ -52,7 +52,7 @@ class UserGroup_model {
 	}
 
 	public static function get_by_group_cn($group_cn) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.group_cn='%s'";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE UserGroup.group_cn='%s'";
 		$res = Database::retrieve($sql, array($group_cn));
 		if($row = Database::get_row($res)) {
 			return new UserGroup_model($row);
@@ -61,7 +61,7 @@ class UserGroup_model {
 	}
 
 	public static function list_by_ou_id($ou_id) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.ou_id='%s';";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE UserGroup.ou_id='%s';";
 		$res = Database::retrieve($sql, array($ou_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -71,7 +71,7 @@ class UserGroup_model {
 	}
 
 	public static function list_by_group_domain($group_domain) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id WHERE UserGroup.group_domain='%s';";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE UserGroup.group_domain='%s';";
 		$res = Database::retrieve($sql, array($group_domain));
 		$ret = array();
 		while($row = Database::get_row($res)) {

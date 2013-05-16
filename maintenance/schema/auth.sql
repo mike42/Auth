@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: May 16, 2013 at 03:58 PM
+-- Generation Time: May 17, 2013 at 10:07 AM
 -- Server version: 5.5.30
 -- PHP Version: 5.4.4-14
 
@@ -20,265 +20,116 @@ SET time_zone = "+00:00";
 -- Database: `auth`
 --
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `Account`
+-- Dumping data for table `Account`
 --
 
-CREATE TABLE IF NOT EXISTS `Account` (
-  `account_id` int(11) NOT NULL AUTO_INCREMENT,
-  `account_login` varchar(127) CHARACTER SET utf8 NOT NULL,
-  `account_domain` varchar(12) NOT NULL,
-  `service_id` varchar(12) NOT NULL,
-  `owner_id` int(11) NOT NULL,
-  `account_enabled` int(1) NOT NULL,
-  PRIMARY KEY (`account_id`),
-  UNIQUE KEY `service_owner_unique` (`service_id`,`owner_id`),
-  UNIQUE KEY `account_login` (`account_login`,`service_id`,`account_domain`),
-  KEY `owner_id` (`owner_id`),
-  KEY `service_id` (`service_id`),
-  KEY `account_domain` (`account_domain`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=54 ;
-
--- --------------------------------------------------------
+INSERT INTO `Account` (`account_id`, `account_login`, `account_domain`, `service_id`, `owner_id`, `account_enabled`) VALUES
+(1, 'ebob', 'staff', 'ad', 1, 1),
+(2, 'ebob', 'students', 'curricfile01', 1, 1),
+(3, 'ebob', 'staff', 'gapps', 1, 1),
+(4, 'ebob', 'staff', 'ldap', 1, 1),
+(5, 'ebob', 'staff', 'sjcfile01', 1, 1),
+(6, 'fbar', 'staff', 'ad', 2, 1),
+(7, 'fbar', 'students', 'curricfile01', 2, 1),
+(8, 'fbar', 'staff', 'gapps', 2, 1),
+(9, 'fbar', 'staff', 'ldap', 2, 1),
+(10, 'fbar', 'staff', 'sjcfile01', 2, 1);
 
 --
--- Table structure for table `AccountOwner`
+-- Dumping data for table `AccountOwner`
 --
 
-CREATE TABLE IF NOT EXISTS `AccountOwner` (
-  `owner_id` int(11) NOT NULL AUTO_INCREMENT,
-  `owner_firstname` text NOT NULL,
-  `owner_surname` text NOT NULL,
-  `ou_id` int(11) NOT NULL,
-  PRIMARY KEY (`owner_id`),
-  KEY `ou_id` (`ou_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=24 ;
-
--- --------------------------------------------------------
+INSERT INTO `AccountOwner` (`owner_id`, `owner_firstname`, `owner_surname`, `ou_id`) VALUES
+(1, 'Example', 'Bob', 1),
+(2, 'Foo', 'Bar', 1);
 
 --
--- Table structure for table `ActionQueue`
+-- Dumping data for table `ListActionType`
 --
 
-CREATE TABLE IF NOT EXISTS `ActionQueue` (
-  `aq_id` int(11) NOT NULL AUTO_INCREMENT,
-  `aq_attempts` int(11) NOT NULL DEFAULT '0',
-  `aq_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `service_id` varchar(12) NOT NULL,
-  `domain_id` varchar(12) NOT NULL,
-  `action_type` varchar(12) NOT NULL,
-  `aq_target` varchar(256) NOT NULL,
-  `aq_arg1` text NOT NULL,
-  `aq_arg2` text NOT NULL,
-  `aq_arg3` text NOT NULL,
-  `aq_complete` int(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`aq_id`),
-  KEY `service_id` (`service_id`),
-  KEY `domain_id` (`domain_id`),
-  KEY `action_type` (`action_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `ListActionType`
---
-
-CREATE TABLE IF NOT EXISTS `ListActionType` (
-  `action_type` varchar(12) NOT NULL,
-  PRIMARY KEY (`action_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
+INSERT INTO `ListActionType` (`action_type`) VALUES
+('acctCreate'),
+('acctDelete'),
+('acctDisable'),
+('acctEnable'),
+('acctPasswd'),
+('acctRelocate'),
+('acctUpdate'),
+('grpAddChild'),
+('grpCreate'),
+('grpDelChild'),
+('grpDelete'),
+('grpJoin'),
+('grpLeave'),
+('grpMove'),
+('grpRename'),
+('ouCreate'),
+('ouDelete'),
+('ouMove'),
+('ouRename'),
+('recursiveSea'),
+('syncOu');
 
 --
--- Table structure for table `ListDomain`
+-- Dumping data for table `ListDomain`
 --
 
-CREATE TABLE IF NOT EXISTS `ListDomain` (
-  `domain_id` varchar(12) NOT NULL,
-  `domain_name` varchar(256) NOT NULL,
-  `domain_enabled` int(1) NOT NULL,
-  PRIMARY KEY (`domain_id`),
-  KEY `domain_enabled` (`domain_enabled`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
+INSERT INTO `ListDomain` (`domain_id`, `domain_name`, `domain_enabled`) VALUES
+('staff', 'Staff', 1),
+('students', 'Students', 1);
 
 --
--- Table structure for table `ListServiceDomain`
+-- Dumping data for table `ListServiceDomain`
 --
 
-CREATE TABLE IF NOT EXISTS `ListServiceDomain` (
-  `service_id` varchar(12) NOT NULL,
-  `domain_id` varchar(12) NOT NULL,
-  `sd_root` varchar(64) NOT NULL COMMENT 'The root domain name for this domain, in the format it is used on this service',
-  `sd_secondary` int(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`service_id`,`domain_id`),
-  KEY `domain_id` (`domain_id`),
-  KEY `service_id` (`service_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COMMENT='Configure data sources/destinations';
-
--- --------------------------------------------------------
+INSERT INTO `ListServiceDomain` (`service_id`, `domain_id`, `sd_root`, `sd_secondary`) VALUES
+('ad', 'staff', '', 0),
+('curricfile01', 'staff', '', 1),
+('curricfile01', 'students', '', 0),
+('gapps', 'staff', '', 0),
+('gapps', 'students', '', 0),
+('ldap', 'staff', '', 0),
+('ldap', 'students', '', 1),
+('sjcfile01', 'staff', '', 0);
 
 --
--- Table structure for table `ListServiceType`
+-- Dumping data for table `ListServiceType`
 --
 
-CREATE TABLE IF NOT EXISTS `ListServiceType` (
-  `service_type` varchar(64) NOT NULL,
-  PRIMARY KEY (`service_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
+INSERT INTO `ListServiceType` (`service_type`) VALUES
+('ad'),
+('gapps'),
+('ldap');
 
 --
--- Table structure for table `Ou`
+-- Dumping data for table `Ou`
 --
 
-CREATE TABLE IF NOT EXISTS `Ou` (
-  `ou_id` int(11) NOT NULL AUTO_INCREMENT,
-  `ou_parent_id` int(11) DEFAULT NULL,
-  `ou_name` varchar(64) DEFAULT NULL,
-  PRIMARY KEY (`ou_id`),
-  UNIQUE KEY `ou_name` (`ou_name`),
-  KEY `ou_parent_id` (`ou_parent_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 COMMENT='Organizational units' AUTO_INCREMENT=18 ;
-
--- --------------------------------------------------------
+INSERT INTO `Ou` (`ou_id`, `ou_parent_id`, `ou_name`) VALUES
+(1, NULL, 'root'),
+(33, 1, 'edrftgyuiop'),
+(34, 1, 'giraffe');
 
 --
--- Table structure for table `OwnerUserGroup`
+-- Dumping data for table `Service`
 --
 
-CREATE TABLE IF NOT EXISTS `OwnerUserGroup` (
-  `owner_id` int(11) NOT NULL,
-  `group_id` int(11) NOT NULL,
-  PRIMARY KEY (`owner_id`,`group_id`),
-  KEY `owner_id` (`owner_id`),
-  KEY `group_id` (`group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
+INSERT INTO `Service` (`service_id`, `service_name`, `service_enabled`, `service_type`, `service_address`, `service_username`, `service_password`, `service_domain`, `service_pwd_regex`) VALUES
+('ad', 'AD (college.network)', 1, 'ad', '', '', '', 'staff', '/^.{1,}$/s'),
+('curricfile01', 'AD (curricsjc.local)', 1, 'ad', '', '', '', 'students', '/^.{1,}$/s'),
+('gapps', 'Google Apps', 1, 'gapps', '', '', '', 'staff', '/^.{8,}$/s'),
+('ldap', 'LDAP', 1, 'ldap', '', '', '', 'staff', '/^.{1,}$/s'),
+('sjcfile01', 'AD (panditsjc.local)', 1, 'ad', '', '', '', 'staff', '/^.{1,}$/s');
 
 --
--- Table structure for table `Service`
+-- Dumping data for table `UserGroup`
 --
 
-CREATE TABLE IF NOT EXISTS `Service` (
-  `service_id` varchar(12) NOT NULL,
-  `service_name` text NOT NULL,
-  `service_enabled` int(1) NOT NULL,
-  `service_type` varchar(64) NOT NULL,
-  `service_address` varchar(256) NOT NULL,
-  `service_username` varchar(256) NOT NULL,
-  `service_password` varchar(256) NOT NULL,
-  `service_domain` varchar(12) NOT NULL,
-  PRIMARY KEY (`service_id`),
-  KEY `service_enabled` (`service_enabled`),
-  KEY `service_type` (`service_type`),
-  KEY `service_domain` (`service_domain`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `SubUserGroup`
---
-
-CREATE TABLE IF NOT EXISTS `SubUserGroup` (
-  `parent_group_id` int(11) NOT NULL,
-  `group_id` int(11) NOT NULL,
-  PRIMARY KEY (`parent_group_id`,`group_id`),
-  KEY `parent_group_id` (`parent_group_id`),
-  KEY `group_id` (`group_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `UserGroup`
---
-
-CREATE TABLE IF NOT EXISTS `UserGroup` (
-  `group_id` int(11) NOT NULL AUTO_INCREMENT,
-  `group_cn` varchar(256) NOT NULL,
-  `group_name` varchar(256) NOT NULL,
-  `ou_id` int(11) NOT NULL,
-  `group_domain` varchar(12) NOT NULL,
-  PRIMARY KEY (`group_id`),
-  UNIQUE KEY `group_cn` (`group_cn`),
-  KEY `ou_id` (`ou_id`),
-  KEY `group_domain` (`group_domain`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=23 ;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `Account`
---
-ALTER TABLE `Account`
-  ADD CONSTRAINT `Account_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `Service` (`service_id`),
-  ADD CONSTRAINT `Account_ibfk_2` FOREIGN KEY (`owner_id`) REFERENCES `AccountOwner` (`owner_id`),
-  ADD CONSTRAINT `Account_ibfk_3` FOREIGN KEY (`account_domain`) REFERENCES `ListDomain` (`domain_id`);
-
---
--- Constraints for table `AccountOwner`
---
-ALTER TABLE `AccountOwner`
-  ADD CONSTRAINT `AccountOwner_ibfk_1` FOREIGN KEY (`ou_id`) REFERENCES `Ou` (`ou_id`);
-
---
--- Constraints for table `ActionQueue`
---
-ALTER TABLE `ActionQueue`
-  ADD CONSTRAINT `ActionQueue_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `Service` (`service_id`),
-  ADD CONSTRAINT `ActionQueue_ibfk_2` FOREIGN KEY (`domain_id`) REFERENCES `ListDomain` (`domain_id`),
-  ADD CONSTRAINT `ActionQueue_ibfk_3` FOREIGN KEY (`action_type`) REFERENCES `ListActionType` (`action_type`);
-
---
--- Constraints for table `ListServiceDomain`
---
-ALTER TABLE `ListServiceDomain`
-  ADD CONSTRAINT `ListServiceDomain_ibfk_1` FOREIGN KEY (`service_id`) REFERENCES `Service` (`service_id`),
-  ADD CONSTRAINT `ListServiceDomain_ibfk_2` FOREIGN KEY (`domain_id`) REFERENCES `ListDomain` (`domain_id`);
-
---
--- Constraints for table `Ou`
---
-ALTER TABLE `Ou`
-  ADD CONSTRAINT `Ou_ibfk_1` FOREIGN KEY (`ou_parent_id`) REFERENCES `Ou` (`ou_id`);
-
---
--- Constraints for table `OwnerUserGroup`
---
-ALTER TABLE `OwnerUserGroup`
-  ADD CONSTRAINT `OwnerUserGroup_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `AccountOwner` (`owner_id`),
-  ADD CONSTRAINT `OwnerUserGroup_ibfk_2` FOREIGN KEY (`group_id`) REFERENCES `UserGroup` (`group_id`);
-
---
--- Constraints for table `Service`
---
-ALTER TABLE `Service`
-  ADD CONSTRAINT `Service_ibfk_3` FOREIGN KEY (`service_type`) REFERENCES `ListServiceType` (`service_type`),
-  ADD CONSTRAINT `Service_ibfk_4` FOREIGN KEY (`service_domain`) REFERENCES `ListDomain` (`domain_id`);
-
---
--- Constraints for table `SubUserGroup`
---
-ALTER TABLE `SubUserGroup`
-  ADD CONSTRAINT `SubUserGroup_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `UserGroup` (`group_id`);
-
---
--- Constraints for table `UserGroup`
---
-ALTER TABLE `UserGroup`
-  ADD CONSTRAINT `UserGroup_ibfk_2` FOREIGN KEY (`group_domain`) REFERENCES `ListDomain` (`domain_id`),
-  ADD CONSTRAINT `UserGroup_ibfk_1` FOREIGN KEY (`ou_id`) REFERENCES `Ou` (`ou_id`);
+INSERT INTO `UserGroup` (`group_id`, `group_cn`, `group_name`, `ou_id`, `group_domain`) VALUES
+(30, 'allstaffs', 'All Staffers', 34, 'staff'),
+(31, 'allstudents', 'All Students', 1, 'students'),
+(32, 'allfoo', 'All Foo', 1, 'staff');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
