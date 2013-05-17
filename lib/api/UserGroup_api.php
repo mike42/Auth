@@ -59,7 +59,7 @@ class UserGroup_api {
 		
 		return $group;
 	}
-	
+
 	/**
 	 * Get a group by ID
 	 * 
@@ -75,7 +75,7 @@ class UserGroup_api {
 		$ug -> populate_list_OwnerUserGroup();
 		return $ug;
 	}
-	
+
 	/**
 	 * Get a group by common name (sometimes ID is not known, or we need to map a cn to an ID). Otherwise this is the smae as get(int) above.
 	 * 
@@ -233,7 +233,7 @@ class UserGroup_api {
 		}
 		return $ret;
 	}
-	
+
 	/**
 	 * Give a group a new name
 	 * 

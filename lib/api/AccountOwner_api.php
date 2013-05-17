@@ -89,9 +89,9 @@ class AccountOwner_api {
 
 		foreach($accounts as $account) {
 			$account -> owner_id = $owner -> owner_id;
-			$account -> account_id = $account -> insert();
 
-			// TODO: ActionQueue
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctCreate', $account -> account_login, $ou -> ou_name, $owner -> owner_firstname,  $owner -> owner_surname);
+			$account -> account_id = $account -> insert();
 		}
 
 		$owner -> populate_List_Account();
@@ -112,33 +112,69 @@ class AccountOwner_api {
 		return $owner;
 	}
 	
+	/**
+	 * Set the password for all of this user's accounts
+	 * 
+	 * @param int $owner_id The owner to reset password for.
+	 * @param string $password The password to use.
+	 * @throws Exception
+	 * @return unknown
+	 */
 	public static function pwreset($owner_id, $password) {
 		$owner = self::get($owner_id);
-		// TODO: Verify against services
-		// TODO: ActionQueue	
-		throw new Exception("Unimplemented");
+		$password = trim($password);
+
+		/* Verify */
+		foreach($owner -> list_Account as $account) {
+			if(preg_match($account -> Service -> service_pwd_regex, $password) != 1) {
+				throw new Exception("That password does not meet the requirements for " . $account -> Service -> service_name . ", so can't be used.");
+			}
+		}
+		
+		/* Submit for updating */
+		foreach($owner -> list_Account as $account) {
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctPasswd', $account -> account_login, $password);
+		}
 		
 		return $owner;
 	}
 	
+	/**
+	 * Move a user to a different organizational unit
+	 * 
+	 * @param int $owner_id
+	 * @param int $ou_id
+	 */
 	public static function move($owner_id, $ou_id) {
 		$owner = self::get($owner_id);
 		$ou = Ou_api::get($ou_id);
 		
 		if($owner -> ou_id == $ou -> ou_id) {
 			/* Nothing to do. */
-			return;
+			return $owner;
 		}
 		
 		/* Update */
 		$owner -> ou_id = $ou -> ou_id;
 		$owner -> update();
 		
-		// TODO: ActionQueue
+		/* ActionQueue */
+		foreach($owner -> list_Account as $account) {
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctRelocate', $account -> account_login, $ou -> ou_name);
+		}
 		
 		return $owner;
 	}
 	
+	/**
+	 * Rename a user (ie, alter their fullname / display name)
+	 * 
+	 * @param int $owner_id	The ID of the user
+	 * @param string $owner_firstname	The new firstname for the user
+	 * @param string $owner_surname	The new surname for the user
+	 * @throws Exception
+	 * @return unknown
+	 */
 	public static function rename($owner_id, $owner_firstname, $owner_surname) {
 		$owner = self::get($owner_id);
 		$owner_firstname = trim($owner_firstname);
@@ -155,11 +191,18 @@ class AccountOwner_api {
 		$owner -> owner_surname = $owner_surname;
 		$owner -> update();
 		
-		// TODO: ActionQueue
-		
+		/* ActionQueue */
+		foreach($owner -> list_Account as $account) {
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account -> account_login, $account -> account_login, $owner -> owner_firstname, $owner -> owner_surname);
+		}
 		return $owner;
 	}
 	
+	/**
+	 * Delete a user
+	 * 
+	 * @param integer $owner_id
+	 */
 	public static function delete($owner_id) {
 		$owner = self::get($owner_id);
 		
@@ -171,25 +214,48 @@ class AccountOwner_api {
 			$oug -> delete();
 		}
 		
-		// TODO: ActionQueue
-		
+		/* ActionQueue */
+		foreach($owner -> list_Account as $account) {
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctDelete', $account -> account_login);
+		}
+
 		$owner -> delete();
 	}
 	
+	/**
+	 * Add a user to a group
+	 * 
+	 * @param int $owner_id
+	 * @param int $group_id
+	 * @throws Exception
+	 */
 	public static function addtogroup($owner_id, $group_id) {
 		if(self::ismember($owner_id, $group_id)) { // This also checks that the user and group exist
 			throw new Exception("The user is already in that group! (or is in a group that is)");
 		}
+		
+		/* Load these (will throw exceptions if they don't exist) */
+		$owner = self::get($owner_id);
+		$group = USerGroup_api::get($group_id);
 
 		$oug = new OwnerUserGroup_model();
 		$oug -> owner_id = $owner_id;
 		$oug -> group_id = $group_id;
 		$oug -> insert();
 		
-		// TODO: ActionQueue
-		
+		/* ActionQueue */
+		foreach($owner -> list_Account as $account) {
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'grpJoin', $account -> account_login, $group -> group_cn);
+		}
 	}
 	
+	/**
+	 * Remove the user from a group
+	 * 
+	 * @param int $owner_id
+	 * @param int $group_id
+	 * @throws Exception
+	 */
 	public static function rmfromgroup($owner_id, $group_id) {
 		$owner = self::get($owner_id);
 		$group = UserGroup_api::get($group_id);
@@ -200,15 +266,17 @@ class AccountOwner_api {
 		
 		$oug -> delete();
 		
-		// TODO: ActionQueue
-
+		/* ActionQueue */
+		foreach($owner -> list_Account as $account) {
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'grpLeave', $account -> account_login, $group -> group_cn);
+		}
 	}
 	
 	/**
 	 * Tests whether a user is in a given group
 	 * 
-	 * @param unknown_type $owner_id
-	 * @param unknown_type $group_id
+	 * @param int $owner_id
+	 * @param int $group_id
 	 * @return boolean
 	 */
 	public static function ismember($owner_id, $group_id) {
