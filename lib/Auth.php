@@ -17,7 +17,7 @@ class Auth {
 			if(count($sp) == 1) {
 				/* If there are no underscores, it should be in util */
 				$sp[0] = self::alphanumeric($sp[0]);
-				$fn = dirname(__FILE__)."/util/".$sp[0].".php";
+				$fn = dirname(__FILE__)."/misc/".$sp[0].".php";
 			} else {
 				/* Otherwise look in the folder suggested by the name */
 				$folder = self::alphanumeric(array_pop($sp));
