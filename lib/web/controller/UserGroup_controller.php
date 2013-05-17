@@ -127,7 +127,6 @@ class UserGroup_controller {
 				$data['message'] = $e -> getMessage();
 			}
 		}
-		// TODO: Check post data
 		
 		return $data;
 	}

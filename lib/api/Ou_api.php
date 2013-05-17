@@ -116,7 +116,10 @@ class Ou_api {
 		$ou = self::get($ou_id);
 		$parent = self::get($ou_parent_id);
 		
-		// TODO search hierarchy to prevent infinite loops
+		if(self::is_subunit($ou, $parent)) {
+			throw new Exception("You can't do that: " . $parent -> ou_name . " is a sub-unit of " . $ou -> ou_name);
+		}
+		
 		$ou -> ou_parent_id = $parent -> ou_id;
 		$ou -> update();
 		
@@ -158,7 +161,7 @@ class Ou_api {
 	/**
 	 * Get an organizational unit by its numeric ID.
 	 * 
-	 * @param int $ou_id
+	 * @param int $ou_id The ID of the unit go look for
 	 * @throws Exception If it cannot be found
 	 * @return Ou_model the Organizational unit.
 	 */
@@ -172,6 +175,29 @@ class Ou_api {
 		$ou -> populate_list_UserGroup();
 		
 		return $ou;
+	}
+	
+	/**
+	 * Check whether $child is a sub-unit of $parent. This can be used to prevent cycles from being created.
+	 * 
+	 * @param Ou_model $parent
+	 * @param Ou_model $child
+	 * @param array $visited An array, using Ou_id values as keys, of groups already looked at.
+	 * @throws Exception
+	 * @return boolean
+	 */
+	static private function is_subunit(Ou_model $parent, Ou_model $child, $visited = array()) {
+		$parent -> populate_list_Ou();
+		foreach($parent -> list_Ou as $ou) {
+			if(isset($visited[$ou -> ou_id])) {
+				throw new Exception("Uh Oh! Sub-unit cycle found. Move the units so that they are a sub-unit of 'root' to fix this.");
+			}
+			$visited[$ou -> ou_id] = true;
+			if($ou -> ou_id == $child -> ou_id) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

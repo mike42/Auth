@@ -142,7 +142,13 @@ class UserGroup_api {
 			return true;
 		}
 		
-		// TODO: Verify that there are no circular references
+		if(self::is_member($child, $parent)) {
+			throw new Exception($child -> group_name . " is already in " . $parent -> group_name . " (or one of its sub-groups)");
+		}
+		
+		if(self::is_member($parent, $child)) {
+			throw new Exception("You can't do that: " . $parent -> group_name . " is a sub-group of " . $child -> group_name);
+		}
 		
 		$sg = new SubUserGroup_model();
 		$sg -> group_id = $child_group_id;
@@ -283,6 +289,37 @@ class UserGroup_api {
 		$group -> update();
 
 		return $group;
+	}
+	
+	/**
+	 * Check whether $parent is a sub-group of $child (used to avoid creating membership cycles).
+	 * Note tha this will return false if $parent == $child, so you should check that yourself.
+	 * 
+	 * @param UserGroup_model $child
+	 * @param UserGroup_model  $parent
+	 * @param array $visited
+	 * @throws Exception
+	 * @return boolean
+	 */
+	private static function is_member(UserGroup_model $child, UserGroup_model $parent, $visited = array()) {
+		$children = self::list_children($parent -> group_id);
+		foreach($children as $ug) {
+			if($ug -> group_id == $child -> group_id) {
+				/* Found sub-group we were looking for */
+				return true;
+			}
+			if(isset($visited[$ug -> group_id])) {
+				/* Prevent infinite loops */
+				throw new Exception("Uh Oh! Membership cycle found. Try deleting lots of groups-in-groups to fix this.");
+			}
+			$visited[$ug -> group_id] = true;
+			if(self::is_member($child, $ug, $visited)) {
+				/* Found $child as a sub-group of this sub-group */
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }
 
