@@ -213,11 +213,6 @@ class AccountOwner_api {
 		foreach($owner -> list_OwnerUserGroup as $oug) {
 			$oug -> delete();
 		}
-		
-		/* ActionQueue */
-		foreach($owner -> list_Account as $account) {
-			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctDelete', $account -> account_login);
-		}
 
 		$owner -> delete();
 	}
@@ -289,6 +284,23 @@ class AccountOwner_api {
 		return false;
 	}
 	
-
+	/**
+	 * Return the AccountOwner associated with a login, if it is unique.
+	 * This can be hit-and-miss, and should be used when accepting human input, rather than as part of a script,
+	 * where you would use Account_model::get_by_.... with enough information to lookup using a login name uniquely.
+	 * 
+	 * @param unknown_type $account_login
+	 * @throws Exception
+	 */
+	public static function searchLogin($account_login) {
+		$logins = Account_model::searchLogin($account_login);
+		if(count($logins) == 0) {
+			throw new Exception("No accounts found");
+		} else if(count($logins) > 1) {
+			throw new Exception("Multiple accounts have that login");			
+		}
+		
+		return self::get($logins[0] -> owner_id);
+	}
 }
 ?>

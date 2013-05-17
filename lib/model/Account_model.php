@@ -115,7 +115,7 @@ class Account_model {
 
 	/* Non-generated functions */
 	public static function search($term) {
-		$sql = "SELECT DISTINCT Account.owner_id, account_login, owner_firstname, owner_surname, domain_name " .
+		$sql = "SELECT DISTINCT Account.owner_id, account_login, owner_firstname, owner_surname " .
 				"FROM Account " .
 				"JOIN ListDomain ON ListDomain.domain_id = Account.account_domain " .
 				"JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id " .
@@ -124,6 +124,16 @@ class Account_model {
 				"LIMIT 0 , 20;";
 		$term = str_replace("%", "\"%", $term);
 		$res = Database::retrieve($sql, array($term, $term, $term));
+		$ret = array();
+		while($row = Database::get_row($res)) {
+			$ret[] = new Account_model($row);
+		}
+		return $ret;
+	}
+	
+	public static function searchLogin($account_login) {
+		$sql = "SELECT DISTINCT owner_id, account_login FROM `Account` WHERE `account_login` = '%s'";
+		$res = Database::retrieve($sql, array($account_login));
 		$ret = array();
 		while($row = Database::get_row($res)) {
 			$ret[] = new Account_model($row);

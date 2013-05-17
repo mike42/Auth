@@ -119,4 +119,8 @@ class ActionQueue_api {
 		$aq -> aq_id = $aq -> insert();
 		return true; // No need to pass on this object
 	}
+	
+	static public function getOverview() {
+		return ActionQueue_model::get_overview();
+	}
 }

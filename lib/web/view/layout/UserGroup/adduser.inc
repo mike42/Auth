@@ -29,8 +29,8 @@
 						<input type="hidden" name="owner_id" id="owner_id" /> <input
 							type="text" name="uname" id="uname" class="span2" /> <a
 							class="btn"
-							href="<?php echo web::constructURL("UserGroup", "view", array($data['UserGroup'] -> group_id), "html"); ?>" />Cancel</a>
-						<button class="btn" type="submit" />
+							href="<?php echo web::constructURL("UserGroup", "view", array($data['UserGroup'] -> group_id), "html"); ?>">Cancel</a>
+						<button class="btn" type="submit">
 						Add
 						</button>
 					</div>
