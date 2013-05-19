@@ -2,14 +2,17 @@
 <?php
 /**
  * TODO:
+ * Check for apache2 packages
  * Prompt for database details
- * Prompt for PID file and log folders
+ * Prompt for PID file (in /var/lock or whatever) and log folders (and change permissions for log file folder)
  * Create database account
  * import schema file
  * save config (with very restricted permissions)
  * symlink binaries
- * Install apache site
+ * install authqueue in /etc/init.d
+ * Install apache site w/https
  */
+
 create account, 
 /**
  * This script will prompt for some required information, and then install the Auth files on your system.
@@ -67,8 +70,6 @@ write("\nInstallation complete. Press any key to exit..\n");
 
 ncurses_getch();
 ncurses_end();
-
-//Also posix-getpid.php
 
 function write($str) {
 	ncurses_addstr($str);
