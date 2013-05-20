@@ -10,7 +10,7 @@ abstract class account_service {
 	 * 
 	 * @param Account_model $a The account to create
 	 */
-	//abstract protected function accountCreate(Account_model $a);
+	abstract protected function accountCreate(Account_model $a);
 	
 	/**
 	 * Delete a user account from this service.
@@ -18,7 +18,7 @@ abstract class account_service {
 	 * @param string $account_login The login name of the account
 	 * @param string $account_domain The domain which the account is on (services may serve multiple domains)
 	 */
-	//abstract protected function accountDelete($account_login, ListDomain_model $account_domain);
+	abstract protected function accountDelete($account_login, ListDomain_model $account_domain);
 	
 	/**
 	 * Update the login and display name for an account.
@@ -28,28 +28,28 @@ abstract class account_service {
 	 * @param string $owner_firstname
 	 * @param string $owner_surname
 	 */
-	//abstract protected function accountUpdate(Account_model $a, $account_old_login, $owner_firstname, $owner_surname);
+	abstract protected function accountUpdate(Account_model $a, $account_old_login, $owner_firstname, $owner_surname);
 
 	/**
 	 * Disable a user account.
 	 * 
 	 * @param Account_model $a The user account to disable
 	 */
-	//abstract protected function accountDisable(Account_model $a);
+	abstract protected function accountDisable(Account_model $a);
 	
 	/**
 	 * Enable a user account.
 	 * 
 	 * @param Account_model $a The user account to enable
 	 */
-	//abstract protected function accountEnable(Account_model $a);
+	abstract protected function accountEnable(Account_model $a);
 	
 	/**
 	 * Re-base an account under a different organizational unit.
 	 * 
 	 * @param Account_model $a
 	 */
-	//abstract protected function accountRelocate(Account_model $a, Ou_model $o);
+	abstract protected function accountRelocate(Account_model $a, Ou_model $o);
 
 	/**
 	 * Set the password on an account.
@@ -57,15 +57,15 @@ abstract class account_service {
 	 * @param Account_model $a The account to set
 	 * @param string p The password to use
 	 */
-	//abstract protected function accountPassword(Account_model $a, $p);
+	abstract protected function accountPassword(Account_model $a, $p);
 	
 	/**
 	 * Search an organizational unit recursively, looking for changes.
 	 * 
 	 * @param Ou_model $o The organizational unit to search.
 	 */
-	//abstract protected function recursiveSearch(Ou_model $o);
-	
+	abstract protected function recursiveSearch(Ou_model $o);
+
 	/**
 	 * Create a new group.
 	 * 

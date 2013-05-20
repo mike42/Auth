@@ -18,7 +18,7 @@ class ActionQueue_api {
 	 * 
 	 * @param $id The ID of the action to cancel
 	 */
-	function cancel($id) {
+	function cancel($aq_id) {
 		if(!$aq = ActionQueue_model::get($aq_id)) {
 			throw new Exception("ActionQueue entry not found.");
 		}

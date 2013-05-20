@@ -37,29 +37,35 @@ if($count == 0) {
 	outp("Currently " . $count . " items in queue");
 	while($next = ActionQueue_model::get_next()) {
 		$next -> aq_attempts += 1; // Increment number of attempts
-		
+
 		/* Used to exponentially back-off if something is broken */
 		$interval = (1 << ($next -> aq_attempts - 1)) - 1;
 		$date = time() + $interval;
-		
-		if(process($next)) {
-			try {
-				$next -> complete = 1;
-				$next -> update();
-			} catch(Exception $e) {
-				outp("Problem marking item as done; Was it cancelled while it was running?");
+
+		try {
+			if(process($next)) {
+				try {
+					$next -> complete = 1;
+					$next -> update();
+				} catch(Exception $e) {
+					outp("\tProblem marking item as done; Was it cancelled while it was running?");
+				}
+			} else {
+				try {
+					$next -> aq_date = date( 'Y-m-d H:i:s', $date);
+					$next -> update();
+					outp("\tProcessing error. Will re-attempt after " . $next -> aq_date);
+				} catch(Exception $e) {
+					outp("\tProblem updating item. Was it cancelled while it was running?");
+				}
 			}
-		} else {
-			try {
-				$next -> aq_date = date( 'Y-m-d H:i:s', $date);
-				$next -> update();
-				outp("Processing failed. Will re-attempt after " . $next -> aq_date);
-			} catch(Exception $e) {
-				outp("Problem updating item. Was it cancelled while it was running?");
-			}
+		} catch(Exception $e) {
+			ActionQueue_api::cancel($next -> aq_id);
+			outp("\tFailed: " . $e -> getMessage());
 		}
 		
 		if(isset($switch['-1'])) {
+			/* Stop after the first item if -1 is set */
 			break;
 		}
 	}
@@ -73,6 +79,11 @@ fclose($pf);
 fclose($lf);
 @unlink($pidfile);
 
+/**
+ * Add something to the logfile (and the screen if -x is set).
+ * 
+ * @param string $str
+ */
 function outp($str) {
 	global $lf, $switch;
 	$str = date(DATE_ATOM) . " " . $str . "\n";
@@ -82,23 +93,106 @@ function outp($str) {
 	fwrite($lf, $str);
 }
 
+/**
+ * Process a single item in the queue
+ *
+ * @param ActionQueue_model $aq the item to process
+ * @return boolean True on success, false on failure. An exception will be thrown on permanent failure (something that can't be done), indicating that it should be removed from the queue rather than deferred.
+ */
 function process(ActionQueue_model $aq) {
-	global $service;
+	global $services;
 	outp("Processing " . $aq -> action_type . " (" . $aq -> aq_target . ") on " . $aq -> service_id . "/" . $aq -> domain_id . " - Attempt " . $aq -> aq_attempts);
+
+	if(!$aq -> Service -> service_enabled == 1) {
+		throw new Exception("Will not process because service is disabled");
+	}
 	
 	if(!isset($service[$aq -> service_id])) {
 		/* Load up service */
 		$class = $aq -> Service -> service_type . "_service";
 		outp("\tInitialising " . $aq -> service_id . ".. (an " . $class . ")");
 		Auth::loadClass($class);
-		$service[$aq -> service_id] = new $class($aq -> Service);
+		try {
+			$services[$aq -> service_id] = new $class($aq -> Service);
+		} catch(Exception $e) {
+			outp("Initialisation error: " . $e -> getMessage());
+			return false;
+		}
+	}
+
+	/* Retrieve info and call function in service */
+	if(substr($aq -> action_type, 0, 4) == "acct") {
+		Auth::loadClass("Account_model");
 	}
 	
-	/* Retrieve info and call function in service */
 	switch($aq -> action_type) {
-		
+		case 'acctCreate':
+			/* Create an account */	
+			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
+				throw new Exception("Account not found");
+			}
+			return $services[$aq -> service_id] -> accountCreate($a);
+		case 'acctDelete':
+			//TODO
+			return $services[$aq -> service_id] -> accountDelete($aq -> aq_target, $aq -> ListDomain);
+		case 'acctDisable':
+			//TODO
+			break;
+		case 'acctEnable':
+			//TODO
+			break;
+		case 'acctPasswd':
+			//TODO
+			break;
+		case 'acctRelocate':
+			//TODO
+			break;
+		case 'acctUpdate':
+			//TODO
+			break;
+		case 'grpAddChild':
+			//TODO
+			break;
+		case 'grpCreate':
+			//TODO
+			break;
+		case 'grpDelChild':
+			//TODO
+			break;
+		case 'grpDelete':
+			//TODO
+			break;
+		case 'grpJoin':
+			//TODO
+			break;
+		case 'grpLeave':
+			//TODO
+			break;
+		case 'grpMove':
+			//TODO
+			break;
+		case 'grpRename':
+			//TODO
+			break;
+		case 'ouCreate':
+			//TODO
+			break;
+		case 'ouDelete':
+			//TODO
+			break;
+		case 'ouMove':
+			//TODO
+			break;
+		case 'ouRename':
+			//TODO
+			break;
+		case 'recursiveSea':
+			//TODO
+			break;
+		case 'syncOu':
+			//TODO
+			break;
 	}
-	//$st = $aq -> Service;
 	return false;
 }
 ?>
