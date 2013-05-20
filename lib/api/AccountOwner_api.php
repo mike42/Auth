@@ -29,14 +29,14 @@ class AccountOwner_api {
 		/* Some basic validation */
 		$owner_firstname = trim($owner_firstname);
 		$owner_surname = trim($owner_surname);
-		$account_login = trim($account_login);
+		$account_login = Auth::normaliseName($account_login);
 		if($owner_firstname == "") {
 			throw new Exception("No firstname specified");
 		}
 		if($owner_surname == "") {
 			throw new Exception("No surname specified");
 		}
-		if($owner_surname == "") {
+		if($account_login == "") {
 			throw new Exception("No login name specified");
 		}
 		if($domain_id == "") {
