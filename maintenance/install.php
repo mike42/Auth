@@ -13,7 +13,6 @@
  * Install apache site w/https
  */
 
-create account, 
 /**
  * This script will prompt for some required information, and then install the Auth files on your system.
  *

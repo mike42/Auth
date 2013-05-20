@@ -3,6 +3,7 @@
 require_once(dirname(__FILE__) . "/account_service.php");
 
 class ldap_service extends account_service {
+	private $service;
 	private $ldap_url;
 	private $ldap_user;
 	private $ldap_root;
@@ -16,11 +17,11 @@ class ldap_service extends account_service {
 	 * @param string $root The root of the domain. Looks like "dc=example,dc=com".
 	 * @param string $ldap_pass The password to use when logging in to this server.
 	 */
-	function __construct(string $ldap_url, string $ldap_user, string $ldap_root, string $ldap_pass) {
-		$this -> ldap_url = $ldap_url;
-		$this -> ldap_user = $ldap_user;
-		$this -> ldap_root = $ldap_root;
-		$this -> ldap_pass = $ldap_pass;
+	function __construct(Service_model $service) {
+		$this -> ldap_url = $service -> service_address;
+		$this -> ldap_user = $service -> service_username;
+		$this -> ldap_root = $service -> service_root;
+		$this -> ldap_pass = $service -> service_password;
 	}
 	
 		

@@ -36,7 +36,11 @@ class ActionQueue_api {
 	 * @return The number of pending items in the ActionQueue.
 	 */
 	function count() {
-		return 0;
+		return ActionQueue_model::count();
+	}
+	
+	function getNext() {
+			
 	}
 	
 	/**
@@ -54,7 +58,7 @@ class ActionQueue_api {
 			self::submit($service -> service_id, $service -> service_domain, $action_type, $aq_target, $aq_arg1, $aq_arg2, $aq_arg3);
 		}
 	}
-	
+
 	/**
 	 * Submit an action to every service in a domain
 	 * 
