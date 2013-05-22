@@ -77,4 +77,5 @@ class Auth {
 	static public function normaliseName($inp) {
 		return strtolower(preg_replace("#[^-a-zA-Z0-9]+#", "", trim($inp)));
 	}
+
 }

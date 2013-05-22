@@ -134,27 +134,39 @@ abstract class account_service {
 	 * 
 	 * @param Ou_model $o The organizational unit to create
 	 */
-	//abstract protected function ouCreate(Ou_model $o);
+	abstract protected function ouCreate(Ou_model $o);
 	
 	/**
 	 * Delete an organizational unit.
 	 * 
 	 * @param string $ou_name The name of the unit
 	 */
-	//abstract protected function ouDelete($ou_name);
+	abstract protected function ouDelete($ou_name, ListDomain_model $d);
 	
 	/**
 	 * Move an organizational unit
 	 * @param Ou_model $o
 	 * @param Ou_model $parent
 	 */
-	//abstract protected function ouMove(Ou_model $o, Ou_model $parent);
+	abstract protected function ouMove(Ou_model $o, Ou_model $parent);
 	
 	/**
 	 * @param Ou_model $o
 	 * @param Ou_model $name
 	 */
-	//abstract protected function ouRename($ou_old_name, Ou_model $o);
+	abstract protected function ouRename($ou_old_name, Ou_model $o);
 
+	/**
+	 * Generate a junk password that nobody is supposed to know.
+	 * @return string
+	 */
+	static function junkPassword() {
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+";
+		$p = "";
+		for($i = 0; $i < 16; $i++) {
+			$p .= substr($chars, rand(0, strlen($chars) - 1), 1);
+		}
+		return $p;
+	}
 }
 ?>

@@ -43,6 +43,26 @@ class ad_service extends ldap_service {
 		// TODO
 		throw new Exception("Unimplemented");
 	}
+	
+	function ouCreate(Ou_model $o) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function ouDelete($ou_name, ListDomain_model $d) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function ouMove(Ou_model $o, Ou_model $parent) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function ouRename($ou_old_name, Ou_model $o) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
 }
 
 ?>

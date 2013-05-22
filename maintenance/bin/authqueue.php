@@ -34,18 +34,19 @@ $count = ActionQueue_api::count();
 if($count == 0) {
 	outp("Nothing in queue. Stopping.");
 } else {
+	$services = array();
 	outp("Currently " . $count . " items in queue");
 	while($next = ActionQueue_model::get_next()) {
 		$next -> aq_attempts += 1; // Increment number of attempts
 
 		/* Used to exponentially back-off if something is broken */
-		$interval = (1 << ($next -> aq_attempts - 1)) - 1;
+		$interval = 0; //(1 << ($next -> aq_attempts - 1)) - 1;
 		$date = time() + $interval;
 
 		try {
 			if(process($next)) {
 				try {
-					$next -> complete = 1;
+					$next -> aq_complete = 1;
 					$next -> update();
 				} catch(Exception $e) {
 					outp("\tProblem marking item as done; Was it cancelled while it was running?");
@@ -115,7 +116,7 @@ function process(ActionQueue_model $aq) {
 		try {
 			$services[$aq -> service_id] = new $class($aq -> Service);
 		} catch(Exception $e) {
-			outp("Initialisation error: " . $e -> getMessage());
+			outp("\tInitialisation error: " . $e -> getMessage());
 			return false;
 		}
 	}
@@ -129,23 +130,39 @@ function process(ActionQueue_model $aq) {
 		case 'acctCreate':
 			/* Create an account */	
 			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
-				throw new Exception("Account not found");
+				throw new Exception("acctCreate: Account not found");
 			}
 			return $services[$aq -> service_id] -> accountCreate($a);
 		case 'acctDelete':
-			//TODO
+			/* Delete account */
 			return $services[$aq -> service_id] -> accountDelete($aq -> aq_target, $aq -> ListDomain);
 		case 'acctDisable':
-			//TODO
-			break;
+			/* Disable account */
+			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
+				throw new Exception("acctDisable: Account not found");
+			}
+			return $services[$aq -> service_id] -> accountDisable($a);
 		case 'acctEnable':
-			//TODO
-			break;
+			/* Enable account */
+			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
+				throw new Exception("acctEnable: Account not found");
+			}
+			return $services[$aq -> service_id] -> accountEnable($a);
 		case 'acctPasswd':
-			//TODO
-			break;
+			/* Enable account */
+			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
+				throw new Exception("acctPasswd: Account not found");
+			}
+			return $services[$aq -> service_id] -> accountPassword($a, $aq -> aq_arg1);
 		case 'acctRelocate':
-			//TODO
+			/* Relocate account */
+			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
+				throw new Exception("acctRelocate: Account not found");
+			}
+			if(!$o = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
+				throw new Exception("acctRelocate: Unit not found");
+			}
+			return $services[$aq -> service_id] -> accountPassword($a, $o);
 			break;
 		case 'acctUpdate':
 			//TODO
@@ -175,11 +192,12 @@ function process(ActionQueue_model $aq) {
 			//TODO
 			break;
 		case 'ouCreate':
-			//TODO
-			break;
+			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
+				throw new Exception("Unit not found");
+			}
+			return $services[$aq -> service_id] -> ouCreate($o);
 		case 'ouDelete':
-			//TODO
-			break;
+			return $services[$aq -> service_id] -> ouDelete($aq -> aq_target, $aq -> ListDomain);
 		case 'ouMove':
 			//TODO
 			break;
