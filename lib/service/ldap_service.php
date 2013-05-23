@@ -43,7 +43,7 @@ class ldap_service extends account_service {
 
 	function accountCreate(Account_model $a) {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		$dn = "cn=" . $a -> account_login . "," .$ou;
+		$dn = "cn=" . $a -> account_login . "," . $ou;
 		$map = array(
 					array('attr' => 'dn',			'value'=> $dn),
 					array('attr' => 'changetype',	'value'=> 'add'),
@@ -92,6 +92,13 @@ class ldap_service extends account_service {
 	function accountUpdate(Account_model $a, $account_old_login, $owner_firstname, $owner_surname) {
 		// TODO
 		throw new Exception("Unimplemented");
+
+		print_r($a);
+		echo $account_old_login . $owner_firstname . $owner_surname;
+		
+		
+		return false;
+
 	}
 
 	function accountDisable(Account_model $a) {
@@ -105,13 +112,40 @@ class ldap_service extends account_service {
 	}
 
 	function accountRelocate(Account_model $a, Ou_model $o) {
-		// TODO
-		throw new Exception("Unimplemented");
+		/* Locate user's current place */
+		$b = $this -> ldapsearch($this -> ldap_root, false, "(uid=".$a -> account_login . ")");
+		if(!isset($b[0]['dn'][0])) {
+			throw new Exception("User not found.");
+		}
+		$dn = $b[0]['dn'][0];
+		
+		/* New details */
+		$newsuperior = $this -> dnFromOu($a -> AccountOwner -> ou_id);
+		$newrdn = "cn=" . $a -> account_login;
+		
+		/* Submit change */
+		$map = array(
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'modrdn'),
+				array('attr' => 'newrdn',		'value'=> $newrdn),
+				array('attr' => 'deleteoldrdn',	'value'=> '1'),
+				array('attr' => 'newsuperior',	'value'=> $newsuperior),
+		);
+		$ldif = $this -> ldif_generate($map);
+		return $this -> ldapmodify($ldif);
 	}
 
 	function accountPassword(Account_model $a, $p) {
-		// TODO
-		throw new Exception("Unimplemented");
+		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
+		$dn = "cn=" . $a -> account_login . "," .$ou;
+		$map = array(
+					array('attr' => 'dn',			'value'=> $dn),
+					array('attr' => 'changetype',	'value'=> 'modify'),
+					array('attr' => 'replace',		'value'=> 'userPassword'),
+					array('attr' => 'userPassword',	'value'=> $p)
+				);
+		$ldif = $this -> ldif_generate($map);
+		return $this -> ldapmodify($ldif);
 	}
 
 	function recursiveSearch(Ou_model $o) {
@@ -146,8 +180,25 @@ class ldap_service extends account_service {
 	}
 	
 	function ouMove(Ou_model $o, Ou_model $parent) {
-		// TODO
-		throw new Exception("Unimplemented");
+		/* Locate Ou's current place */
+		$b = $this -> ldapsearch($this -> ldap_root, false, "(ou=".$o -> ou_name . ")");
+		if(!isset($b[0]['dn'][0])) {
+			throw new Exception("Organizational unit not found in LDAP.");
+		}
+		$dn = $b[0]['dn'][0];
+		
+		$newsuperior = $this -> dnFromOu($parent -> ou_id);
+
+		/* Submit change */
+		$map = array(
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'modrdn'),
+				array('attr' => 'newrdn',		'value'=> 'ou=' . $o -> ou_name),
+				array('attr' => 'deleteoldrdn',	'value'=> '1'),
+				array('attr' => 'newsuperior',	'value'=> $newsuperior),
+		);
+		$ldif = $this -> ldif_generate($map);
+		return $this -> ldapmodify($ldif);
 	}
 	
 	function ouRename($ou_old_name, Ou_model $o) {
@@ -265,6 +316,8 @@ class ldap_service extends account_service {
 		
 		echo $ldif;
 		switch($retval) {
+			case 32:
+				throw new Exception("No such object");
 			case 66:
 				throw new Exception("Operation not allowed on non-leaf");
 			case 68:

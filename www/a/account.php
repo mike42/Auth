@@ -125,7 +125,7 @@ function ldap_verify_credentials($url, $domain, $username, $password) {
 	if($info["count"] < 1) {
 		return array('success' => false, 'message' => 'Incorrect username or password!');
 	} else if ($info['count'] > 1) {
-		return array('success' => false, 'message' => 'Multiple users found!');
+		return array('success' => false, 'message' => 'Multiple users found with this username. You will need to delete one.');
 	}
 
 	/* One username exists. Try to bind as it */
