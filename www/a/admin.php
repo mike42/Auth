@@ -1,12 +1,12 @@
 <?php
 /* Require user to be logged in as admin */
-//session_start();
-//if(!isset($_SESSION['auth']['account']['ldap_username']) || $_SESSION['sjcauth']['account']['ldap_username'] != 'admin') {
-//	/* Clear session and return to login form */
-//	session_destroy();
-//	header("location: /account/");
-//	exit(0);
-//}
+session_start();
+if(!isset($_SESSION['meta-auth']['account']['ldap_username']) || $_SESSION['meta-auth']['account']['ldap_username'] != 'admin') {
+	/* Clear session and return to login form */
+	session_destroy();
+	header("location: /account/");
+	exit(0);
+}
 
 require_once(dirname(__FILE__)."/../../lib/web/Web.php");
 

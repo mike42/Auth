@@ -11,6 +11,7 @@
  * symlink binaries
  * install authqueue in /etc/init.d
  * Install apache site w/https
+ * in www/a/public ln -s /path/to/Auth/site/bg.jpg bg.jpg
  */
 
 /**

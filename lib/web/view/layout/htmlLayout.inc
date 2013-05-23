@@ -3,19 +3,19 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Auth admin panel</title>
-<link rel="stylesheet" type="text/css" href="/a/public/admin/css/admin.css" />
+<link rel="stylesheet" type="text/css" href="/a/public/css/admin.css" />
 
 <!-- Admin template
 <link rel="stylesheet" type="text/css" href="/auth/css/theme.css" />
 <link rel="stylesheet" type="text/css" href="/auth/css/style.css" />
 <link rel="stylesheet" type="text/css" href="/auth/css/blue.css" /> -->
 <!-- jquery & jquery-ui -->
-<script language="javascript" src="/a/public/admin/js/jquery-1.8.3.min.js"></script>
-<script language="javascript" src="/a/public/admin/js/jquery-ui-1.9.1.custom.min.js"></script>
-<link rel="stylesheet" type="text/css" href="/a/public/admin/css/ui-lightness/jquery-ui-1.9.1.custom.min.css" />
+<script language="javascript" src="/a/public/js/jquery-1.8.3.min.js"></script>
+<script language="javascript" src="/a/public/js/jquery-ui-1.9.1.custom.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/a/public/css/ui-lightness/jquery-ui-1.9.1.custom.min.css" />
 <!-- jquery.treeview -->
-<script language="javascript" src="/a/public/admin/js/jquery.treeview/jquery.treeview.js"></script>
-<link rel="stylesheet" type="text/css" href="/a/public/admin/js/jquery.treeview/jquery.treeview.css" />
+<script language="javascript" src="/a/public/js/jquery.treeview/jquery.treeview.js"></script>
+<link rel="stylesheet" type="text/css" href="/a/public/js/jquery.treeview/jquery.treeview.css" />
 
 <!--[if IE]>
 <link rel="stylesheet" type="text/css" href="css/ie-sucks.css" />
@@ -24,8 +24,8 @@
 <!-- Bootstrap -->
 <!-- Requires jQuery to be loaded already -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="/a/public/admin/js/bootstrap/css/bootstrap.min.css" />
-<script language="javascript" src="/a/public/admin/js/bootstrap/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/a/public/js/bootstrap/css/bootstrap.min.css" />
+<script language="javascript" src="/a/public/js/bootstrap/js/bootstrap.min.js"></script>
 <script language="javascript">
 	function normaliseName(inp) {
 	/* This is a simulation of Auth::normaliseName(),

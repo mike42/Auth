@@ -58,7 +58,7 @@ function delAo(group_id, owner_id) {
 					"</thead>\n";
 			foreach($data['Parents'] as $parent) {
 				echo "<tr><td>";
-				echo "<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delchild(" . (int)$parent -> group_id . ", " . (int)$data['UserGroup'] -> group_id . ");\"><img src=\"/admin/img/delete.png\" /></a></div>";
+				echo "<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delchild(" . (int)$parent -> group_id . ", " . (int)$data['UserGroup'] -> group_id . ");\"><img src=\"/img/delete.png\" /></a></div>";
 				echo "<a href=\"".web::constructURL("UserGroup", "view", array((int)$parent -> group_id), "html")."\">" . web::escapeHTML($parent -> group_name . " (" . $parent -> group_cn . ")") . "</a>";
 				echo "</td></tr>";
 			}
@@ -77,7 +77,7 @@ function delAo(group_id, owner_id) {
 
 			foreach($data['Children'] as $child) {
 					echo "<tr><td>";
-					echo "<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delchild(" . (int)$data['UserGroup'] -> group_id . ", " . (int)$child -> group_id . ");\"><img src=\"/admin/img/delete.png\" /></a></div>";
+					echo "<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delchild(" . (int)$data['UserGroup'] -> group_id . ", " . (int)$child -> group_id . ");\"><img src=\"/admin/delete.png\" /></a></div>";
 					echo "<a href=\"".web::constructURL("UserGroup", "view", array((int)$child -> group_id), "html")."\">" . web::escapeHTML($child -> group_name . " (" . $child -> group_cn . ")") . "</a>";
 					echo "</td></tr>";
 			}
@@ -95,7 +95,7 @@ function delAo(group_id, owner_id) {
 					"</thead>\n";
 			foreach($data['UserGroup'] -> list_OwnerUserGroup as $oug) {
 					echo "<tr><td>";
-					echo "<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delAo(" . (int)$data['UserGroup'] -> group_id . ", " . (int)$oug -> AccountOwner -> owner_id . ");\"><img src=\"/admin/img/delete.png\" /></a></div>";
+					echo "<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delAo(" . (int)$data['UserGroup'] -> group_id . ", " . (int)$oug -> AccountOwner -> owner_id . ");\"><img src=\"/img/delete.png\" /></a></div>";
 					echo "<a href=\"".web::constructURL("AccountOwner", "view", array((int)$oug -> AccountOwner -> owner_id), "html")."\">" . web::escapeHTML($oug -> AccountOwner -> owner_firstname) . " " . $oug -> AccountOwner -> owner_surname . "</a>";
 					echo "</td></tr>";
 			}

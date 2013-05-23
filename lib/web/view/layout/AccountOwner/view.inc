@@ -38,7 +38,7 @@
 					"</thead>\n";
 			foreach($data['AccountOwner'] -> list_OwnerUserGroup as $oug) {
 				echo "<tr><td>" .
-						"<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delGroup(" . (int)$oug -> group_id . ");\"><img src=\"/admin/img/delete.png\" /></a></div>" .
+						"<div style=\"float: right\"><a href=\"javascript: void(null)\" onClick=\"delGroup(" . (int)$oug -> group_id . ");\"><img src=\"/img/delete.png\" /></a></div>" .
 						"<a href=\"".web::constructURL("UserGroup", "view", array($oug -> UserGroup -> group_id), "html")."\">" .
 						web::escapeHTML($oug -> UserGroup -> group_name . " (" . $oug -> UserGroup -> group_cn . ")") . "</a>" .
 						"</td></td>";
