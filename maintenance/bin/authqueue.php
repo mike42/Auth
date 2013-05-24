@@ -30,6 +30,7 @@ try{
 /* Begin */
 outp("Started");
 Auth::loadClass("ActionQueue_api");
+Auth::loadClass("Ou_api");
 $count = ActionQueue_api::count();
 if($count == 0) {
 	outp("Nothing in queue. Stopping.");
@@ -108,7 +109,7 @@ function process(ActionQueue_model $aq) {
 		throw new Exception("Will not process because service is disabled");
 	}
 	
-	if(!isset($service[$aq -> service_id])) {
+	if(!isset($services[$aq -> service_id])) {
 		/* Load up service */
 		$class = $aq -> Service -> service_type . "_service";
 		outp("\tInitialising " . $aq -> service_id . ".. (an " . $class . ")");
@@ -213,7 +214,6 @@ function process(ActionQueue_model $aq) {
 				throw new Exception("grpLeave: Group not found");
 			}
 			return $services[$aq -> service_id] -> groupLeave($a, $g);
-			break;
 		case 'grpMove':
 			//TODO
 			break;
@@ -239,9 +239,11 @@ function process(ActionQueue_model $aq) {
 		case 'ouRename':
 			//TODO
 			break;
-		case 'recursiveSea':
-			//TODO
-			break;
+		case 'recursiveSea': // Wonderfully truncated
+			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
+				throw new Exception("recursiveSearch: Unit not found");
+			}
+			return $services[$aq -> service_id] -> recursiveSearch($o);
 		case 'syncOu':
 			//TODO
 			break;

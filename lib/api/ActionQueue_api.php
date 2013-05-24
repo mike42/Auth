@@ -111,7 +111,7 @@ class ActionQueue_api {
 		/* Add action to the queue */	
 		$aq = new ActionQueue_model();
 		$aq -> aq_attempts = 0;
-		$aq -> aq_date = date("Y-m-d H:i:s");
+		$aq -> aq_date = date("Y-m-d H:i:s", time() - 3); // Submit with slightly older timestamp (so that it can be picked up as "due" immediately.
 		$aq -> service_id = $service -> service_id;
 		$aq -> domain_id = $domain -> domain_id;
 		$aq -> action_type = $at -> action_type;

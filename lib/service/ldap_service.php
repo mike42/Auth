@@ -22,6 +22,7 @@ class ldap_service extends account_service {
 		$this -> ldap_user = $service -> service_username;
 		$this -> ldap_root = $service -> service_root;
 		$this -> ldap_pass = $service -> service_password;
+		$this -> service = $service;
 
 		/* Self-test */
 		$this -> ldaptest();
@@ -174,11 +175,62 @@ class ldap_service extends account_service {
 	}
 
 	function recursiveSearch(Ou_model $o) {
-		// TODO
-		throw new Exception("Unimplemented");
+		$base = $this -> dnFromOu($o -> ou_id);
+		$objects = $this -> ldapsearch($base);
+		foreach($objects as $object) {
+			if(!isset($object['dn'])) {
+				continue;
+			}
+			
+			if(!isset($object['objectClass'])) {
+				continue;	
+			}
+
+			$objectClass = $object['objectClass'];
+			if(in_array('organizationalUnit', $objectClass)) {
+				/* Hit organizational unit */
+				$ou_name = $object['ou'][0];
+				if(!$ou = Ou_model::get_by_ou_name($ou_name)) {
+					/* Need to create */
+					$ou = Ou_api::create($ou_name, $o -> ou_id);
+				}
+
+				/* Recurse */
+				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'recursiveSea', $ou -> ou_name);
+			} elseif(in_array('posixAccount', $objectClass)) {
+				/* Found user account */
+				$account_login = $object['uid'][0];
+				
+				/* Crude reconstruction of firstname/lastname */
+				$fullname = explode(' ', $object['gecos'][0]);
+				$owner_firstname = array_shift($fullname);
+				$owner_surname = implode(' ', $fullname);
+				if(!$account = Account_model::get_by_account_login($account_login, $this -> service -> service_id, $this -> service -> service_domain)) {
+					/* Does not exist on default domain (this LDAP service only supports one domain) */
+					$owner = AccountOwner_api::create($o -> ou_id, $owner_firstname, $owner_surname, $account_login, $this -> service -> service_domain, array($this -> service -> service_id));
+				}
+			} elseif(in_array('groupOfNames', $objectClass)) {
+				/* Found Group */
+				$group_cn = $object['cn'][0];
+				$group_name = $object['description'][0];
+				if(!$group = UserGroup_model::get_by_group_cn($group_cn)) {
+					$group = UserGroup_api::create($group_cn, $group_name, $o -> ou_id, $this -> service -> service_domain);
+				}
+
+				foreach($object['member'] as $member) {
+					echo $member . "\n";
+				}
+			} else {
+				
+			}
+		}
+				
+		return true;
 	}
 
 	function groupCreate(UserGroup_model $g) {
+		// TODO: Existence check for groups.
+		
 		$ou = $this -> dnFromOu($g -> ou_id);
 		$dn = "cn=" . $g -> group_cn . "," .$ou;
 		$description = $g -> group_name;
@@ -216,12 +268,12 @@ class ldap_service extends account_service {
 				array('attr' => 'dn',			'value'=> $groupDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
 				array('attr' => 'add',			'value'=> 'member'),
-				array('attr' => 'member',		'value'=> $AccountOu)
+				array('attr' => 'member',		'value'=> $AccountDn)
 		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-	
+
 	function groupLeave(Account_model $a, UserGroup_model $g) {
 		$groupOu = $this -> dnFromOu($g -> ou_id);
 		$groupDn = "cn=" . $g -> group_cn . "," .$groupOu;
@@ -233,7 +285,7 @@ class ldap_service extends account_service {
 				array('attr' => 'dn',			'value'=> $groupDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
 				array('attr' => 'delete',		'value'=> 'member'),
-				array('attr' => 'member',		'value'=> $AccountOu)
+				array('attr' => 'member',		'value'=> $AccountDn)
 		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
@@ -296,11 +348,9 @@ class ldap_service extends account_service {
 	}
 
 	function ouDelete($ou_name, ListDomain_model $d) {
-		$a = $this -> ldapsearch($this -> ldap_root, false, "(ou=$ou_name)");
-		if(!isset($a[0]['dn'][0])) {
-			throw new Exception("Unit not found.");
-		}
-		$dn = $a[0]['dn'][0];
+		/* Locate Ou's current place */
+		$dn = $this -> dnFromSearch("(ou=".$ou_name . ")");
+
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'delete'),
@@ -311,11 +361,7 @@ class ldap_service extends account_service {
 	
 	function ouMove(Ou_model $o, Ou_model $parent) {
 		/* Locate Ou's current place */
-		$b = $this -> ldapsearch($this -> ldap_root, false, "(ou=".$o -> ou_name . ")");
-		if(!isset($b[0]['dn'][0])) {
-			throw new Exception("Organizational unit not found in LDAP.");
-		}
-		$dn = $b[0]['dn'][0];
+		$dn = $this -> dnFromSearch("(ou=".$o -> ou_name . ")");
 		
 		$newsuperior = $this -> dnFromOu($parent -> ou_id);
 
@@ -346,6 +392,8 @@ class ldap_service extends account_service {
 		$a = $this -> ldapsearch($this -> ldap_root, false, $filter);
 		if(!isset($a[0]['dn'][0])) {
 			throw new Exception("Nothing found while searching $filter.");
+		} else if(isset($a[1]['dn'][0])) {
+			throw new Exception("Duplicate found while searching $filter. Log in to the service and delete one to administer this object!");
 		}
 		return $a[0]['dn'][0];
 	}
