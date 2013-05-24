@@ -14,7 +14,7 @@ class ad_service extends ldap_service {
 		throw new Exception("Unimplemented");
 	}
 	
-	function accountUpdate(Account_model $a, $account_old_login, $owner_firstname, $owner_surname) {
+	function accountUpdate(Account_model $a, $account_old_login) {
 		// TODO
 		throw new Exception("Unimplemented");
 	}
@@ -35,6 +35,46 @@ class ad_service extends ldap_service {
 	}
 	
 	function accountPassword(Account_model $a, $p) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function groupCreate(UserGroup_model $g) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function groupDelete($group_cn, $group_domain) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function groupJoin(Account_model $a, UserGroup_model $g) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function groupLeave(Account_model $a, UserGroup_model $g) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function groupAddChild(UserGroup_model $parent, UserGroup_model $child) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function groupDelChild(UserGroup_model $parent, UserGroup_model $child) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function groupMove(UserGroup_model $g, Ou_model $o) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	function groupRename(UserGroup_model $g, $ug_old_cn) {
 		// TODO
 		throw new Exception("Unimplemented");
 	}

@@ -36,7 +36,6 @@
 				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
 			} ?>
 
-
 			<table class='table table-bordered'>
 				<tr>
 					<th>Login</th>

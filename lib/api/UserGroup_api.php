@@ -284,7 +284,7 @@ class UserGroup_api {
 		$group -> group_name = $group_name;
 		
 		/* ActionQueue */
-		ActionQueue_api::submitByDomain($group -> group_domain, 'grpRename', $oldcn, $group -> group_cn, $group -> group_name);
+		ActionQueue_api::submitByDomain($group -> group_domain, 'grpRename', $oldcn, $group -> group_cn);
 
 		$group -> update();
 

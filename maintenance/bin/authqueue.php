@@ -164,29 +164,55 @@ function process(ActionQueue_model $aq) {
 			}
 			return $services[$aq -> service_id] -> accountRelocate($a, $o);
 		case 'acctUpdate':
-			// TODO:
-			throw new Exception("Unimplemented");
+			/* Change user name/login */
 			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
 				throw new Exception("acctUpdate: Account not found");
 			}
-			return $services[$aq -> service_id] -> accountUpdate($a, $aq -> aq_arg1, $aq -> aq_arg2, $aq -> aq_arg3);
+			return $services[$aq -> service_id] -> accountUpdate($a, $aq -> aq_arg1);
 		case 'grpAddChild':
-			//TODO
-			break;
+			/* Add sub-group to group */
+			if(!$parent = UserGroup_model::get_by_group_cn($aq -> aq_target)) {
+				throw new Exception("grpAddChild: Parent not found");
+			}
+			if(!$child = UserGroup_model::get_by_group_cn($aq -> aq_arg1)) {
+				throw new Exception("grpAddChild: Child not found");
+			}
+			return $services[$aq -> service_id] -> groupAddChild($parent, $child);
 		case 'grpCreate':
-			//TODO
-			break;
+			/* Create new group */
+			if(!$g = UserGroup_model::get_by_group_cn($aq -> aq_target)) {
+				throw new Exception("grpCreate: Group not found");
+			}
+			return $services[$aq -> service_id] -> groupCreate($g);
 		case 'grpDelChild':
-			//TODO
-			break;
+			/* Remove sub-group from group */
+			if(!$parent = UserGroup_model::get_by_group_cn($aq -> aq_target)) {
+				throw new Exception("grpDelChild: Parent not found");
+			}
+			if(!$child = UserGroup_model::get_by_group_cn($aq -> aq_arg1)) {
+				throw new Exception("grpDelChild: Child not found");
+			}
+			return $services[$aq -> service_id] -> groupDelChild($parent, $child);
 		case 'grpDelete':
-			//TODO
-			break;
+			return $services[$aq -> service_id] -> groupDelete($aq -> aq_target, $aq -> domain_id);
 		case 'grpJoin':
-			//TODO
-			break;
+			/* Add a user to a group */
+			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
+				throw new Exception("grpJoin: Account not found");
+			}
+			if(!$g = UserGroup_model::get_by_group_cn($aq -> aq_arg1)) {
+				throw new Exception("grpJoin: Group not found");
+			}
+			return $services[$aq -> service_id] -> groupJoin($a, $g);
 		case 'grpLeave':
-			//TODO
+			/* Remove a user from a group */
+			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
+				throw new Exception("grpLeave: Account not found");
+			}
+			if(!$g = UserGroup_model::get_by_group_cn($aq -> aq_arg1)) {
+				throw new Exception("grpLeave: Group not found");
+			}
+			return $services[$aq -> service_id] -> groupLeave($a, $g);
 			break;
 		case 'grpMove':
 			//TODO

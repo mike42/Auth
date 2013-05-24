@@ -177,7 +177,7 @@ class Account_api {
 			throw new Exception("Login name '$account_login' is already in use on '".$account -> service_id."' (".$account -> account_domain.").");
 		}
 
-		ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account -> account_login, $account_login, $account -> AccountOwner -> owner_firstname, $account -> AccountOwner -> owner_surname);
+		ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account_login, $account -> account_login);
 
 		$account -> account_login = $account_login;
 		$account -> update();

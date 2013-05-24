@@ -193,11 +193,11 @@ class AccountOwner_api {
 		
 		/* ActionQueue */
 		foreach($owner -> list_Account as $account) {
-			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account -> account_login, $account -> account_login, $owner -> owner_firstname, $owner -> owner_surname);
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account -> account_login, $account -> account_login);
 		}
 		return $owner;
 	}
-	
+
 	/**
 	 * Delete a user
 	 * 
