@@ -8,13 +8,13 @@
 			  <div class="control-group">
 			    <label class="control-label" for="inputEmail">Username</label>
 			    <div class="controls">
-			      <input name="loginUsername" type="text" id="inputUname" placeholder="">
+			      <input name="loginUsername" type="text" id="inputUname" class="span2" placeholder="">
 			    </div>
 			  </div>
 			  <div class="control-group">
 			    <label class="control-label" for="inputPassword">Password</label>
 			    <div class="controls">
-			      <input name="loginPassword" type="password" id="inputPassword" placeholder="">
+			      <input name="loginPassword" type="password" class="span2" id="inputPassword" placeholder="">
 			    </div>
 			  </div>
 			  <div class="control-group">
@@ -26,3 +26,7 @@
 		</div>
 	</div>
 </div>
+<script>
+	// Set focus on search box
+	$("#inputUname").focus();
+</script>

@@ -46,38 +46,39 @@ class ldap_service extends account_service {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
 		$dn = "cn=" . $a -> account_login . "," . $ou;
 		$map = array(
-					array('attr' => 'dn',			'value'=> $dn),
-					array('attr' => 'changetype',	'value'=> 'add'),
-					array('attr' => 'cn',			'value'=> $a -> account_login),
-					array('attr' => 'uid',			'value'=> $a -> account_login),
-					array('attr' => 'objectClass',	'value'=> 'account'),
-					array('attr' => 'objectClass',	'value'=> 'posixAccount'),
-					array('attr' => 'objectClass',	'value'=> 'top'),
-					array('attr' => 'loginShell',	'value'=> '/bin/bash'),
-					array('attr' => 'uidNumber',	'value'=> (int)$a -> owner_id),
-					array('attr' => 'gidNumber',	'value'=> (int)$a -> owner_id),
-					array('attr' => 'homeDirectory','value'=> '/home/'.$a-> account_login),
-					array('attr' => 'gecos',		'value'=> $a -> AccountOwner -> owner_firstname . ' ' . $a -> AccountOwner -> owner_surname),
-					array('attr' => 'userPassword',	'value'=> self::junkPassword())
-				);
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'add'),
+				array('attr' => 'cn',			'value'=> $a -> account_login),
+				array('attr' => 'uid',			'value'=> $a -> account_login),
+				array('attr' => 'objectClass',	'value'=> 'account'),
+				array('attr' => 'objectClass',	'value'=> 'posixAccount'),
+				array('attr' => 'objectClass',	'value'=> 'top'),
+				array('attr' => 'loginShell',	'value'=> '/bin/bash'),
+				array('attr' => 'uidNumber',	'value'=> (int)$a -> owner_id),
+				array('attr' => 'gidNumber',	'value'=> (int)$a -> owner_id),
+				array('attr' => 'homeDirectory','value'=> '/home/'.$a-> account_login),
+				array('attr' => 'gecos',		'value'=> $a -> AccountOwner -> owner_firstname . ' ' . $a -> AccountOwner -> owner_surname),
+				array('attr' => 'userPassword',	'value'=> self::junkPassword())
+		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
 
 	function accountDelete($account_login, ListDomain_model $account_domain) {
 		$dn = $this -> dnFromSearch("(uid=$account_login)");
-		
+
 		$map = array(
-					array('attr' => 'dn',			'value'=> $dn),
-					array('attr' => 'changetype',	'value'=> 'delete'),
-				);
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'delete'),
+		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
 
 	function accountUpdate(Account_model $a, $account_old_login) {
-		$dn = $this -> dnFromSearch("(uid=$account_old_login)");
-		
+		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
+		$dn = $this -> dnFromSearch("(uid=$account_old_login)", $ou);
+
 		$ldif = "";
 		$gecos = $a -> AccountOwner -> owner_firstname . ' ' . $a -> AccountOwner -> owner_surname;
 		if(isset($b[0]['gecos']) && $b[0]['gecos'] != $gecos) {
@@ -90,8 +91,8 @@ class ldap_service extends account_service {
 			);
 			$ldif .= $this -> ldif_generate($map);
 		}
-		
-		if($account_old_login != $a -> account_login) {		
+
+		if($account_old_login != $a -> account_login) {
 			/* UID */
 			$map = array(
 					array('attr' => 'dn',			'value'=> $dn),
@@ -100,7 +101,7 @@ class ldap_service extends account_service {
 					array('attr' => 'uid',			'value'=> $a -> account_login),
 			);
 			$ldif .= $this -> ldif_generate($map);
-			
+				
 			/* Home directory */
 			$map = array(
 					array('attr' => 'dn',			'value'=> $dn),
@@ -123,7 +124,7 @@ class ldap_service extends account_service {
 			);
 			$ldif .= $this -> ldif_generate($map);
 		}
-		
+
 		return $this -> ldapmodify($ldif);
 	}
 
@@ -144,11 +145,11 @@ class ldap_service extends account_service {
 	function accountRelocate(Account_model $a, Ou_model $o) {
 		/* Locate user's current place */
 		$dn = $this -> dnFromSearch("(uid=".$a -> account_login . ")");
-		
+
 		/* New details */
 		$newsuperior = $this -> dnFromOu($a -> AccountOwner -> ou_id);
 		$newrdn = "cn=" . $a -> account_login;
-		
+
 		/* Submit change */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
@@ -165,11 +166,11 @@ class ldap_service extends account_service {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
 		$dn = "cn=" . $a -> account_login . "," .$ou;
 		$map = array(
-					array('attr' => 'dn',			'value'=> $dn),
-					array('attr' => 'changetype',	'value'=> 'modify'),
-					array('attr' => 'replace',		'value'=> 'userPassword'),
-					array('attr' => 'userPassword',	'value'=> $p)
-				);
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'modify'),
+				array('attr' => 'replace',		'value'=> 'userPassword'),
+				array('attr' => 'userPassword',	'value'=> $p)
+		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
@@ -181,9 +182,9 @@ class ldap_service extends account_service {
 			if(!isset($object['dn'])) {
 				continue;
 			}
-			
+				
 			if(!isset($object['objectClass'])) {
-				continue;	
+				continue;
 			}
 
 			$objectClass = $object['objectClass'];
@@ -200,7 +201,7 @@ class ldap_service extends account_service {
 			} elseif(in_array('posixAccount', $objectClass)) {
 				/* Found user account */
 				$account_login = $object['uid'][0];
-				
+
 				/* Crude reconstruction of firstname/lastname */
 				$fullname = explode(' ', $object['gecos'][0]);
 				$owner_firstname = array_shift($fullname);
@@ -221,20 +222,20 @@ class ldap_service extends account_service {
 					echo $member . "\n";
 				}
 			} else {
-				
+
 			}
 		}
-				
+
 		return true;
 	}
 
 	function groupCreate(UserGroup_model $g) {
 		// TODO: Existence check for groups.
-		
+
 		$ou = $this -> dnFromOu($g -> ou_id);
 		$dn = "cn=" . $g -> group_cn . "," .$ou;
 		$description = $g -> group_name;
-		
+
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'add'),
@@ -242,7 +243,7 @@ class ldap_service extends account_service {
 				array('attr' => 'cn',			'value'=> $g -> group_cn),
 				array('attr' => 'description',	'value'=> $description),
 				array('attr' => 'member',		'value'=> 'cn=invalid,ou=system,'. $this -> ldap_root), /* Dummy entry */
-			);
+		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
@@ -252,15 +253,15 @@ class ldap_service extends account_service {
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'delete')
-				);
+		);
 		$ldif = $this -> ldif_generate($map);
-		return $this -> ldapmodify($ldif);		
+		return $this -> ldapmodify($ldif);
 	}
 
 	function groupJoin(Account_model $a, UserGroup_model $g) {
 		$groupOu = $this -> dnFromOu($g -> ou_id);
 		$groupDn = "cn=" . $g -> group_cn . "," .$groupOu;
-		
+
 		$AccountOu = $this -> dnFromOu($a -> AccountOwner -> ou_id);
 		$AccountDn = "cn=" . $a -> account_login . "," .$AccountOu;
 
@@ -277,10 +278,10 @@ class ldap_service extends account_service {
 	function groupLeave(Account_model $a, UserGroup_model $g) {
 		$groupOu = $this -> dnFromOu($g -> ou_id);
 		$groupDn = "cn=" . $g -> group_cn . "," .$groupOu;
-		
+
 		$AccountOu = $this -> dnFromOu($a -> AccountOwner -> ou_id);
 		$AccountDn = "cn=" . $a -> account_login . "," .$AccountOu;
-		
+
 		$map = array(
 				array('attr' => 'dn',			'value'=> $groupDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
@@ -290,14 +291,14 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-	
+
 	function groupAddChild(UserGroup_model $parent, UserGroup_model $child) {
 		$parentOu = $this -> dnFromOu($parent -> ou_id);
 		$parentDn = "cn=" . $parent -> group_cn . "," .$parentOu;
-		
+
 		$childOu = $this -> dnFromOu($child -> ou_id);
 		$childDn = "cn=" . $child -> group_cn . "," .$childOu;
-		
+
 		$map = array(
 				array('attr' => 'dn',			'value'=> $parentDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
@@ -307,14 +308,14 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-	
+
 	function groupDelChild(UserGroup_model $parent, UserGroup_model $child) {
 		$parentOu = $this -> dnFromOu($parent -> ou_id);
 		$parentDn = "cn=" . $parent -> group_cn . "," .$parentOu;
-		
+
 		$childOu = $this -> dnFromOu($child -> ou_id);
 		$childDn = "cn=" . $child -> group_cn . "," .$childOu;
-		
+
 		$map = array(
 				array('attr' => 'dn',			'value'=> $parentDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
@@ -329,7 +330,7 @@ class ldap_service extends account_service {
 		// TODO
 		throw new Exception("Unimplemented");
 	}
-	
+
 	function groupRename(UserGroup_model $g, $ug_old_cn) {
 		// TODO
 		throw new Exception("Unimplemented");
@@ -338,11 +339,11 @@ class ldap_service extends account_service {
 	function ouCreate(Ou_model $o) {
 		$dn = $this -> dnFromOu($o -> ou_id);
 		$map = array(
-					array('attr' => 'dn',			'value'=> $dn),
-					array('attr' => 'changetype',	'value'=> 'add'),
-					array('attr' => 'objectClass',	'value'=> 'top'),
-					array('attr' => 'objectClass',	'value'=> 'organizationalUnit')
-				);
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'add'),
+				array('attr' => 'objectClass',	'value'=> 'top'),
+				array('attr' => 'objectClass',	'value'=> 'organizationalUnit')
+		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
@@ -356,13 +357,13 @@ class ldap_service extends account_service {
 				array('attr' => 'changetype',	'value'=> 'delete'),
 		);
 		$ldif = $this -> ldif_generate($map);
-		return $this -> ldapmodify($ldif);		
+		return $this -> ldapmodify($ldif);
 	}
-	
+
 	function ouMove(Ou_model $o, Ou_model $parent) {
 		/* Locate Ou's current place */
 		$dn = $this -> dnFromSearch("(ou=".$o -> ou_name . ")");
-		
+
 		$newsuperior = $this -> dnFromOu($parent -> ou_id);
 
 		/* Submit change */
@@ -376,20 +377,23 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-	
+
 	function ouRename($ou_old_name, Ou_model $o) {
 		// TODO
 		throw new Exception("Unimplemented");
 	}
-	
+
 	/**
 	 * Get the dn of the first entry returned from an ldapsearch
-	 * 
+	 *
 	 * @param string $filter A filter. Example: "(uid=jbloggs)"
 	 * @throws Exception
 	 */
-	function dnFromSearch($filter) {
-		$a = $this -> ldapsearch($this -> ldap_root, false, $filter);
+	function dnFromSearch($filter, $base = "") {
+		if($base = "") {
+			$base = $this -> ldap_root;
+		}
+		$a = $this -> ldapsearch($base, false, $filter);
 		if(!isset($a[0]['dn'][0])) {
 			throw new Exception("Nothing found while searching $filter.");
 		} else if(isset($a[1]['dn'][0])) {
@@ -397,19 +401,19 @@ class ldap_service extends account_service {
 		}
 		return $a[0]['dn'][0];
 	}
-	
+
 	private function dnFromOu($ou_id) {
 		$ou = Ou_model::get($ou_id);
 		if(!$ou) {
 			throw new Exception("Organizational unit not found");
 		}
-	
+
 		if($ou -> ou_name == "root") {
 			return $this -> ldap_root;
 		}
 		return "ou=" . $ou -> ou_name . "," . $this -> dnFromOu($ou -> ou_parent_id);
 	}
-	
+
 	function ldaptest() {
 		$this -> ldapsearch_enumerate($this -> ldap_root);
 	}
@@ -428,11 +432,11 @@ class ldap_service extends account_service {
 				escapeshellarg($filter));
 		$lines = array();
 		exec($cmd, $lines, $ret);
-		
+
 		if($ret != 0) {
 			throw new Exception("ldapsearch failed. Check your settings and make sure the server is online!");
 		}
-		
+
 		return self::parseSearch($lines);
 	}
 
@@ -457,7 +461,7 @@ class ldap_service extends account_service {
 				}
 			}
 		}
-		
+
 		/* Parse result */
 		$next = array();
 		$object = array();
@@ -477,7 +481,7 @@ class ldap_service extends account_service {
 		}
 		return $object;
 	}
-	
+
 	private static function parse_attr($line) {
 		$c =  strpos($line, ":");
 		$left = substr($line, 0, $c);
@@ -494,7 +498,7 @@ class ldap_service extends account_service {
 		}
 		return array('attr' => $left, 'value' => $right);
 	}
-	
+
 	private function ldapmodify($ldif) {
 		$temp_file = tempnam(sys_get_temp_dir(), 'ldap');
 
@@ -517,7 +521,7 @@ class ldap_service extends account_service {
 		if($retval == 0) {
 			return true;
 		}
-		
+
 		echo $ldif;
 		switch($retval) {
 			case 32:
@@ -556,11 +560,11 @@ class ldap_service extends account_service {
 		}
 
 		if($attr == "unicodePwd") {
-			/* Special Active Directory encoding */
+			/* Special Active Directory encoding: http://www.cs.bham.ac.uk/~smp/resources/ad-passwds/ */
 			$value = "\"" . $value . "\"";
 			$len = strlen($value);
 			for ($i = 0; $i < $len; $i++) {
-				$newpw .= "{$pw{$i}}\000";
+				$newpw .= $value[i]."\000";
 			}
 			$newpw = base64_encode($newpw);
 			$value = $newpw;

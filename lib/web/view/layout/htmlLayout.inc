@@ -10,11 +10,11 @@
 <link rel="stylesheet" type="text/css" href="/auth/css/style.css" />
 <link rel="stylesheet" type="text/css" href="/auth/css/blue.css" /> -->
 <!-- jquery & jquery-ui -->
-<script language="javascript" src="/a/public/js/jquery-1.8.3.min.js"></script>
-<script language="javascript" src="/a/public/js/jquery-ui-1.9.1.custom.min.js"></script>
+<script src="/a/public/js/jquery-1.8.3.min.js"></script>
+<script src="/a/public/js/jquery-ui-1.9.1.custom.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/a/public/css/ui-lightness/jquery-ui-1.9.1.custom.min.css" />
 <!-- jquery.treeview -->
-<script language="javascript" src="/a/public/js/jquery.treeview/jquery.treeview.js"></script>
+<script src="/a/public/js/jquery.treeview/jquery.treeview.js"></script>
 <link rel="stylesheet" type="text/css" href="/a/public/js/jquery.treeview/jquery.treeview.css" />
 
 <!--[if IE]>
@@ -25,8 +25,8 @@
 <!-- Requires jQuery to be loaded already -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="/a/public/js/bootstrap/css/bootstrap.min.css" />
-<script language="javascript" src="/a/public/js/bootstrap/js/bootstrap.min.js"></script>
-<script language="javascript">
+<script src="/a/public/js/bootstrap/js/bootstrap.min.js"></script>
+<script>
 	function normaliseName(inp) {
 	/* This is a simulation of Auth::normaliseName(),
 		which will be used to derive the alias on the server.

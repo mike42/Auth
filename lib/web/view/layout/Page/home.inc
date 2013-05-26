@@ -24,7 +24,7 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	// Set focus on search box
 	$("#uname").focus();
 </script>
