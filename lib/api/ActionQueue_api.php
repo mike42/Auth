@@ -78,8 +78,10 @@ class ActionQueue_api {
 		/* Repeat for all services under this domain */
 		$domain -> populate_list_ListServiceDomain();
 		foreach($domain -> list_ListServiceDomain as $sd) {
-			$d = ($sd -> sd_secondary == 1)? $sd -> Service -> service_domain: $sd -> domain_id;
-			self::submit($sd -> service_id, $d, $action_type, $aq_target, $aq_arg1, $aq_arg2, $aq_arg3);
+			if($sd -> Service -> service_enabled == '1') {
+				$d = ($sd -> sd_secondary == 1)? $sd -> Service -> service_domain: $sd -> domain_id;
+				self::submit($sd -> service_id, $d, $action_type, $aq_target, $aq_arg1, $aq_arg2, $aq_arg3);
+			}
 		}
 	}
 	

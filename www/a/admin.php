@@ -9,6 +9,7 @@ if(!isset($_SESSION['meta-auth']['account']['ldap_username']) || $_SESSION['meta
 }
 
 require_once(dirname(__FILE__)."/../../lib/web/Web.php");
+Auth::loadClass("ActionQueue_api");
 
 /* Set up some basic web things */
 $config['host']						= isset($_SERVER['HTTP_HOST'])? $_SERVER['HTTP_HOST'] : 'localhost';
@@ -77,6 +78,10 @@ try {
 		Web::redirect($ret['redirect']);
 	}
 
+	if(!isset($ret['aq_count'])) {
+		$ret['aq_count'] = ActionQueue_api::count();
+	}
+	
 	/* Run view code */
 	if(!is_callable($viewClassName . "::" .$viewMethodName)) {
 		Web::fizzle("View '$viewClassName' does not have method '$viewMethodName'");

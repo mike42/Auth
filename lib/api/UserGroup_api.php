@@ -116,7 +116,7 @@ class UserGroup_api {
 		}
 
 		/* ActionQueue */
-		ActionQueue_api::submitByDomain($ug -> group_domain, 'grpDelete', $ug -> group_cn);
+		ActionQueue_api::submitByDomain($ug -> group_domain, 'grpDelete', $ug -> group_cn, $ug -> Ou -> ou_name);
 		
 		$ug -> delete();
 		return true;

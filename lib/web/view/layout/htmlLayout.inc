@@ -72,7 +72,7 @@
 				<ul class="nav nav-tabs">
 					<li<?php if($data['current'] == "Dashboard")	{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('Page',		'view', array(''), 'html'); ?>">Dashboard</a></li>
 					<li<?php if($data['current'] == "Ou")			{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('Ou',		'view', array(''), 'html'); ?>">Organization</a></li>
-					<li<?php if($data['current'] == "ActionQueue")	{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('ActionQueue','view', array(''),'html'); ?>">ActionQueue</a></li>
+					<li<?php if($data['current'] == "ActionQueue")	{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('ActionQueue','view', array(''),'html'); ?>">ActionQueue<?php if($data['aq_count']) { echo " (". (int)$data['aq_count'] . ")"; }?></a></li>
 					<li<?php if($data['current'] == "Utility")		{ echo " class=\"active\""; } ?>><a href="<?php echo web::constructURL('Utility',	'view', array(''), 'html'); ?>">Utilities</a></li>
 				</ul>
 			</div>
