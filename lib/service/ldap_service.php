@@ -278,7 +278,7 @@ class ldap_service extends account_service {
 
 				/* Recurse */
 				outp("\tAdded organizationalUnit $ou_name to search queue", 1);
-				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'recursiveSea', $ou -> ou_name);
+				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'recSearch', $ou -> ou_name);
 			} elseif(in_array('posixAccount', $objectClass)) {
 				/* Found user account */
 				$account_login = $object['cn'][0];
