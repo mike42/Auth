@@ -40,7 +40,7 @@ class ActionQueue_api {
 	}
 	
 	function getNext() {
-			
+		
 	}
 	
 	/**
@@ -126,5 +126,9 @@ class ActionQueue_api {
 	
 	static public function getOverview() {
 		return ActionQueue_model::get_overview();
+	}
+	
+	static public function flush() {
+		return ActionQueue_model::flush();
 	}
 }

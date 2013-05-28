@@ -103,7 +103,7 @@ class Account_api {
 	public static function delete($account_id) {
 		$account = self::get($account_id);
 
-		ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctDelete', $account -> account_login);
+		ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctDelete', $account -> account_login, $account -> AccountOwner -> Ou -> ou_name);
 
 		/* This one is straightforward */
 		$account -> delete();
@@ -177,7 +177,7 @@ class Account_api {
 			throw new Exception("Login name '$account_login' is already in use on '".$account -> service_id."' (".$account -> account_domain.").");
 		}
 
-		ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account_login, $account -> account_login);
+		ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account_login, $account -> account_login, $account -> AccountOwner -> Ou -> ou_name);
 
 		$account -> account_login = $account_login;
 		$account -> update();

@@ -198,11 +198,12 @@ class UserGroup_api {
 			return;
 		}
 
+		$old_ou = $ug -> Ou -> ou_name;
 		$ou = Ou_model::get($ou_id);
 		$ug -> ou_id = $ou -> ou_id;
 		
 		/* ActionQueue */
-		ActionQueue_api::submitByDomain($ug -> group_domain, 'grpMove', $ug -> group_cn, $ou -> ou_name);
+		ActionQueue_api::submitByDomain($ug -> group_domain, 'grpMove', $ug -> group_cn, $old_ou);
 		
 		$ug -> update();
 		

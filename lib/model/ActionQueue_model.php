@@ -133,5 +133,10 @@ class ActionQueue_model {
 		}
 		return 0;
 	}
+	
+	public static function flush() {
+		$sql = "DELETE FROM ActionQueue WHERE aq_complete =1";
+		return Database::delete($sql, array());
+	}
 }
 ?>

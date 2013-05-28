@@ -8,6 +8,7 @@ class ldap_service extends account_service {
 	private $ldap_user;
 	private $ldap_root;
 	private $ldap_pass;
+	private $dummyGroupMember;
 
 	/**
 	 * Construct a new LDAP service object
@@ -23,6 +24,7 @@ class ldap_service extends account_service {
 		$this -> ldap_root = $service -> service_root;
 		$this -> ldap_pass = $service -> service_password;
 		$this -> service = $service;
+		$this -> dummyGroupMember = 'cn=invalid,ou=system,'. $this -> ldap_root;
 
 		/* Self-test */
 		$this -> ldaptest();
@@ -42,9 +44,20 @@ class ldap_service extends account_service {
 		assert(!$this -> ldif_match(" hi ", 'safe-string'));
 	}
 
-	function accountCreate(Account_model $a) {
+	/**
+	 * Make a new user account on this service.
+	 *
+	 * @param Account_model $a The account to create
+	 */
+	public function accountCreate(Account_model $a) {
+		/* Check and figure out dn */
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
+		if($dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
+			throw new Exception("Skipping account creation, account exists");
+		}
 		$dn = "cn=" . $a -> account_login . "," . $ou;
+
+		/* Create specified account */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'add'),
@@ -63,10 +76,22 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
+	
+	/**
+	 * Delete a user account from this service.
+	 *
+	 * @param string $account_login The login of the deleted account
+	 * @param ListDomain_model $d The domain name of the deleted account
+	 * @param Ou_model $o Unit to search for the login in.
+	 */
+	public function accountDelete($account_login, ListDomain_model $d, Ou_model $o) {
+		/* Check & locate */
+		$ou = $this -> dnFromOu($o -> ou_id);
+		if(!$dn = $this -> dnFromSearch("(cn=$account_login)", $ou)) {
+			throw new Exception("Skipping account deletion, account doesn't seem to exist");
+		}
 
-	function accountDelete($account_login, ListDomain_model $account_domain) {
-		$dn = $this -> dnFromSearch("(uid=$account_login)");
-
+		/* Delete */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'delete'),
@@ -74,23 +99,30 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function accountUpdate(Account_model $a, $account_old_login) {
+	
+	/**
+	 * Update the login and display name for an account.
+	 *
+	 * @param Account_model $a The account to update
+	 * @param string $account_old_login The login to search for (may be different to the one stored currently, if it has been changed)
+	 	*/
+	public function accountUpdate(Account_model $a, $account_old_login) {
+		/* Locate account */
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		$dn = $this -> dnFromSearch("(uid=$account_old_login)", $ou);
-
-		$ldif = "";
-		$gecos = $a -> AccountOwner -> owner_firstname . ' ' . $a -> AccountOwner -> owner_surname;
-		if(isset($b[0]['gecos']) && $b[0]['gecos'] != $gecos) {
-			/* Replace fullname if required */
-			$map = array(
-					array('attr' => 'dn',			'value'=> $dn),
-					array('attr' => 'changetype',	'value'=> 'modify'),
-					array('attr' => 'replace',		'value'=> 'gecos'),
-					array('attr' => 'gecos', 		'value'=> $gecos)
-			);
-			$ldif .= $this -> ldif_generate($map);
+		if(!$dn = $this -> dnFromSearch("(cn=$account_old_login)", $ou)) {
+			throw new Exception("Skipping account update, account doesn't seem to exist.");
 		}
+		$ldif = "";
+		
+		/* Replace fullname */
+		$gecos = $a -> AccountOwner -> owner_firstname . ' ' . $a -> AccountOwner -> owner_surname;
+		$map = array(
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'modify'),
+				array('attr' => 'replace',		'value'=> 'gecos'),
+				array('attr' => 'gecos', 		'value'=> $gecos)
+			);
+		$ldif .= $this -> ldif_generate($map);
 
 		if($account_old_login != $a -> account_login) {
 			/* UID */
@@ -111,7 +143,7 @@ class ldap_service extends account_service {
 			);
 			$ldif .= $this -> ldif_generate($map);
 
-			/* Change 'cn' in directory if we are renaming */
+			/* Also change 'cn' in directory if we are renaming */
 			$newrdn = "cn=" . $a -> account_login;
 			$superior = $this -> dnFromOu($a -> AccountOwner -> ou_id);
 
@@ -127,24 +159,49 @@ class ldap_service extends account_service {
 
 		return $this -> ldapmodify($ldif);
 	}
-
-	function accountDisable(Account_model $a) {
+	
+	/**
+	 * Disable a user account.
+	 *
+	 * @param Account_model $a The user account to disable
+	 */
+	public function accountDisable(Account_model $a) {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		$dn = "cn=" . $a -> account_login . "," .$ou;
-		// TODO
-		throw new Exception("Unimplemented");
+		if(!$dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
+			throw new Exception("Skipping account disable, account doesn't seem to exist.");
+		}
+		
+		Account_api::enable($a -> account_id);
+		throw new Exception("Account disable is not supported on this service. Account re-marked as enabled");
 	}
-
-	function accountEnable(Account_model $a) {
+	
+	/**
+	 * Enable a user account.
+	 *
+	 * @param Account_model $a The user account to enable
+	 */
+	public function accountEnable(Account_model $a) {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		$dn = "cn=" . $a -> account_login . "," .$ou;
-		// TODO
-		throw new Exception("Unimplemented");
+		if(!$dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
+			throw new Exception("Skipping account enable, account doesn't seem to exist.");
+		}
+		
+		// Do nothing. These LDAP accounts are always enabled.
+		return true;
 	}
-
-	function accountRelocate(Account_model $a, Ou_model $o) {
+	
+	/**
+	 * Relocate a user account
+	 *
+	 * @param Account_model $a	The account to re-locate
+	 * @param Ou_model $o		Unit that the account was formerly located under
+	 */
+	public function accountRelocate(Account_model $a, Ou_model $old_parent) {
 		/* Locate user's current place */
-		$dn = $this -> dnFromSearch("(uid=".$a -> account_login . ")");
+		$ou = $this -> dnFromOu($old_parent -> ou_id);
+		if(!$dn = $this -> dnFromSearch("(cn=".$a -> account_login . ")", $ou)) {
+			throw new Exception("Account not found where expected, can't re-locate it!");
+		}
 
 		/* New details */
 		$newsuperior = $this -> dnFromOu($a -> AccountOwner -> ou_id);
@@ -161,10 +218,19 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function accountPassword(Account_model $a, $p) {
+	
+	/**
+	 * Set the password on an account.
+	 *
+	 * @param Account_model $a The account to set
+	 * @param string p The password to use
+	 */
+	public function accountPassword(Account_model $a, $p) {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		$dn = "cn=" . $a -> account_login . "," .$ou;
+		if(!$dn = $this -> dnFromSearch("(cn=".$a -> account_login . ")", $ou)) {
+			throw new Exception("Account not found where expected, can't set password");
+		}
+		
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
@@ -172,10 +238,16 @@ class ldap_service extends account_service {
 				array('attr' => 'userPassword',	'value'=> $p)
 		);
 		$ldif = $this -> ldif_generate($map);
-		return $this -> ldapmodify($ldif);
+		return $this -> ldapmodify($ldif);	
 	}
-
-	function recursiveSearch(Ou_model $o) {
+	
+	/**
+	 * Search an organizational unit recursively, looking for changes.
+	 * The local database will be updated to reflect any changes here.
+	 *
+	 * @param Ou_model $o The organizational unit to search.
+	 */
+	public function recursiveSearch(Ou_model $o) {
 		$base = $this -> dnFromOu($o -> ou_id);
 		$objects = $this -> ldapsearch($base);
 		foreach($objects as $object) {
@@ -194,14 +266,24 @@ class ldap_service extends account_service {
 				if(!$ou = Ou_model::get_by_ou_name($ou_name)) {
 					/* Need to create */
 					$ou = Ou_api::create($ou_name, $o -> ou_id);
+				} else if($ou -> ou_parent_id != $o -> ou_id) {
+					/* Wrong place. Move it over before the search (otherwise we'll get errors!) */
+					try {
+						outp("\tNotice: Found $ou_name here, moving it to where it should be.");
+						$this -> OuMove($ou, $o);
+					} catch(Exception $e) {
+						outp("\tWarning: failed to move $ou_name.");
+					}
 				}
 
 				/* Recurse */
+				outp("\tAdded organizationalUnit $ou_name to search queue", 1);
 				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'recursiveSea', $ou -> ou_name);
 			} elseif(in_array('posixAccount', $objectClass)) {
 				/* Found user account */
-				$account_login = $object['uid'][0];
-
+				$account_login = $object['cn'][0];
+				outp("\tFound posixAccount $account_login", 1);
+				
 				/* Crude reconstruction of firstname/lastname */
 				$fullname = explode(' ', $object['gecos'][0]);
 				$owner_firstname = array_shift($fullname);
@@ -209,62 +291,112 @@ class ldap_service extends account_service {
 				if(!$account = Account_model::get_by_account_login($account_login, $this -> service -> service_id, $this -> service -> service_domain)) {
 					/* Does not exist on default domain (this LDAP service only supports one domain) */
 					$owner = AccountOwner_api::create($o -> ou_id, $owner_firstname, $owner_surname, $account_login, $this -> service -> service_domain, array($this -> service -> service_id));
+				} else if ($account -> AccountOwner -> ou_id != $o -> ou_id) {
+					outp("\tNotice: Moving account to where it should be.");
+					try {
+						$this -> accountRelocate($account, $o);
+					} catch(Exception $e) {
+						outp("\tWarning: failed to move $account_login: " . $e -> getMessage());
+					}
 				}
 			} elseif(in_array('groupOfNames', $objectClass)) {
 				/* Found Group */
 				$group_cn = $object['cn'][0];
 				$group_name = $object['description'][0];
+				outp("\tFound groupOfnames $group_cn", 1);
+				
 				if(!$group = UserGroup_model::get_by_group_cn($group_cn)) {
 					$group = UserGroup_api::create($group_cn, $group_name, $o -> ou_id, $this -> service -> service_domain);
+				} else if ($group -> ou_id != $o -> ou_id) {
+					outp("\tNotice: Moving group to where it should be.");
+					try {
+						$this -> groupMove($group, $o);
+					} catch(Exception $e) {
+						outp("\tWarning: failed to move $group_cn: " . $e -> getMessage());
+					}
 				}
 
 				foreach($object['member'] as $member) {
-					echo $member . "\n";
+					// TODO sync group membership
+					outp("\t\t$member", 1);
 				}
 			} else {
-
+				// Ignore unrecognised oddities
 			}
 		}
 
 		return true;
 	}
-
-	function groupCreate(UserGroup_model $g) {
-		// TODO: Existence check for groups.
-
+	
+	/**
+	 * Create a new group.
+	 *
+	 * @param Group_model $g The group to create.
+	 */
+	public function groupCreate(UserGroup_model $g) {
+		/* Existence check and startup */
 		$ou = $this -> dnFromOu($g -> ou_id);
+		if($dn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $ou)) {
+			throw new Exception("Skipping account creation, group exists");
+		}
 		$dn = "cn=" . $g -> group_cn . "," .$ou;
 		$description = $g -> group_name;
-
+		
+		/* Create group */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'add'),
 				array('attr' => 'objectClass',	'value'=> 'groupOfNames'),
 				array('attr' => 'cn',			'value'=> $g -> group_cn),
 				array('attr' => 'description',	'value'=> $description),
-				array('attr' => 'member',		'value'=> 'cn=invalid,ou=system,'. $this -> ldap_root), /* Dummy entry */
+				array('attr' => 'member',		'value'=> $this -> dummyGroupMember), /* Because every group must have a member */
 		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function groupDelete($group_cn, $group_domain) {
-		$dn = $this -> dnFromSearch("(cn=$group_cn)");
+	
+	/**
+	 * Delete a group
+	 *
+	 * @param string $group_cn			The 'common name' of the group that was deleted.
+	 * @param ListDomain_model $d		The domain to find the group under
+	 * @param Ou_model $o				The organziational unit to search for this group in.
+	 */
+	public function groupDelete($group_cn, ListDomain_model $d, Ou_model $o) {
+		/* Locate */
+		$ou = $this -> dnFromOu($o -> ou_id);
+		if(!$dn = $this -> dnFromSearch("(cn=$group_cn)")) {
+			throw new Exceprtion("Group not found to delete!");
+		}
+		
+		/* Delete */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'delete')
 		);
 		$ldif = $this -> ldif_generate($map);
-		return $this -> ldapmodify($ldif);
+		return $this -> ldapmodify($ldif);	
 	}
-
-	function groupJoin(Account_model $a, UserGroup_model $g) {
+	
+	/**
+	 * Add a user account to a group.
+	 *
+	 * @param Account_model $a The user account to add
+	 * @param Group_model $g The group to add it to
+	 */
+	public function groupJoin(Account_model $a, UserGroup_model $g) {
+		/* Find everything */
 		$groupOu = $this -> dnFromOu($g -> ou_id);
-		$groupDn = "cn=" . $g -> group_cn . "," .$groupOu;
+		if(!$groupDn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $groupOu)) {
+			throw new Exception("Can't find group, not adding to it");
+		}
 
 		$AccountOu = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		$AccountDn = "cn=" . $a -> account_login . "," .$AccountOu;
+		if(!$AccountDn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $AccountOu)) {
+			throw new Exception("Can't find user, not adding it to group");
+		}
 
+		/* Modify */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $groupDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
@@ -274,14 +406,26 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function groupLeave(Account_model $a, UserGroup_model $g) {
+	
+	/**
+	 * Remove a user account from a group.
+	 *
+	 * @param Account_model $a	The user account to remove
+	 * @param Group_model $g	The group to remove it from
+	 */
+	public function groupLeave(Account_model $a, UserGroup_model $g) {
+		/* Find everything */
 		$groupOu = $this -> dnFromOu($g -> ou_id);
-		$groupDn = "cn=" . $g -> group_cn . "," .$groupOu;
+		if(!$groupDn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $groupOu)) {
+			throw new Exception("Can't find group, not removing from it");
+		}
 
 		$AccountOu = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		$AccountDn = "cn=" . $a -> account_login . "," .$AccountOu;
-
+		if(!$AccountDn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $AccountOu)) {
+			throw new Exception("Can't find user, not removing it from group");
+		}
+		
+		/* Modify */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $groupDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
@@ -291,14 +435,25 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function groupAddChild(UserGroup_model $parent, UserGroup_model $child) {
+	
+	/**
+	 * Add a group to a group.
+	 *
+	 * @param Group_model $parent	The parent group
+	 * @param Group_model $child	The group to add
+	 */
+	public function groupAddChild(UserGroup_model $parent, UserGroup_model $child) {
+		/* Find everything */
 		$parentOu = $this -> dnFromOu($parent -> ou_id);
-		$parentDn = "cn=" . $parent -> group_cn . "," .$parentOu;
-
+		if(!$parentDn = $this -> dnFromSearch("(cn=" . $parent -> group_cn . ")", $parentOu)) {
+			throw new Exception("Can't find parent group, not adding to it");
+		}
 		$childOu = $this -> dnFromOu($child -> ou_id);
-		$childDn = "cn=" . $child -> group_cn . "," .$childOu;
-
+		if(!$childDn = $this -> dnFromSearch("(cn=" . $child -> group_cn . ")", $childOu)) {
+			throw new Exception("Can't find child group, not adding it to group");
+		}
+		
+		/* Modify */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $parentDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
@@ -308,14 +463,25 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function groupDelChild(UserGroup_model $parent, UserGroup_model $child) {
+	
+	/**
+	 * Remove a group from a group.
+	 *
+	 * @param Group_model $parent The parent group
+	 * @param Group_model $child The group to remove
+	 */
+	public function groupDelChild(UserGroup_model $parent, UserGroup_model $child) {
+		/* Find everything */
 		$parentOu = $this -> dnFromOu($parent -> ou_id);
-		$parentDn = "cn=" . $parent -> group_cn . "," .$parentOu;
-
+		if(!$parentDn = $this -> dnFromSearch("(cn=" . $parent -> group_cn . ")", $parentOu)) {
+			throw new Exception("Can't find parent group, not adding to it");
+		}
 		$childOu = $this -> dnFromOu($child -> ou_id);
-		$childDn = "cn=" . $child -> group_cn . "," .$childOu;
+		if(!$childDn = $this -> dnFromSearch("(cn=" . $child -> group_cn . ")", $childOu)) {
+			throw new Exception("Can't find child group, not adding it to group");
+		}
 
+		/* Modify */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $parentDn),
 				array('attr' => 'changetype',	'value'=> 'modify'),
@@ -323,21 +489,91 @@ class ldap_service extends account_service {
 				array('attr' => 'member',		'value'=> $childDn)
 		);
 		$ldif = $this -> ldif_generate($map);
+		return $this -> ldapmodify($ldif);		
+	}
+	
+	/**
+	 * Relocate the group to a different organizational unit
+	 *
+	 * @param UserGroup_model $g	The group to re-locate
+	 * @param Ou_model $old_parent	The organizational unit which it was formerly located under
+	 */
+	public function groupMove(UserGroup_model $g, Ou_model $old_parent) {
+		/* Locate */
+		$ou = $this -> dnFromOu($old_parent -> ou_id);
+		if(!$dn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $ou)) {
+			throw new Exception("Group not found where expected, can't re-locate it!");
+		}
+		
+		/* New details */
+		$newsuperior = $this -> dnFromOu($g -> ou_id);
+		$newrdn = "cn=" . $g -> group_cn;
+
+		/* Submit change */
+		$map = array(
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'modrdn'),
+				array('attr' => 'newrdn',		'value'=> $newrdn),
+				array('attr' => 'deleteoldrdn',	'value'=> '1'),
+				array('attr' => 'newsuperior',	'value'=> $newsuperior)
+		);
+		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
+	
+	/**
+	 * Change the name of a group
+	 *
+	 * @param UserGroup_model $g		The group to rename
+	 * @param unknown_type $ug_old_cn	The old 'common name' of the group
+	 */
+	public function groupRename(UserGroup_model $g, $ug_old_cn) {
+		$ou = $this -> dnFromOu($g -> ou_id);
+		if(!$dn = $this -> dnFromSearch("(cn=" . $ug_old_cn . ")", $ou)) {
+			throw new Exception("Group not found where expected, can't rename it!");
+		}
+		
+		/* Fullname */
+		$map = array(
+					array('attr' => 'dn',			'value'=> $dn),
+					array('attr' => 'changetype',	'value'=> 'modify'),
+					array('attr' => 'replace',		'value'=> 'description'),
+					array('attr' => 'description',	'value'=> $g -> group_name)
+				);
+		$ldif = $this -> ldif_generate($map);
+		
+		if($ug_old_cn != $g -> group_cn) {
+			/* Also change 'cn' in directory if we are renaming */
+			$newrdn = "cn=" . $g -> group_cn;
+			$superior = $this -> dnFromOu($g -> ou_id);
+		
+			$map = array(
+					array('attr' => 'dn',			'value'=> $dn),
+					array('attr' => 'changetype',	'value'=> 'modrdn'),
+					array('attr' => 'newrdn',		'value'=> $newrdn),
+					array('attr' => 'deleteoldrdn',	'value'=> '0'),
+					array('attr' => 'newsuperior',	'value'=> $superior)
+			);
+			$ldif .= $this -> ldif_generate($map);
+		}
 
-	function groupMove(UserGroup_model $g, Ou_model $o) {
-		// TODO
-		throw new Exception("Unimplemented");
+		return $this -> ldapmodify($ldif);
 	}
+	
+	/**
+	 * Create a new organizational unit.
+	 *
+	 * @param Ou_model $o The organizational unit to create
+	 */
+	public function ouCreate(Ou_model $o) {
+		/* Existence check */
+		$ou = $this -> dnFromOu($o -> ou_parent_id);
+		if($dn = $this -> dnFromSearch("(ou=" . $o -> ou_name . ")", $ou)) {
+			throw new Exception("Skipping creating organizationalUnit, already exists.");
+		}
+		$dn = $this -> dnFromOu($o -> ou_id); // Where it should go.
 
-	function groupRename(UserGroup_model $g, $ug_old_cn) {
-		// TODO
-		throw new Exception("Unimplemented");
-	}
-
-	function ouCreate(Ou_model $o) {
-		$dn = $this -> dnFromOu($o -> ou_id);
+		/* Add */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'add'),
@@ -347,11 +583,22 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function ouDelete($ou_name, ListDomain_model $d) {
+	
+	/**
+	 * Delete an organizational unit
+	 *
+	 * @param string $ou_name	The name of the unit to delete.
+	 * @param string $d			The domain to find this unit in.
+	 * @param Ou_model $o		The parent unit.
+	 */
+	public function ouDelete($ou_name, ListDomain_model $d, Ou_model $o) {
 		/* Locate Ou's current place */
-		$dn = $this -> dnFromSearch("(ou=".$ou_name . ")");
+		$ou = $this -> dnFromOu($o -> ou_id);
+		if(!$dn = $this -> dnFromSearch("(ou=".$ou_name . ")")) {
+			throw new Exception("Unit not found, can't delete it.");
+		}
 
+		/* Delete */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $dn),
 				array('attr' => 'changetype',	'value'=> 'delete'),
@@ -359,12 +606,19 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function ouMove(Ou_model $o, Ou_model $parent) {
+	
+	/**
+	 * Move an organizational unit
+	 * @param Ou_model $o			The organizational unit to move
+	 * @param Ou_model $old_parent	The unit which it was formerly located under.
+	 */
+	public function ouMove(Ou_model $o, Ou_model $old_parent) {
 		/* Locate Ou's current place */
-		$dn = $this -> dnFromSearch("(ou=".$o -> ou_name . ")");
-
-		$newsuperior = $this -> dnFromOu($parent -> ou_id);
+		$ou = $this -> dnFromOu($old_parent -> ou_id);
+		if(!$dn = $this -> dnFromSearch("(ou=".$o -> ou_name . ")", $ou)) {
+			throw new Exception("Unit not found, can't move it.");
+		}
+		$newsuperior = $this -> dnFromOu($o -> ou_parent_id);
 
 		/* Submit change */
 		$map = array(
@@ -377,10 +631,17 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
-
-	function ouRename($ou_old_name, Ou_model $o) {
-		// TODO
+	
+	/**
+	 * Rename an organizational unit
+	 *
+	 * @param Ou_model $o
+	 * @param Ou_model $name
+	 */
+	public function ouRename(Ou_model $o, $ou_old_name){
+		//TODO
 		throw new Exception("Unimplemented");
+	
 	}
 
 	/**
@@ -389,19 +650,31 @@ class ldap_service extends account_service {
 	 * @param string $filter A filter. Example: "(uid=jbloggs)"
 	 * @throws Exception
 	 */
-	function dnFromSearch($filter, $base = "") {
-		if($base = "") {
+	private function dnFromSearch($filter, $base = "") {
+		if($base == "") {
 			$base = $this -> ldap_root;
 		}
 		$a = $this -> ldapsearch($base, false, $filter);
 		if(!isset($a[0]['dn'][0])) {
-			throw new Exception("Nothing found while searching $filter.");
+			return false;
 		} else if(isset($a[1]['dn'][0])) {
+			foreach($a as $b) {
+				if(isset($b['dn'][0])) {
+					outp("\tDuplicate for $filter: " . $b['dn'][0]);
+				}
+			}
 			throw new Exception("Duplicate found while searching $filter. Log in to the service and delete one to administer this object!");
 		}
 		return $a[0]['dn'][0];
 	}
-
+	
+	/**
+	 * Get the expected distinguished name of an organizational unit, from the local database
+	 * 
+	 * @param int $ou_id Organizational unit to look for.
+	 * @throws Exception
+	 * @return string
+	 */
 	private function dnFromOu($ou_id) {
 		$ou = Ou_model::get($ou_id);
 		if(!$ou) {
@@ -414,11 +687,21 @@ class ldap_service extends account_service {
 		return "ou=" . $ou -> ou_name . "," . $this -> dnFromOu($ou -> ou_parent_id);
 	}
 
-	function ldaptest() {
+	/**
+	 * Do a simple LDAP search to verify settings.
+	 */
+	private function ldaptest() {
 		$this -> ldapsearch_enumerate($this -> ldap_root);
 	}
 
-	function ldapsearch($base, $onelevel = true, $filter = "") {
+	/**
+	 * @param string $base The base of the search, ou=foo,dc=example,dc=com is a good one.
+	 * @param boolean $onelevel True to only search one level.
+	 * @param string $filter The filter for the search, eg (cn=example).
+	 * @throws Exception
+	 * @return multitype:multitype: 
+	 */
+	private function ldapsearch($base, $onelevel = true, $filter = "") {
 		$cmd =  sprintf("ldapsearch -x -D %s \\\n" .
 				"-H %s \\\n" .
 				"-w %s \\\n" .
@@ -434,13 +717,23 @@ class ldap_service extends account_service {
 		exec($cmd, $lines, $ret);
 
 		if($ret != 0) {
-			throw new Exception("ldapsearch failed. Check your settings and make sure the server is online!");
+			switch($ret) {
+				case 32:
+					throw new Exception("ldapsearch failed ($ret): Base $base does not exist!");
+				default:
+					throw new Exception("ldapsearch failed ($ret): Check your settings and make sure the server is online!");
+			}
 		}
 
 		return self::parseSearch($lines);
 	}
 
-	function ldapsearch_enumerate($ou) {
+	/**
+	 * Enumerate items in an organizational unit
+	 * 
+	 * @param string $ou the organizational unit to use as the base for the search, in the form ou=...,dc=...,dc=...
+	 */
+	private function ldapsearch_enumerate($ou) {
 		return $this -> ldapsearch($ou, true);
 	}
 
@@ -499,6 +792,13 @@ class ldap_service extends account_service {
 		return array('attr' => $left, 'value' => $right);
 	}
 
+	/**
+	 * Submit LDIF code to ldapmodify.
+	 * 
+	 * @param string $ldif
+	 * @throws Exception
+	 * @return boolean
+	 */
 	private function ldapmodify($ldif) {
 		$temp_file = tempnam(sys_get_temp_dir(), 'ldap');
 

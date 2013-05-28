@@ -155,12 +155,13 @@ class AccountOwner_api {
 		}
 		
 		/* Update */
+		$old_parent = $owner -> Ou;
 		$owner -> ou_id = $ou -> ou_id;
 		$owner -> update();
 		
 		/* ActionQueue */
 		foreach($owner -> list_Account as $account) {
-			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctRelocate', $account -> account_login, $ou -> ou_name);
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctRelocate', $account -> account_login, $old_parent -> ou_name);
 		}
 		
 		return $owner;
@@ -193,7 +194,7 @@ class AccountOwner_api {
 		
 		/* ActionQueue */
 		foreach($owner -> list_Account as $account) {
-			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account -> account_login, $account -> account_login);
+			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctUpdate', $account -> account_login, $account -> account_login, $account -> AccountOwner -> Ou -> ou_name);
 		}
 		return $owner;
 	}

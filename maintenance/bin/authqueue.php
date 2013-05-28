@@ -86,8 +86,17 @@ fclose($lf);
  * 
  * @param string $str
  */
-function outp($str) {
+function outp($str, $verbosity = 1) {
 	global $lf, $switch;
+	if(!isset($switch['-v']) && $verbosity > 1) {
+		/* Skip extended output if -v is not set. */
+		return;
+	}
+	if(isset($switch['-q']) && $verbosity >= 1) {
+		/* Skip normal output if -q is set. */
+		return;
+	}
+	
 	$str = date(DATE_ATOM) . " " . $str . "\n";
 	if(isset($switch['-x'])) {
 		echo $str;
@@ -126,7 +135,7 @@ function process(ActionQueue_model $aq) {
 	if(substr($aq -> action_type, 0, 4) == "acct") {
 		Auth::loadClass("Account_model");
 	}
-	
+
 	switch($aq -> action_type) {
 		case 'acctCreate':
 			/* Create an account */	
@@ -136,7 +145,10 @@ function process(ActionQueue_model $aq) {
 			return $services[$aq -> service_id] -> accountCreate($a);
 		case 'acctDelete':
 			/* Delete account */
-			return $services[$aq -> service_id] -> accountDelete($aq -> aq_target, $aq -> ListDomain);
+			if(!$o = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
+				throw new Exception("acctDelete: Unit not found");
+			}
+			return $services[$aq -> service_id] -> accountDelete($aq -> aq_target, $aq -> ListDomain, $o);
 		case 'acctDisable':
 			/* Disable account */
 			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
@@ -160,10 +172,10 @@ function process(ActionQueue_model $aq) {
 			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
 				throw new Exception("acctRelocate: Account not found");
 			}
-			if(!$o = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
-				throw new Exception("acctRelocate: Unit not found");
+			if(!$old_parent = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
+				throw new Exception("acctRelocate: Old parent unit not found");
 			}
-			return $services[$aq -> service_id] -> accountRelocate($a, $o);
+			return $services[$aq -> service_id] -> accountRelocate($a, $old_parent);
 		case 'acctUpdate':
 			/* Change user name/login */
 			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
@@ -195,7 +207,10 @@ function process(ActionQueue_model $aq) {
 			}
 			return $services[$aq -> service_id] -> groupDelChild($parent, $child);
 		case 'grpDelete':
-			return $services[$aq -> service_id] -> groupDelete($aq -> aq_target, $aq -> domain_id);
+			if(!$o = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
+				throw new Exception("grpDelete: Unit not found");
+			}
+			return $services[$aq -> service_id] -> groupDelete($aq -> aq_target, $aq -> ListDomain, $o);
 		case 'grpJoin':
 			/* Add a user to a group */
 			if(!$a = Account_model::get_by_account_login($aq -> aq_target, $aq -> service_id, $aq -> domain_id)) {
@@ -215,30 +230,44 @@ function process(ActionQueue_model $aq) {
 			}
 			return $services[$aq -> service_id] -> groupLeave($a, $g);
 		case 'grpMove':
-			//TODO
-			break;
+			/* Move a group */
+			if(!$g = UserGroup_model::get_by_group_cn($aq -> aq_target)) {
+				throw new Exception("grpMove: Group not found");
+			}
+			if(!$old_parent = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
+				throw new Exception("grpMove: Old parent unit not found");
+			}
+			return $services[$aq -> service_id] -> groupMove($g, $old_parent);
 		case 'grpRename':
-			//TODO
-			break;
+			/* Rename a group */
+			if(!$g = UserGroup_model::get_by_group_cn($aq -> aq_target)) {
+				throw new Exception("grpRename: Group not found");
+			}
+			return $services[$aq -> service_id] -> groupMove($g, $aq -> aq_arg1);
 		case 'ouCreate':
 			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
 				throw new Exception("ouCreate: Unit not found");
 			}
 			return $services[$aq -> service_id] -> ouCreate($o);
 		case 'ouDelete':
-			return $services[$aq -> service_id] -> ouDelete($aq -> aq_target, $aq -> ListDomain);
+			if(!$parent = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
+				throw new Exception("acctRelocate: Parent unit not found");
+			}
+			return $services[$aq -> service_id] -> ouDelete($aq -> aq_target, $aq -> ListDomain, $parent);
 		case 'ouMove':
 			/* Move OU to a new parent */
 			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
 				throw new Exception("ouMove: Unit not found");
 			}
-			if(!$parent = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
-				throw new Exception("ouMove: Parent unit not found");
+			if(!$oldparent = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
+				throw new Exception("ouMove: Old parent unit not found");
 			}
-			return $services[$aq -> service_id] -> ouMove($o, $parent);
+			return $services[$aq -> service_id] -> ouMove($o, $oldparent);
 		case 'ouRename':
-			//TODO
-			break;
+			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
+				throw new Exception("ouRename: Unit not found");
+			}
+			return $services[$aq -> service_id] -> ouRename($o, $aq -> aq_arg1);
 		case 'recursiveSea': // Wonderfully truncated
 			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
 				throw new Exception("recursiveSearch: Unit not found");

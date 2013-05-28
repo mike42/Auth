@@ -83,6 +83,7 @@ class Ou_api {
 	 */
 	function delete($ou_id) {
 		$ou = self::get($ou_id);
+		$parent = self::get($ou -> ou_parent_id);
 		
 		if($ou -> ou_name == "root") {
 			throw new Exception("Cannot delete the root of the organization.");
@@ -101,7 +102,7 @@ class Ou_api {
 		}
 		
 		/* ActionQueue */
-		ActionQueue_api::submitToEverything('ouDelete', $ou -> ou_name);
+		ActionQueue_api::submitToEverything('ouDelete', $ou -> ou_name, $parent -> ou_name);
 		
 		$ou -> delete();
 	}
@@ -114,6 +115,7 @@ class Ou_api {
 	 */
 	function move($ou_id, $ou_parent_id) {
 		$ou = self::get($ou_id);
+		$oldparent = self::get($ou -> ou_parent_id);
 		$parent = self::get($ou_parent_id);
 		
 		if(self::is_subunit($ou, $parent)) {
@@ -124,7 +126,7 @@ class Ou_api {
 		$ou -> update();
 		
 		/* ActionQueue */
-		ActionQueue_api::submitToEverything('ouMove', $ou -> ou_name, $parent -> ou_name);
+		ActionQueue_api::submitToEverything('ouMove', $ou -> ou_name, $oldparent -> ou_name);
 	}
 	
 	/**
@@ -135,10 +137,9 @@ class Ou_api {
 	 * @throws Exception
 	 */
 	function rename($ou_id, $ou_name) {
-		$ou = self::get($ou_id);
 		$ou_name = Auth::normaliseName($ou_name);
 		
-		if($ou = $ou -> get_by_ou_name($ou_name)) {
+		if($ou = Ou_model::get_by_ou_name($ou_name)) {
 			throw new Exception("An organizational unit with that name already exists");
 		}
 		
@@ -155,7 +156,7 @@ class Ou_api {
 		$ou -> update();
 		
 		/* ActionQueue */
-		ActionQueue_api::submitToEverything('ouMove', $oldname, $ou -> ou_name);
+		ActionQueue_api::submitToEverything('ouRename', $ou -> ou_name, $oldname);
 	}
 	
 	/**
