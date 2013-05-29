@@ -639,9 +639,20 @@ class ldap_service extends account_service {
 	 * @param Ou_model $name
 	 */
 	public function ouRename(Ou_model $o, $ou_old_name){
-		//TODO
-		throw new Exception("Unimplemented");
-	
+		$ou = $this -> dnFromOu($o -> ou_parent_id);
+		if(!$dn = $this -> dnFromSearch("(ou=".$ou_old_name . ")", $ou)) {
+			throw new Exception("Unit not found, can't move it.");
+		}
+		
+		$map = array(
+				array('attr' => 'dn',			'value'=> $dn),
+				array('attr' => 'changetype',	'value'=> 'modrdn'),
+				array('attr' => 'newrdn',		'value'=> 'ou=' . $o -> ou_name),
+				array('attr' => 'deleteoldrdn',	'value'=> '1'),
+				array('attr' => 'newsuperior',	'value'=> $ou),
+		);
+		$ldif = $this -> ldif_generate($map);
+		return $this -> ldapmodify($ldif);
 	}
 
 	/**
