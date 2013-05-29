@@ -89,16 +89,28 @@ class Ou_api {
 			throw new Exception("Cannot delete the root of the organization.");
 		}
 		
-		foreach($ou -> list_Ou as $child) {
-			self::move($child -> ou_id, $ou -> ou_parent_id);
+		if(count($ou -> list_Ou) > 0) {
+			if(count($ou -> list_Ou) == 1) {
+				throw new Exception("This unit contains " . $ou -> list_Ou[0] -> ou_name . ", you need to delete or move that first!");
+			} else {
+				throw new Exception("This unit contains " . count($ou -> list_Ou) ." other units, you need to delete or move them first!");
+			}
 		}
 		
-		foreach($ou -> list_AccountOwner as $owner) {
-			AccountOwner_api::move($owner -> owner_id, $ou -> ou_parent_id);
+		if(count($ou -> list_AccountOwner) > 0) {
+			if(count($ou -> list_AccountOwner) == 1) {
+				throw new Exception("This unit contains" . $ou -> list_AccountOwner[0] -> owner_firstname . " " . $ou -> list_AccountOwner[0] -> owner_surname . ", you need to delete or move that user first!");
+			} else {
+				throw new Exception("This unit is the parent of " . count($ou -> list_AccountOwner) ." user accounts, you need to delete or move them first!");
+			}
 		}
-		
-		foreach($ou -> list_UserGroup as $group) {
-			UserGroup_api::move($group -> group_id, $ou -> ou_parent_id);
+
+		if(count($ou -> list_UserGroup) > 0) {
+			if(count($ou -> list_UserGroup) == 1) {
+				throw new Exception("This unit contains " . $ou -> list_UserGroup[0] -> group_name . " , you need to delete or move that user first!");
+			} else {
+				throw new Exception("This unit contains " . count($ou -> list_UserGroup) ." user groups, you need to delete or move them first!");
+			}
 		}
 		
 		/* ActionQueue */
