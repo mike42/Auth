@@ -69,7 +69,13 @@ try {
 		Web::fizzle("Controller '$controllerClassName' does not have method '$controllerMethodName'");
 	}
 	$ret = call_user_func_array(array($controllerClassName, $controllerMethodName), $arg);
-
+	
+	/* Queue info */
+	if(!isset($ret['aq_count'])) {
+		$ret['aq_count'] = ActionQueue_api::count();
+	}
+	ActionQueue_api::start();
+	
 	if(isset($ret['view'])) {
 		$viewMethodName = $ret['view'] . "_" . $fmt;
 	} elseif(isset($ret['error'])) {
@@ -78,10 +84,6 @@ try {
 		Web::redirect($ret['redirect']);
 	}
 
-	if(!isset($ret['aq_count'])) {
-		$ret['aq_count'] = ActionQueue_api::count();
-	}
-	
 	/* Run view code */
 	if(!is_callable($viewClassName . "::" .$viewMethodName)) {
 		Web::fizzle("View '$viewClassName' does not have method '$viewMethodName'");

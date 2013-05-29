@@ -3,7 +3,7 @@ require_once(dirname(__FILE__)."/../Auth.php");
 
 class Web {
 	public static $config;
-	
+
 	/**
 	 * Load a controller class
 	 * 
@@ -42,6 +42,10 @@ class Web {
 	}
 
 	static function redirect($to) {
+		/* Run queue first if necessary */
+		ActionQueue_api::start();
+
+		/* Now redirect */
 		global $config;
 		header('location: ' . $to);
 		exit(0);

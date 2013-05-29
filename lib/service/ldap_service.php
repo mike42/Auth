@@ -366,7 +366,7 @@ class ldap_service extends account_service {
 		/* Locate */
 		$ou = $this -> dnFromOu($o -> ou_id);
 		if(!$dn = $this -> dnFromSearch("(cn=$group_cn)")) {
-			throw new Exceprtion("Group not found to delete!");
+			throw new Exception("Group not found to delete!");
 		}
 		
 		/* Delete */

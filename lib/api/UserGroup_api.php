@@ -270,7 +270,7 @@ class UserGroup_api {
 		}
 
 		/* Check against existing groups */
-		if($ug = UserGroup_model::get_by_group_cn($group_cn)) {
+		if($group -> group_cn != $group_cn && $ug = UserGroup_model::get_by_group_cn($group_cn)) {
 			throw new Exception("A user group with that name already exists.");
 		}
 		
@@ -285,7 +285,7 @@ class UserGroup_api {
 		$group -> group_name = $group_name;
 		
 		/* ActionQueue */
-		ActionQueue_api::submitByDomain($group -> group_domain, 'grpRename', $oldcn, $group -> group_cn);
+		ActionQueue_api::submitByDomain($group -> group_domain, 'grpRename', $group -> group_cn, $oldcn);
 
 		$group -> update();
 

@@ -243,7 +243,7 @@ function process(ActionQueue_model $aq) {
 			if(!$g = UserGroup_model::get_by_group_cn($aq -> aq_target)) {
 				throw new Exception("grpRename: Group not found");
 			}
-			return $services[$aq -> service_id] -> groupMove($g, $aq -> aq_arg1);
+			return $services[$aq -> service_id] -> groupRename($g, $aq -> aq_arg1);
 		case 'ouCreate':
 			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
 				throw new Exception("ouCreate: Unit not found");

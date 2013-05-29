@@ -6,6 +6,8 @@
  * @author Michael Billington <michael.billington@gmail.com>
  */
 class ActionQueue_api {
+	private static $modified = false;
+	
 	function init() {
 		Auth::loadClass("ListDomain_model");
 		Auth::loadClass("ListServiceDomain_model");
@@ -123,6 +125,7 @@ class ActionQueue_api {
 		$aq -> aq_arg3 = $aq_arg3;
 		$aq -> aq_complete = 0;
 		$aq -> aq_id = $aq -> insert();
+		self::$modified = true;
 		return true; // No need to pass on this object
 	}
 	
@@ -132,5 +135,16 @@ class ActionQueue_api {
 	
 	static public function flush() {
 		return ActionQueue_model::flush();
+	}
+
+	/**
+	 * Start processing the ActionQueue if modified
+	 */
+	static public function start() {
+		if(self::$modified) {
+			$dir = dirname(__FILE__) . "/../../maintenance/bin/";
+			chdir($dir);
+			system("./authqueue-start.sh");
+		}
 	}
 }

@@ -118,7 +118,7 @@ class Ou_api {
 		
 		$ou -> delete();
 	}
-	
+
 	/**
 	 * Re-base an organizational unit, to go under a different parent
 	 * 
