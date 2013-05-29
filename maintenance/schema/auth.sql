@@ -282,6 +282,11 @@ ALTER TABLE `UserGroup`
   ADD CONSTRAINT `UserGroup_ibfk_1` FOREIGN KEY (`ou_id`) REFERENCES `Ou` (`ou_id`),
   ADD CONSTRAINT `UserGroup_ibfk_2` FOREIGN KEY (`group_domain`) REFERENCES `ListDomain` (`domain_id`);
 
+--
+-- Need a root organizationalUnit
+--
+INSERT INTO `Ou` (`ou_id`, `ou_parent_id`, `ou_name`) VALUES (NULL, NULL, 'root');
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
