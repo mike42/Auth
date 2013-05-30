@@ -8,7 +8,11 @@ class ldap_service extends account_service {
 	private $ldap_user;
 	private $ldap_root;
 	private $ldap_pass;
-	private $dummyGroupMember;
+	
+	/* To be re-defined as needed */
+	protected $dummyGroupMember;
+	protected $groupObjectClass;
+	protected $passwordAttribute;
 
 	/**
 	 * Construct a new LDAP service object
@@ -24,7 +28,11 @@ class ldap_service extends account_service {
 		$this -> ldap_root = $service -> service_root;
 		$this -> ldap_pass = $service -> service_password;
 		$this -> service = $service;
-		$this -> dummyGroupMember = 'cn=invalid,ou=system,'. $this -> ldap_root;
+		
+		/* Some defaults */
+		$this -> dummyGroupMember = 'cn=invalid,ou=system,'. $this -> ldap_root; // Only works without constraints!
+		$this -> groupObjectClass = 'groupOfNames';
+		$this -> passwordAttribute = 'userPassword';
 
 		/* Self-test */
 		$this -> ldaptest();
@@ -232,10 +240,10 @@ class ldap_service extends account_service {
 		}
 		
 		$map = array(
-				array('attr' => 'dn',			'value'=> $dn),
-				array('attr' => 'changetype',	'value'=> 'modify'),
-				array('attr' => 'replace',		'value'=> 'userPassword'),
-				array('attr' => 'userPassword',	'value'=> $p)
+				array('attr' => 'dn',						'value'=> $dn),
+				array('attr' => 'changetype',				'value'=> 'modify'),
+				array('attr' => 'replace',					'value'=> $this -> passwordAttribute),
+				array('attr' => $this -> passwordAttribute,	'value'=> $p)
 		);
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);	
@@ -299,11 +307,11 @@ class ldap_service extends account_service {
 						outp("\tWarning: failed to move $account_login: " . $e -> getMessage());
 					}
 				}
-			} elseif(in_array('groupOfNames', $objectClass)) {
+			} elseif(in_array($this -> groupObjectClass, $objectClass)) {
 				/* Found Group */
 				$group_cn = $object['cn'][0];
 				$group_name = $object['description'][0];
-				outp("\tFound groupOfnames $group_cn", 1);
+				outp("\tFound " . $this -> groupObjectClass . " $group_cn", 1);
 				
 				if(!$group = UserGroup_model::get_by_group_cn($group_cn)) {
 					$group = UserGroup_api::create($group_cn, $group_name, $o -> ou_id, $this -> service -> service_domain);
@@ -343,14 +351,24 @@ class ldap_service extends account_service {
 		$description = $g -> group_name;
 		
 		/* Create group */
-		$map = array(
-				array('attr' => 'dn',			'value'=> $dn),
-				array('attr' => 'changetype',	'value'=> 'add'),
-				array('attr' => 'objectClass',	'value'=> 'groupOfNames'),
-				array('attr' => 'cn',			'value'=> $g -> group_cn),
-				array('attr' => 'description',	'value'=> $description),
-				array('attr' => 'member',		'value'=> $this -> dummyGroupMember), /* Because every group must have a member */
-		);
+		if($this -> dummyGroupMember) {
+			$map = array(
+					array('attr' => 'dn',			'value'=> $dn),
+					array('attr' => 'changetype',	'value'=> 'add'),
+					array('attr' => 'objectClass',	'value'=> $this -> groupObjectClass),
+					array('attr' => 'cn',			'value'=> $g -> group_cn),
+					array('attr' => 'description',	'value'=> $description),
+					array('attr' => 'member',		'value'=> $this -> dummyGroupMember), /* Because every groupOfNames must have a member */
+			);
+		} else {
+			$map = array(
+					array('attr' => 'dn',			'value'=> $dn),
+					array('attr' => 'changetype',	'value'=> 'add'),
+					array('attr' => 'objectClass',	'value'=> $this -> groupObjectClass),
+					array('attr' => 'cn',			'value'=> $g -> group_cn),
+					array('attr' => 'description',	'value'=> $description)
+			);
+		}
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
@@ -551,7 +569,7 @@ class ldap_service extends account_service {
 					array('attr' => 'dn',			'value'=> $dn),
 					array('attr' => 'changetype',	'value'=> 'modrdn'),
 					array('attr' => 'newrdn',		'value'=> $newrdn),
-					array('attr' => 'deleteoldrdn',	'value'=> '0'),
+					array('attr' => 'deleteoldrdn',	'value'=> '1'),
 					array('attr' => 'newsuperior',	'value'=> $superior)
 			);
 			$ldif .= $this -> ldif_generate($map);
@@ -661,7 +679,7 @@ class ldap_service extends account_service {
 	 * @param string $filter A filter. Example: "(uid=jbloggs)"
 	 * @throws Exception
 	 */
-	private function dnFromSearch($filter, $base = "") {
+	protected function dnFromSearch($filter, $base = "") {
 		if($base == "") {
 			$base = $this -> ldap_root;
 		}
@@ -686,7 +704,7 @@ class ldap_service extends account_service {
 	 * @throws Exception
 	 * @return string
 	 */
-	private function dnFromOu($ou_id) {
+	protected function dnFromOu($ou_id) {
 		$ou = Ou_model::get($ou_id);
 		if(!$ou) {
 			throw new Exception("Organizational unit not found");
@@ -701,7 +719,7 @@ class ldap_service extends account_service {
 	/**
 	 * Do a simple LDAP search to verify settings.
 	 */
-	private function ldaptest() {
+	protected function ldaptest() {
 		$this -> ldapsearch_enumerate($this -> ldap_root);
 	}
 
@@ -744,11 +762,11 @@ class ldap_service extends account_service {
 	 * 
 	 * @param string $ou the organizational unit to use as the base for the search, in the form ou=...,dc=...,dc=...
 	 */
-	private function ldapsearch_enumerate($ou) {
+	protected function ldapsearch_enumerate($ou) {
 		return $this -> ldapsearch($ou, true);
 	}
 
-	private static function parseSearch($lines) {
+	protected static function parseSearch($lines) {
 		/* Unfold result of a search -- see http://www.ietf.org/rfc/rfc2849.txt */
 		$prev = -1;
 		foreach($lines as $num => $line) {
@@ -786,7 +804,7 @@ class ldap_service extends account_service {
 		return $object;
 	}
 
-	private static function parse_attr($line) {
+	protected static function parse_attr($line) {
 		$c =  strpos($line, ":");
 		$left = substr($line, 0, $c);
 		$c++;
@@ -810,7 +828,7 @@ class ldap_service extends account_service {
 	 * @throws Exception
 	 * @return boolean
 	 */
-	private function ldapmodify($ldif) {
+	protected function ldapmodify($ldif) {
 		$temp_file = tempnam(sys_get_temp_dir(), 'ldap');
 
 		/* Write LDIF to temp file */
@@ -851,7 +869,7 @@ class ldap_service extends account_service {
 	 *
 	 * @param array $attributes
 	 */
-	private function ldif_generate($attributes) {
+	protected function ldif_generate($attributes) {
 		$outp = "";
 		foreach($attributes as $value) {
 			$outp .= $this -> ldif_attr($value['attr'], $value['value']) . "\n";
@@ -865,7 +883,7 @@ class ldap_service extends account_service {
 	 * @param string $key
 	 * @param string $value
 	 */
-	private function ldif_attr($attr, $value) {
+	protected function ldif_attr($attr, $value) {
 		if(!$this -> ldif_match($attr, 'attr-type-chars')) {
 			throw new Exception("Bad attribute: $attr");
 		}
@@ -874,12 +892,14 @@ class ldap_service extends account_service {
 			/* Special Active Directory encoding: http://www.cs.bham.ac.uk/~smp/resources/ad-passwds/ */
 			$value = "\"" . $value . "\"";
 			$len = strlen($value);
+			$newpw = "";
 			for ($i = 0; $i < $len; $i++) {
-				$newpw .= $value[i]."\000";
+				$newpw .= $value[$i]."\000";
 			}
 			$newpw = base64_encode($newpw);
 			$value = $newpw;
-		} else if(!$this -> ldif_match($value, 'safe-string') ||
+			$attr .= ":";
+		} if(!$this -> ldif_match($value, 'safe-string') ||
 				strpos($value, '\n') != false ||
 				$value != trim($value) ||
 				strlen($value) > 50 ||
@@ -897,7 +917,7 @@ class ldap_service extends account_service {
 	 * @param string $string The string to match
 	 * @param string $category The category to match it under
 	 */
-	private function ldif_match($string, $category) {
+	protected function ldif_match($string, $category) {
 		switch($category) {
 			case 'attr-type-chars':
 				return preg_match("/^[a-zA-Z0-9\-]+$/", $string) == 1;

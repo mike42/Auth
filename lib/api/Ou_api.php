@@ -99,7 +99,7 @@ class Ou_api {
 		
 		if(count($ou -> list_AccountOwner) > 0) {
 			if(count($ou -> list_AccountOwner) == 1) {
-				throw new Exception("This unit contains" . $ou -> list_AccountOwner[0] -> owner_firstname . " " . $ou -> list_AccountOwner[0] -> owner_surname . ", you need to delete or move that user first!");
+				throw new Exception("This unit contains " . $ou -> list_AccountOwner[0] -> owner_firstname . " " . $ou -> list_AccountOwner[0] -> owner_surname . ", you need to delete or move that user first!");
 			} else {
 				throw new Exception("This unit is the parent of " . count($ou -> list_AccountOwner) ." user accounts, you need to delete or move them first!");
 			}
