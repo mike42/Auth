@@ -9,9 +9,9 @@ also not enable this utility.
 Installation
 ------------
 
-On the Auth server, you need access to the sqsh command, and you need to install and configure FreeTDS to work with your version of Microsoft SQL Server. [This blog post](http://le-gall.net/pierrick/blog/index.php/2006/09/06/79-how-to-use-linux-as-a-microsoft-sql-server-client) works for MSSQL 2008.
+On the Auth server, you need access to the sqsh command, and you need to install and configure FreeTDS to work with your version of Microsoft SQL Server. The instructions on [this blog post](http://le-gall.net/pierrick/blog/index.php/2006/09/06/79-how-to-use-linux-as-a-microsoft-sql-server-client) works for MSSQL 2008.
 
-On the Microsoft SQL server, create a /read-only/ user account for Auth to get
+On the Microsoft SQL server, create a _read-only_ user account for Auth to get
 its data from. Give it access to a simple view of student data. The view I use is:
 
     SELECT     Code, FirstName, LastName, PreferredName, Year, Class, ID
