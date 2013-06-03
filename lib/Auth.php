@@ -15,13 +15,19 @@ class Auth {
 			$sp = explode("_", $className);
 			
 			if(count($sp) == 1) {
-				/* If there are no underscores, it should be in util */
+				/* If there are no underscores, it should be in misc */
 				$sp[0] = self::alphanumeric($sp[0]);
 				$fn = dirname(__FILE__)."/misc/".$sp[0].".php";
 			} else {
 				/* Otherwise look in the folder suggested by the name */
 				$folder = self::alphanumeric(array_pop($sp));
-				$fn = dirname(__FILE__)."/$folder/".Auth::alphanumeric($className).".php";
+				$classfile = Auth::alphanumeric($className);
+				if($folder == "util") {
+					/* Utilities are self-contained in their own folder */
+					$fn = dirname(__FILE__)."/$folder/$classfile/$classfile.php";
+				} else {
+					$fn = dirname(__FILE__)."/$folder/$classfile.php";
+				}
 			}
 
 			self::loadClassFromFile($fn, $className);

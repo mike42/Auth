@@ -33,7 +33,7 @@ class Web {
 	 * 
 	 * @param string $error	A description of the error
 	 */
-	function fizzle($error) {\
+	function fizzle($error) {
 		header("HTTP/1.1 500 Internal Server Error");
 		echo "<h1>500 Internal Server Error</h1>";
 		echo "<p>".htmlentities($error)."</p>";
@@ -83,7 +83,7 @@ class Web {
 	}
 	
 	public static function escapeHTML($inp) {
-		return htmlentities($inp, null,'UTF-8');
+		return htmlentities($inp, null, 'UTF-8');
 	}
 }
 

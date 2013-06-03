@@ -58,12 +58,20 @@ if(count($arg) > 2) {
 /* Figure out class and method name */
 try {
 	/* Execute controller code */
-	$controllerClassName = $controller.'_controller';
-	$controllerMethodName = $action;
+	if($controller == "Utility" && $action != "view") {
+		$controllerClassName = $action.'_util';
+		$controllerMethodName = "admin";
+		Auth::loadClass($controllerClassName);
+		$viewMethodName = "admin_" . $fmt;
+	} else {
+		$controllerClassName = $controller.'_controller';
+		$controllerMethodName = $action;
+		Web::loadController($controllerClassName);
+		
+		$viewMethodName = $action . "_" . $fmt;
+	}
 	$viewClassName = $controller.'_view';
-	$viewMethodName = $action . "_" . $fmt;
 
-	Web::loadController($controllerClassName);
 	Web::loadView($viewClassName);
 	if(!is_callable($controllerClassName . "::" . $controllerMethodName)) {
 		Web::fizzle("Controller '$controllerClassName' does not have method '$controllerMethodName'");

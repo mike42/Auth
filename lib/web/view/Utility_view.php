@@ -16,5 +16,9 @@ class Utility_view {
 		$template = "Utility/".$template;
 		include(dirname(__FILE__) . "/layout/htmlLayout.inc");
 	}
+	
+	function admin_html($data) {
+		self::useTemplate("../../../../util/" . $data['util'] . "_util/layout/" . $data['template'], $data);
+	}
 }
 ?>

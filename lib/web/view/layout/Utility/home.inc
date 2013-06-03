@@ -21,7 +21,7 @@
 				} else {
 					echo "<ul>";
 					foreach($data['util'] as $key => $caption) {
-						echo "<li><a href=\"" . web::escapeHTML("Utility", "view", array($key), "html") . "</li>";
+						echo "<li><a href=\"" . web::constructURL("Utility", $key, array(''), "html") . "\">".web::escapeHTML($caption)."</a></li>";
 					}
 					echo "</ul>";
 				}

@@ -28,7 +28,7 @@ class ldap_service extends account_service {
 		$this -> ldap_root = $service -> service_root;
 		$this -> ldap_pass = $service -> service_password;
 		$this -> service = $service;
-		
+
 		/* Some defaults */
 		$this -> dummyGroupMember = 'cn=invalid,ou=system,'. $this -> ldap_root; // Only works without constraints!
 		$this -> groupObjectClass = 'groupOfNames';
