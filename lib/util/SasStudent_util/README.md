@@ -26,8 +26,14 @@ And finally, add all of the configuration options that the utility will be using
 
     'SasStudent' => 
         array(  'host' => 'hostname',
-            'name' => 'databasename',
-            'user' => 'authusername',
-            'pass' => 'verysecretpassword')
-
-
+                'name' => 'databasename',
+                'user' => 'authusername',
+                'pass' => 'verysecretpassword',
+				'view' => 'dbo.authStudentView',
+                // Service to check for accounts in
+                'check'  =>'ldap',
+                // Domain to check for accounts in
+                'domain' =>'(the domain where student accounts go)',
+                // Services to create accounts on
+                'create' => array('ldap', 'something', 'something-else')
+            )
