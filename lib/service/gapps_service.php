@@ -186,7 +186,7 @@ class gapps_service extends account_service {
 			/* Handle groups */
 			$groups = $this -> prov -> retrieveAllGroupsInDomain();
 			foreach($groups as $group) {
-				$pe = new Provisioning_email($group -> getgroupId());
+				$pe = new Provisioning_Email($group -> getgroupId());
 				$group_cn = $pe -> local;
 				try {
 					$ug = UserGroup_api::get_by_group_cn($group_cn);
@@ -196,11 +196,39 @@ class gapps_service extends account_service {
 					$ug = UserGroup_api::create($group_cn, $group -> getgroupName(), $o -> ou_id, $domain_id);
 				}
 				
-				// TODO: Group membership
+				outp("\tChecking $group_cn");
+				$members = $this -> prov -> retrieveMembersOfGroup($group -> getgroupId());
+				foreach($members as $member) {
+					$me = new Provisioning_Email($member -> getmemberId());
+					if($domain_id = $this -> getDomainId($me -> domain)) { // Ignore outside accounts 
+						if($member -> getmemberType() == 'User') {
+							$account_login = $me -> local;
+							if(!$account = Account_model::get_by_account_login($account_login, $this -> service -> service_id, $domain_id)) {
+								outp("\t\t User unknown ($account_login), skipping");
+							} else {
+								if(!OwnerUserGroup_model::get($account -> owner_id, $ug -> group_id)) {
+									// Add owner to group
+									AccountOwner_api::addtogroup($account -> owner_id, $ug -> group_id);
+								}
+							}
+						} else if($member -> getmemberType() == 'Group') {
+							$subgroup_cn = $me -> local;
+							if(!$subgroup = UserGroup_model::get_by_group_cn($subgroup_cn)) {
+								outp("\t\t Group unknown ($subgroup_cn), skipping");
+							} else {
+								if(!SubUserGroup_model::get($ug -> group_id, $subgroup -> group_id)) {
+									// Add user to group
+									UserGroup_api::addchild($ug -> group_id, $subgroup -> group_id);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 
 		/* Handle users */
+		$orgUnitPath = $this -> orgUnitPath($o -> ou_id);
 		$orgUsers = $this -> prov -> listChildOrganizationUsers($orgUnitPath);
 		foreach($orgUsers as $orgUser) {
 			$orgUserEmail = $orgUser -> getorgUserEmail();
@@ -225,13 +253,12 @@ class gapps_service extends account_service {
 		}
 		
 		/* Handle sub-organizations */
-		$orgUnitPath = $this -> orgUnitPath($o -> ou_id);
 		$orgUnits = $this -> prov -> listChildOrganizationUnits($orgUnitPath);
 		foreach($orgUnits as $orgUnit) {
 			$ou_name = $orgUnit -> getname();
 			if(!$ou = Ou_model::get_by_ou_name($ou_name)) {
 				/* Needs to be created */
-				Ou_api::create($ou_name, $o -> ou_id);
+				$ou = Ou_api::create($ou_name, $o -> ou_id);
 			} else {
 				if($ou -> ou_parent_id != $o -> ou_id) {
 					/* Wrong place. Move it over before the search (otherwise we'll get errors!) */
@@ -248,7 +275,7 @@ class gapps_service extends account_service {
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Create a new group.
 	 * 
@@ -370,7 +397,12 @@ class gapps_service extends account_service {
 		
 		/* Change display name */
 		$groupId = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
-		$group = $this -> prov -> retrieveGroup($groupId);
+		try {
+			$group = $this -> prov -> retrieveGroup($groupId);
+		} catch(Exception $e) {
+			throw new Exception("Failed to retrieve group: " . $e -> getMessage());
+		}
+		
 		if($g -> group_name != $group -> getgroupName()) {
 			outp("\tChanging group name..");
 			$group -> setgroupName($g -> group_name);
