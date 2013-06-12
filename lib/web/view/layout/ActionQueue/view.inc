@@ -10,6 +10,7 @@
 					all the time!</p>
 				<p>While you are working, Auth puts together a "Todo" list with all
 					the things you've changed, and applies the changes in its own time.</p>
+				<p>You can find all sorts of extra detail in the <?php echo "<a href=\"" . Web::constructURL("ActionQueue", "log", array(''), "html") . "\">ActionQueue log file</a>."?>
 			</div>
 		</div>
 		<div class="span8">

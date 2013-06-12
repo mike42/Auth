@@ -133,6 +133,26 @@ class ActionQueue_api {
 		return ActionQueue_model::get_overview();
 	}
 	
+	/**
+	 * Return an array containing up to N lines of output. Newest entries go first.
+	 * 
+	 * @param int $lines
+	 */
+	static public function getLog($lines) {
+		/* Input check */
+		$lines = (int)$lines;
+		if($lines < 1) {
+			return array();
+		}
+		
+		/* Get logfile */
+		$fn = Auth::getConfig('logfile');
+		$command = sprintf("tail %s -n %s | tac", escapeshellarg($fn), escapeshellarg($lines));
+		$lines = array();
+		$ret = exec($command, $lines);
+		return $lines;
+	}
+	
 	static public function flush() {
 		return ActionQueue_model::flush();
 	}

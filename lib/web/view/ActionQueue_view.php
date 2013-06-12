@@ -12,6 +12,10 @@ class ActionQueue_view {
 		page_view::error_html($data);
 	}
 	
+	function log_html($data) {
+		self::useTemplate('log', $data);
+	}
+	
 	function useTemplate($template, $data) {
 		$template = "ActionQueue/".$template;
 		include(dirname(__FILE__) . "/layout/htmlLayout.inc");

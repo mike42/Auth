@@ -41,9 +41,15 @@ class gapps_service extends account_service {
 			
 		/* Move into the right Ou */
 		if($orgUnitPath != "/") {
-			$orgUser = $this -> prov -> retrieveOrganizationUser($userEmail);
-			$orgUser -> setorgUnitPath($orgUnitPath);
-			$this -> prov -> updateOrganizationUser($orgUser);
+			try {
+				$orgUser = $this -> prov -> retrieveOrganizationUser($userEmail);
+				$orgUser -> setorgUnitPath($orgUnitPath);
+				$this -> prov -> updateOrganizationUser($orgUser);
+			} catch(Exception $e) {
+				/* Has not shown up in directory yet! */
+				outp("\t\tFailed to relocate user. Submitting to queue!");
+				// TODO
+			}
 		}
 		return true;
 	}
