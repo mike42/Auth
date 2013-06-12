@@ -48,7 +48,7 @@ class gapps_service extends account_service {
 			} catch(Exception $e) {
 				/* Has not shown up in directory yet! */
 				outp("\t\tFailed to relocate user. Submitting to queue!");
-				// TODO
+				ActionQueue_api::submit($this -> service -> service_id, $a -> account_domain, 'acctRelocate', $a -> account_login, 'root');
 			}
 		}
 		return true;

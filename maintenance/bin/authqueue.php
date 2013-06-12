@@ -41,7 +41,7 @@ if($count == 0) {
 		$next -> aq_attempts += 1; // Increment number of attempts
 
 		/* Used to exponentially back-off if something is broken */
-		$interval = 0; //(1 << ($next -> aq_attempts - 1)) - 1;
+		$interval = (1 << ($next -> aq_attempts - 1)) - 1;
 		$date = time() + $interval;
 
 		try {
