@@ -12,6 +12,7 @@ class ldap_service extends account_service {
 	/* To be re-defined as needed */
 	protected $dummyGroupMember;
 	protected $groupObjectClass;
+	protected $userObjectClass;
 	protected $passwordAttribute;
 
 	/**
@@ -32,7 +33,9 @@ class ldap_service extends account_service {
 		/* Some defaults */
 		$this -> dummyGroupMember = 'cn=invalid,ou=system,'. $this -> ldap_root; // Only works without constraints!
 		$this -> groupObjectClass = 'groupOfNames';
+		$this -> userObjectClass = 'posixAccount';
 		$this -> passwordAttribute = 'userPassword';
+		$this -> loginAttribute = 'cn';
 
 		/* Self-test */
 		$this -> ldaptest();
@@ -60,7 +63,7 @@ class ldap_service extends account_service {
 	public function accountCreate(Account_model $a) {
 		/* Check and figure out dn */
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if($dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
+		if($dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $ou)) {
 			throw new Exception("Skipping account creation, account exists");
 		}
 		$dn = "cn=" . $a -> account_login . "," . $ou;
@@ -95,7 +98,7 @@ class ldap_service extends account_service {
 	public function accountDelete($account_login, ListDomain_model $d, Ou_model $o) {
 		/* Check & locate */
 		$ou = $this -> dnFromOu($o -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=$account_login)", $ou)) {
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=$account_login)", $ou)) {
 			throw new Exception("Skipping account deletion, account doesn't seem to exist");
 		}
 
@@ -117,7 +120,7 @@ class ldap_service extends account_service {
 	public function accountUpdate(Account_model $a, $account_old_login) {
 		/* Locate account */
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=$account_old_login)", $ou)) {
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=$account_old_login)", $ou)) {
 			throw new Exception("Skipping account update, account doesn't seem to exist.");
 		}
 		$ldif = "";
@@ -175,7 +178,7 @@ class ldap_service extends account_service {
 	 */
 	public function accountDisable(Account_model $a) {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $ou)) {
 			throw new Exception("Skipping account disable, account doesn't seem to exist.");
 		}
 		
@@ -190,7 +193,7 @@ class ldap_service extends account_service {
 	 */
 	public function accountEnable(Account_model $a) {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $ou)) {
 			throw new Exception("Skipping account enable, account doesn't seem to exist.");
 		}
 		
@@ -207,7 +210,7 @@ class ldap_service extends account_service {
 	public function accountRelocate(Account_model $a, Ou_model $old_parent) {
 		/* Locate user's current place */
 		$ou = $this -> dnFromOu($old_parent -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=".$a -> account_login . ")", $ou)) {
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=".$a -> account_login . ")", $ou)) {
 			throw new Exception("Account not found where expected, can't re-locate it!");
 		}
 
@@ -235,7 +238,7 @@ class ldap_service extends account_service {
 	 */
 	public function accountPassword(Account_model $a, $p) {
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=".$a -> account_login . ")", $ou)) {
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=".$a -> account_login . ")", $ou)) {
 			throw new Exception("Account not found where expected, can't set password");
 		}
 		
@@ -271,7 +274,13 @@ class ldap_service extends account_service {
 			if(in_array('organizationalUnit', $objectClass)) {
 				/* Hit organizational unit */
 				$ou_name = $object['ou'][0];
-				if(!$ou = Ou_model::get_by_ou_name($ou_name)) {
+				if(Auth::normaliseName($ou_name) != strtolower($ou_name)) {
+					outp("\tNotice: Skipped '$ou_name', would be named differently (".Auth::normaliseName($ou_name).") under Auth");
+					continue;
+				}
+				
+				outp("\tFound '$ou_name' here.");
+				if(!$ou = Ou_model::get_by_ou_name(Auth::normaliseName($ou_name))) {
 					/* Need to create */
 					$ou = Ou_api::create($ou_name, $o -> ou_id);
 				} else if($ou -> ou_parent_id != $o -> ou_id) {
@@ -287,16 +296,31 @@ class ldap_service extends account_service {
 				/* Recurse */
 				outp("\tAdded organizationalUnit $ou_name to search queue", 1);
 				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'recSearch', $ou -> ou_name);
-			} elseif(in_array('posixAccount', $objectClass)) {
+			} elseif(in_array($this -> userObjectClass, $objectClass)) {
 				/* Found user account */
-				$account_login = $object['cn'][0];
-				outp("\tFound posixAccount $account_login", 1);
+				$account_login = $object[$this -> loginAttribute][0];
+				outp("\tFound " . $this -> userObjectClass . " $account_login", 1);
 				
 				/* Crude reconstruction of firstname/lastname */
-				$fullname = explode(' ', $object['gecos'][0]);
-				$owner_firstname = array_shift($fullname);
-				$owner_surname = implode(' ', $fullname);
-				if(!$account = Account_model::get_by_account_login($account_login, $this -> service -> service_id, $this -> service -> service_domain)) {
+				if(isset($object['gecos'][0])) {
+					$fullname = explode(' ', $object['gecos'][0]);
+				} elseif(isset($object['displayName'][0])) {
+					$fullname = explode(' ', $object['displayName'][0]);
+				} else {
+					continue; // Probably computer account 
+				}
+				$owner_firstname = trim(array_shift($fullname));
+				$owner_surname = trim(implode(' ', $fullname));
+				
+				if($owner_firstname == "") {
+					$owner_firstname = $account_login;
+				}
+				
+				if($owner_surname == "") {
+					$owner_surname = $account_login;
+				}
+				
+				if(!$account = Account_model::get_by_account_login(Auth::normaliseName($account_login), $this -> service -> service_id, $this -> service -> service_domain)) {
 					/* Does not exist on default domain (this LDAP service only supports one domain) */
 					$owner = AccountOwner_api::create($o -> ou_id, $owner_firstname, $owner_surname, $account_login, $this -> service -> service_domain, array($this -> service -> service_id));
 				} else if ($account -> AccountOwner -> ou_id != $o -> ou_id) {
@@ -310,11 +334,19 @@ class ldap_service extends account_service {
 			} elseif(in_array($this -> groupObjectClass, $objectClass)) {
 				/* Found Group */
 				$group_cn = $object['cn'][0];
-				$group_name = $object['description'][0];
+				if(isset($object['description'][0])) {
+					$group_name = $object['description'][0];
+				} else {
+					$group_name = $group_cn;
+				}
 				outp("\tFound " . $this -> groupObjectClass . " $group_cn", 1);
 				
-				if(!$group = UserGroup_model::get_by_group_cn($group_cn)) {
-					$group = UserGroup_api::create($group_cn, $group_name, $o -> ou_id, $this -> service -> service_domain);
+				if(!$group = UserGroup_model::get_by_group_cn(Auth::normaliseName($group_cn))) {
+					try {
+						$group = UserGroup_api::create($group_cn, $group_name, $o -> ou_id, $this -> service -> service_domain);
+					} catch(Exception $e) {
+						outp("\t\tWarning: Couldn't create $group_cn: ".$e -> getMessage());
+					}
 				} else if ($group -> ou_id != $o -> ou_id) {
 					outp("\tNotice: Moving group to where it should be.");
 					try {
@@ -344,7 +376,7 @@ class ldap_service extends account_service {
 	public function groupCreate(UserGroup_model $g) {
 		/* Existence check and startup */
 		$ou = $this -> dnFromOu($g -> ou_id);
-		if($dn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $ou)) {
+		if($dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $g -> group_cn . ")", $ou)) {
 			throw new Exception("Skipping account creation, group exists");
 		}
 		$dn = "cn=" . $g -> group_cn . "," .$ou;
@@ -410,7 +442,7 @@ class ldap_service extends account_service {
 		}
 
 		$AccountOu = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if(!$AccountDn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $AccountOu)) {
+		if(!$AccountDn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $AccountOu)) {
 			throw new Exception("Can't find user, not adding it to group");
 		}
 
@@ -439,7 +471,7 @@ class ldap_service extends account_service {
 		}
 
 		$AccountOu = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if(!$AccountDn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $AccountOu)) {
+		if(!$AccountDn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $AccountOu)) {
 			throw new Exception("Can't find user, not removing it from group");
 		}
 		

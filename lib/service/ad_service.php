@@ -14,6 +14,8 @@ class ad_service extends ldap_service {
 		 * without a dummy member, which is all that's needed for AD groups */
 		$this -> dummyGroupMember = false;
 		$this -> groupObjectClass = 'group';
+		$this -> userObjectClass = 'user';
+		$this -> loginAttribute = 'sAMAccountName';
 		
 		/* See: https://www.google.com/?q=active+directory+useraccountcontrol+codes */
 		$this -> userAccountControl_enabled = '66048';
@@ -33,7 +35,7 @@ class ad_service extends ldap_service {
 	public function accountCreate(Account_model $a) {
 		/* Check and figure out dn */
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if($dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
+		if($dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $ou)) {
 			throw new Exception("Skipping account creation, account exists");
 		}
 		$dn = "cn=" . $a -> account_login . "," . $ou;
@@ -80,8 +82,8 @@ class ad_service extends ldap_service {
 	public function accountDisable(Account_model $a) {
 		/* Check and figure out dn */
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
-			throw new Exception("Skipping account creation, account exists");
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $ou)) {
+			throw new Exception("Skipping account disable, couldn't find account");
 		}
 
 		$map = array(
@@ -103,8 +105,8 @@ class ad_service extends ldap_service {
 	public function accountEnable(Account_model $a) {
 		/* Check and figure out dn */
 		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=" . $a -> account_login . ")", $ou)) {
-			throw new Exception("Skipping account creation, account exists");
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $ou)) {
+			throw new Exception("Skipping account enable, couldn't find account");
 		}
 
 		$map = array(
@@ -116,18 +118,6 @@ class ad_service extends ldap_service {
 
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
-	}
-
-	/**
-	 * Search an organizational unit recursively, looking for changes.
-	 * The local database will be updated to reflect any changes here.
-	 * 
-	 * @param Ou_model $o The organizational unit to search.
-	 */
-	public function recursiveSearch(Ou_model $o) {
-		//TODO
-		throw new Exception("Unimplemented");
-
 	}
 }
 
