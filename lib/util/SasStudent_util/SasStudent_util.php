@@ -48,6 +48,8 @@ class SasStudent_util extends util {
 	 * @param boolean $apply
 	 */
 	private static function update($apply = false) {
+		$service = Service_model::get(self::$config['check']);
+		
 		/* Run command and get ouput */
 		$command = sprintf("sqsh " .
 				"-S %s \\\n" .
@@ -60,13 +62,13 @@ class SasStudent_util extends util {
 				"quit\n" .
 				"EOF", escapeshellarg(self::$config['host']), escapeshellarg(self::$config['user']), escapeshellarg(self::$config['name']), escapeshellarg(self::$config['pass']), mysql_real_escape_string(self::$config['view']));
 		$lines = array();
-		$ret = exec($command, $lines);
+		exec($command, $lines, $ret);
 		if($ret != 0) {
-			throw new Exception("Command failed. Verify that everything is configured correctly");
+			throw new Exception("Command failed. Verify that everything is configured correctly: sqsh returned $ret");
 		}
 		
 		$prefix = self::$config['prefix'];
-		$reject = $hr_suggest = $rename = array();
+		$reject = $hr_suggest = $create = $move = $rename = array();
 		
 		foreach($lines as $line) {
 			$var = explode("|", $line);
@@ -83,8 +85,8 @@ class SasStudent_util extends util {
 				if(!is_numeric($sas_stuno)) {
 					$reject[] = array('var' => $var, 'reason' => 'Student number is not numeric');
 					continue;
-				} else if(!is_numeric($sas_yl)) {
-					$reject[] = array('var' => $var, 'reason' => 'Year level is not numeric');
+				} else if(!is_numeric($sas_yl) || (int)$sas_yl < 7 || (int)$sas_yl > 12) {
+					$reject[] = array('var' => $var, 'reason' => 'Year level is not numeric, or is too high or low.');
 					continue;
 				}
 				
@@ -104,13 +106,23 @@ class SasStudent_util extends util {
 						}
 					}
 				}
+				
+				$ou_id = "y" . ((int)date("Y") + (12 - (int)$sas_yl)); // Name of OU
+				if($login = Account_model::get_by_account_login($sas_stuno, $service -> service_id, $service -> service_domain)) {
+					if($login -> AccountOwner -> Ou -> ou_name != $ou_id) {
+						$move[] = array('var' => $var);
+					}
+				} else {
+					$create[] = array('var' => $var);
+				}
 			}
 		}
-			
-		
+
 		print_r($reject);
 		print_r($hr_suggest);
 		print_r($rename);
+		print_r($create);
+		print_r($move);
 		return $lines;
 	}
 }
