@@ -90,6 +90,7 @@ class SasStudent_util extends util {
 					continue;
 				}
 				
+				/* Make groups correctly */
 				$group_cn = $prefix . strtolower($sas_hr);
 				$group_name = strtoupper(substr($prefix, 0, 1)) . substr($prefix, 1, strlen($prefix) - 1) . ' ' . strtoupper($sas_hr);
 				if(!$group = UserGroup_model::get_by_group_cn($group_cn)) {
@@ -107,22 +108,39 @@ class SasStudent_util extends util {
 					}
 				}
 				
-				$ou_id = "y" . ((int)date("Y") + (12 - (int)$sas_yl)); // Name of OU
+				$ou_name = "y" . ((int)date("Y") + (12 - (int)$sas_yl)); // Name of OU
+				if(!$ou = Ou_model::get_by_ou_name($ou_name)) {
+					$parent_ou_name = self::$config['ou'];
+					if(!$parent = Ou_model::get_by_ou_name($parent_ou_name)) {
+						throw new Exception("Can't put student in new ou '$ou_name' because '$parent_ou_name' was not found. Edit config or create '$parent_ou_name'.");
+					}
+						
+					if($apply) {
+						$ou = Ou_api::create($ou_name, $parent -> ou_id);
+					}
+				}
+				
 				if($login = Account_model::get_by_account_login($sas_stuno, $service -> service_id, $service -> service_domain)) {
-					if($login -> AccountOwner -> Ou -> ou_name != $ou_id) {
-						$move[] = array('var' => $var);
+					if($login -> AccountOwner -> Ou -> ou_name != $ou_name) {
+						$move[] = array('var' => $var);						
+						if($apply) {
+							AccountOwner_api::move($login -> owner_id, $ou -> ou_id);
+						}
 					}
 				} else {
 					$create[] = array('var' => $var);
+					if($apply) {
+						// TODO create account here
+					}
 				}
 			}
 		}
 
-		print_r($reject);
-		print_r($hr_suggest);
-		print_r($rename);
+		//print_r($reject);
+		//print_r($hr_suggest);
+		//print_r($rename);
 		print_r($create);
-		print_r($move);
+		//print_r($move);
 		return $lines;
 	}
 }

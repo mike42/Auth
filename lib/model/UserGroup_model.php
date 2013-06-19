@@ -61,7 +61,7 @@ class UserGroup_model {
 	}
 
 	public static function list_by_ou_id($ou_id) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE UserGroup.ou_id='%s';";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE UserGroup.ou_id='%s' ORDER BY UserGroup.group_name, UserGroup.group_id;";
 		$res = Database::retrieve($sql, array($ou_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -71,7 +71,7 @@ class UserGroup_model {
 	}
 
 	public static function list_by_group_domain($group_domain) {
-		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE UserGroup.group_domain='%s';";
+		$sql = "SELECT * FROM UserGroup LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE UserGroup.group_domain='%s' ORDER BY UserGroup.group_name, UserGroup.group_id;";
 		$res = Database::retrieve($sql, array($group_domain));
 		$ret = array();
 		while($row = Database::get_row($res)) {

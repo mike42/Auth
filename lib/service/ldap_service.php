@@ -214,6 +214,13 @@ class ldap_service extends account_service {
 			throw new Exception("Account not found where expected, can't re-locate it!");
 		}
 
+		/* Verify new Ou actually exists */
+		$superiorSuperior = $this -> dnFromOu($a -> AccountOwner -> Ou -> ou_parent_id);
+		if(!$ss = $this -> dnFromSearch("(ou=" . $a -> AccountOwner -> Ou -> ou_name . ")", $superiorSuperior)) {
+			outp("\tNew Ou does not exist, creating it now");
+			$this -> ouCreate($a -> AccountOwner -> Ou);
+		}
+		
 		/* New details */
 		$newsuperior = $this -> dnFromOu($a -> AccountOwner -> ou_id);
 		$newrdn = "cn=" . $a -> account_login;
@@ -356,9 +363,11 @@ class ldap_service extends account_service {
 					}
 				}
 
-				foreach($object['member'] as $member) {
-					// TODO sync group membership
-					outp("\t\t$member", 1);
+				if(isset($object['member'])) {
+					foreach($object['member'] as $member) {
+						// TODO sync group membership
+						outp("\t\t$member", 1);
+					}
 				}
 			} else {
 				// Ignore unrecognised oddities

@@ -40,7 +40,7 @@ class OwnerUserGroup_model {
 	}
 
 	public static function list_by_owner_id($owner_id) {
-		$sql = "SELECT * FROM OwnerUserGroup LEFT JOIN AccountOwner ON OwnerUserGroup.owner_id = AccountOwner.owner_id LEFT JOIN UserGroup ON OwnerUserGroup.group_id = UserGroup.group_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE OwnerUserGroup.owner_id='%s';";
+		$sql = "SELECT * FROM OwnerUserGroup LEFT JOIN AccountOwner ON OwnerUserGroup.owner_id = AccountOwner.owner_id LEFT JOIN UserGroup ON OwnerUserGroup.group_id = UserGroup.group_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE OwnerUserGroup.owner_id='%s' ORDER BY UserGroup.group_name, UserGroup.group_id;";
 		$res = Database::retrieve($sql, array($owner_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -50,7 +50,7 @@ class OwnerUserGroup_model {
 	}
 
 	public static function list_by_group_id($group_id) {
-		$sql = "SELECT * FROM OwnerUserGroup LEFT JOIN AccountOwner ON OwnerUserGroup.owner_id = AccountOwner.owner_id LEFT JOIN UserGroup ON OwnerUserGroup.group_id = UserGroup.group_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE OwnerUserGroup.group_id='%s';";
+		$sql = "SELECT * FROM OwnerUserGroup LEFT JOIN AccountOwner ON OwnerUserGroup.owner_id = AccountOwner.owner_id LEFT JOIN UserGroup ON OwnerUserGroup.group_id = UserGroup.group_id LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE OwnerUserGroup.group_id='%s' ORDER BY AccountOwner.owner_surname, AccountOwner.owner_firstname, AccountOwner.owner_id;";
 		$res = Database::retrieve($sql, array($group_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {

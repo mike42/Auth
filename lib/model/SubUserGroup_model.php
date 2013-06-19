@@ -37,7 +37,7 @@ class SubUserGroup_model {
 	}
 
 	public static function list_by_parent_group_id($parent_group_id) {
-		$sql = "SELECT * FROM SubUserGroup LEFT JOIN UserGroup ON SubUserGroup.group_id = UserGroup.group_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE SubUserGroup.parent_group_id='%s';";
+		$sql = "SELECT * FROM SubUserGroup LEFT JOIN UserGroup ON SubUserGroup.group_id = UserGroup.group_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE SubUserGroup.parent_group_id='%s' ORDER BY UserGroup.group_name, UserGroup.group_id;";
 		$res = Database::retrieve($sql, array($parent_group_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -47,7 +47,7 @@ class SubUserGroup_model {
 	}
 
 	public static function list_by_group_id($group_id) {
-		$sql = "SELECT * FROM SubUserGroup LEFT JOIN UserGroup ON SubUserGroup.group_id = UserGroup.group_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE SubUserGroup.group_id='%s';";
+		$sql = "SELECT * FROM SubUserGroup LEFT JOIN UserGroup ON SubUserGroup.group_id = UserGroup.group_id LEFT JOIN Ou ON UserGroup.ou_id = Ou.ou_id LEFT JOIN ListDomain ON UserGroup.group_domain = ListDomain.domain_id WHERE SubUserGroup.group_id='%s' ORDER BY UserGroup.group_name, UserGroup.group_id;";
 		$res = Database::retrieve($sql, array($group_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {

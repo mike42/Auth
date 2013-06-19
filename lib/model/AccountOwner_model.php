@@ -47,7 +47,7 @@ class AccountOwner_model {
 	}
 
 	public static function list_by_ou_id($ou_id) {
-		$sql = "SELECT * FROM AccountOwner LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE AccountOwner.ou_id='%s';";
+		$sql = "SELECT * FROM AccountOwner LEFT JOIN Ou ON AccountOwner.ou_id = Ou.ou_id WHERE AccountOwner.ou_id='%s' ORDER BY owner_surname, owner_firstname, owner_id;";
 		$res = Database::retrieve($sql, array($ou_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {

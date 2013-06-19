@@ -261,9 +261,10 @@ class gapps_service extends account_service {
 		/* Handle sub-organizations */
 		$orgUnits = $this -> prov -> listChildOrganizationUnits($orgUnitPath);
 		foreach($orgUnits as $orgUnit) {
-			$ou_name = $orgUnit -> getname();
+			$ou_name = Auth::normaliseName($orgUnit -> getname());
 			if(!$ou = Ou_model::get_by_ou_name($ou_name)) {
 				/* Needs to be created */
+				outp("\t$ou_name");
 				$ou = Ou_api::create($ou_name, $o -> ou_id);
 			} else {
 				if($ou -> ou_parent_id != $o -> ou_id) {
