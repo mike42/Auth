@@ -68,9 +68,44 @@ class ad_service extends ldap_service {
 	 * @param string $account_old_login The login to search for (may be different to the one stored currently, if it has been changed)
 	 */
 	public function accountUpdate(Account_model $a, $account_old_login) {
-		//TODO
-		throw new Exception("Unimplemented");
-
+		/* Check and figure out dn */
+		$ou = $this -> dnFromOu($a -> AccountOwner -> ou_id);
+		if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $account_old_login . ")", $ou)) {
+			throw new Exception("Account not found, skipping update");
+		}
+		$ldif = "";
+		
+		// TODO: replace givenName
+		// TODO: replace sn
+		// TODO: replace displayName
+		
+		if($account_old_login != $a -> account_login) {
+			/* TODO: userPrincipalName */
+			
+			/* sAMAccountName */
+			$map = array(
+					array('attr' => 'dn',			'value'=> $dn),
+					array('attr' => 'changetype',	'value'=> 'modify'),
+					array('attr' => 'replace',		'value'=> 'sAMAccountName'),
+					array('attr' => 'sAMAccountName','value'=> $a -> account_login),
+			);
+			$ldif .= $this -> ldif_generate($map);
+		
+			/* Also change 'cn' in directory if we are renaming */
+			$newrdn = "cn=" . $a -> account_login;
+			$superior = $this -> dnFromOu($a -> AccountOwner -> ou_id);
+		
+			$map = array(
+					array('attr' => 'dn',			'value'=> $dn),
+					array('attr' => 'changetype',	'value'=> 'modrdn'),
+					array('attr' => 'newrdn',		'value'=> $newrdn),
+					array('attr' => 'deleteoldrdn',	'value'=> '1'),
+					array('attr' => 'newsuperior',	'value'=> $superior)
+			);
+			$ldif .= $this -> ldif_generate($map);
+		}
+		
+		return $this -> ldapmodify($ldif);
 	}
 
 
