@@ -365,7 +365,7 @@ class ldap_service extends account_service {
 
 				if(isset($object['member'])) {
 					foreach($object['member'] as $member) {
-						// TODO sync group membership
+						// TODO import group membership
 						outp("\t\t$member", 1);
 					}
 				}
@@ -385,10 +385,10 @@ class ldap_service extends account_service {
 	public function groupCreate(UserGroup_model $g) {
 		/* Existence check and startup */
 		$ou = $this -> dnFromOu($g -> ou_id);
-		if($dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $g -> group_cn . ")", $ou)) {
-			throw new Exception("Skipping account creation, group exists");
+		if($dn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $ou)) {
+			throw new Exception("Skipping group creation, already exists");
 		}
-		$dn = "cn=" . $g -> group_cn . "," .$ou;
+		$dn = "cn=" . $g -> group_cn . "," . $ou;
 		$description = $g -> group_name;
 		
 		/* Create group */
@@ -424,7 +424,7 @@ class ldap_service extends account_service {
 	public function groupDelete($group_cn, ListDomain_model $d, Ou_model $o) {
 		/* Locate */
 		$ou = $this -> dnFromOu($o -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=$group_cn)")) {
+		if(!$dn = $this -> dnFromSearch("(cn=$group_cn)", $ou)) {
 			throw new Exception("Group not found to delete!");
 		}
 		
@@ -713,7 +713,91 @@ class ldap_service extends account_service {
 		$ldif = $this -> ldif_generate($map);
 		return $this -> ldapmodify($ldif);
 	}
+	
+	/**
+	 * Create remote groups/units which are missing, un-track deleted users, and push group membership details out
+	 * 
+	 * @param Ou_model $o
+	 */
+	public function syncOu(Ou_model $o) {
+		$usergroups = UserGroup_model::list_by_ou_id($o -> ou_id);
+		foreach($usergroups as $ug) {
+			outp("\tGroup: " . $ug -> group_cn);
+			
+			try {
+				if(!$dn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $ou)) {
+					$this -> groupCreate($ug);
+					outp("\t\tCreated just now");
+				}
 
+				$subUserGroups = UserGroup_api::list_children($ug -> group_id);
+				foreach($subUserGroups as $sug) {
+					// TODO: Sub-group membership
+					outp("\t\tSub-group: " . $sug -> group_cn);
+				}
+				
+				$ownerusergroups = OwnerUserGroup_model::list_by_group_id($ug -> group_id);
+				foreach($ownerusergroups as $oug) {
+					if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
+						// TODO: User membership
+						outp("\t\tUser: " . $a -> account_login . " " . $a -> account_domain);
+					}
+				}
+			} catch(Exception $e) {
+				outp("\t\t".$e -> getMessage());
+			}
+		}
+
+		$accountOwners = AccountOwner_model::list_by_ou_id($o -> ou_id);
+		$base = $this -> dnFromOu($o -> ou_id);
+		foreach($accountOwners as $ao) {
+			if($a = $this -> getOwnersAccount($ao)) {
+				outp("\tUser: " . $a -> account_login . " " . $a -> account_domain);
+				try {
+					if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $base)) {
+						outp("\t\tAccount has gone missing. Deleting from local database.");
+						$a -> delete();
+					}
+				} catch(Exception $e) {
+					outp("\t\t".$e -> getMessage());
+				}
+			}
+		}
+
+		$organizationalunits = Ou_model::list_by_ou_parent_id($o -> ou_id);
+		foreach($organizationalunits as $ou) {
+			outp("\tUnit: " . $ou -> ou_name);
+			try {
+				if(!$dn = $this -> dnFromSearch("(ou=" . $ou -> ou_name . ")", $base)) {
+					/* Create OU if needed */
+					$this -> ouCreate($ou);
+					outp("\t\tCreated just now");
+				}
+				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'syncOu', $ou -> ou_name);
+			} catch(Exception $e) {
+				outp("\t\t".$e -> getMessage());
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Given an accountOwner, return their account on this service, or false.
+	 * 
+	 * @param AccountOwner_model $ao
+	 */
+	private function getOwnersAccount(AccountOwner_model $ao) {
+		$ao -> populate_list_Account();
+		foreach($ao -> list_Account as $a) {
+			if($a -> service_id == $this -> service -> service_id) {
+				return $a;
+			}
+		}
+		return false;
+	}
+
+	
 	/**
 	 * Get the dn of the first entry returned from an ldapsearch
 	 *
@@ -721,6 +805,25 @@ class ldap_service extends account_service {
 	 * @throws Exception
 	 */
 	protected function dnFromSearch($filter, $base = "") {
+		if(!$a = $this -> objectFromSearch($filter, $base)) {
+			return false;
+		}
+		return $a['dn'][0];
+	}
+	
+	protected function objectFromDn($dn) {
+		// TODO: Cut first section, filter and find
+	}
+	
+	/**
+	 * Get an LDAP object from the directory. Will become annoyed if the filter/base do not come up with a unique result
+	 * 
+	 * @param string $filter
+	 * @param string $base
+	 * @throws Exception
+	 * @return boolean|Ambigous <multitype:>
+	 */
+	protected function objectFromSearch($filter, $base = "") {
 		if($base == "") {
 			$base = $this -> ldap_root;
 		}
@@ -735,7 +838,7 @@ class ldap_service extends account_service {
 			}
 			throw new Exception("Duplicate found while searching $filter. Log in to the service and delete one to administer this object!");
 		}
-		return $a[0]['dn'][0];
+		return $a[0];
 	}
 	
 	/**

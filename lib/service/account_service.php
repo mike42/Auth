@@ -142,6 +142,14 @@ abstract class account_service {
 	 * @param Ou_model $name
 	 */
 	abstract public function ouRename(Ou_model $o, $ou_old_name);
+	
+	/**
+	 * Create remote groups/units which are missing, un-track deleted users, and push group membership details out
+	 * 
+	 * @param Ou_model $o
+	 */
+	abstract public function syncOu(Ou_model $o);
+	
 	/**
 	 * Generate a junk password that nobody is supposed to know.
 	 * @return string

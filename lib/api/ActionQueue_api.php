@@ -160,8 +160,8 @@ class ActionQueue_api {
 	/**
 	 * Start processing the ActionQueue if modified
 	 */
-	static public function start() {
-		if(self::$modified) {
+	static public function start($force = false) {
+		if(self::$modified || $force) {
 			$dir = dirname(__FILE__) . "/../../maintenance/bin/";
 			chdir($dir);
 			system("./authqueue-start.sh");

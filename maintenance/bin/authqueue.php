@@ -268,14 +268,16 @@ function process(ActionQueue_model $aq) {
 				throw new Exception("ouRename: Unit not found");
 			}
 			return $services[$aq -> service_id] -> ouRename($o, $aq -> aq_arg1);
-		case 'recSearch': // Wonderfully truncated
+		case 'recSearch':
 			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
 				throw new Exception("recursiveSearch: Unit not found");
 			}
 			return $services[$aq -> service_id] -> recursiveSearch($o);
 		case 'syncOu':
-			//TODO
-			break;
+			if(!$o = Ou_model::get_by_ou_name($aq -> aq_target)) {
+				throw new Exception("syncOu: Unit not found");
+			}
+			return $services[$aq -> service_id] -> syncOu($o);
 	}
 	return false;
 }

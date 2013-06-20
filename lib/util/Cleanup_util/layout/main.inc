@@ -1,37 +1,48 @@
 <script>
 	function localCleanup() {
-		// TODO 
-		alert('This function has not been implemented yet');
+		$("#service_id").val('');
+		$("#action").val('localCleanup');
+		$("#frmCleanup").submit();
 	}
 
 	function recSearch(service_id) {
-		// TODO 
-		alert('This function has not been implemented yet');
+		$("#service_id").val(service_id);
+		$("#action").val('recSearch');
+		$("#frmCleanup").submit();
 	}
 
 	function sync(service_id) {
-		// TODO 
-		alert('This function has not been implemented yet');
+		$("#service_id").val(service_id);
+		$("#action").val('sync');
+		$("#frmCleanup").submit();
 	}
 
 	function deactivate(service_id) {
-		// TODO 
-		alert('This function has not been implemented yet');
+		if(confirm('Are you sure that you want to de-activate this service? It will become out of sync with Auth.')) {
+			$("#service_id").val(service_id);
+			$("#action").val('deactivate');
+			$("#frmCleanup").submit();
+		}
 	}
 
 	function activate(service_id) {
-		// TODO 
-		alert('This function has not been implemented yet');
+		$("#service_id").val(service_id);
+		$("#action").val('activate');
+		$("#frmCleanup").submit();
 	}
 
 	function processAq() {
-		// TODO 
-		alert('This function has not been implemented yet');
+		$("#service_id").val('');
+		$("#action").val('processAq');
+		$("#frmCleanup").submit();
 	}
 
 	function emptyAq() {
-		// TODO 
-		alert('This function has not been implemented yet');
+		if(confirm('Empty the queue? This can leave anything in the queue out of sync!')) {
+			$("#service_id").val('');
+			$("#action").val('emptyAq');
+			$("#frmCleanup").submit();
+		}
 	}
 </script>
 
@@ -119,3 +130,10 @@
 		</div>
 	</div>
 </div>
+<?php 
+echo "<form id=\"frmCleanup\" method=\"post\" action=\"".web::constructURL("Utility", "Cleanup", array(''), 'html')."\" style=\"display: none;\">" .
+		"<input id=\"action\" type=\"hidden\" name=\"action\" value=\"\" />" .
+		"<input id=\"service_id\" type=\"hidden\" name=\"service_id\" value=\"\" />" .
+		"</form>\n";
+
+?>

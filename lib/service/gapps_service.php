@@ -479,6 +479,16 @@ class gapps_service extends account_service {
 	}
 	
 	/**
+	 * Create remote groups/units which are missing, un-track deleted users, and push group membership details out
+	 *
+	 * @param Ou_model $o
+	 */
+	public function syncOu(Ou_model $o) {
+		// TODO
+		throw new Exception("Unimplemented");
+	}
+	
+	/**
 	 * Build the path to an organizationUnit based on an ID.
 	 * 
 	 * @param int $ou_id

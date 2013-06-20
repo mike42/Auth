@@ -135,7 +135,7 @@ class ActionQueue_model {
 	}
 	
 	public static function flush() {
-		$sql = "DELETE FROM ActionQueue WHERE aq_complete =1";
+		$sql = "DELETE FROM ActionQueue WHERE 1;"; // Using DELETE from to avoid re-using IDs
 		return Database::delete($sql, array());
 	}
 }
