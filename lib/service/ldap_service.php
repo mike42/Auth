@@ -747,7 +747,7 @@ class ldap_service extends account_service {
 					}
 				}
 				
-				// TODO: Loop through $grpObj and index
+				// TODO: Loop through $grpObj and index its contents
 				
 				foreach($subUserGroups as $sug) {
 					// TODO: Sub-group membership
@@ -772,9 +772,10 @@ class ldap_service extends account_service {
 				outp("\tUser: " . $a -> account_login . " " . $a -> account_domain);
 				try {
 					if(!$acctObj = $this -> objectFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $base)) {
-						// TODO: Check firstname & surname (possibly)
+						// TODO: Check firstname & surname
+						
 						outp("\t\tAccount has gone missing. Deleting from local database.");
-						//$a -> delete(); TODO
+						$a -> delete();
 					}
 				} catch(Exception $e) {
 					outp("\t\t".$e -> getMessage());

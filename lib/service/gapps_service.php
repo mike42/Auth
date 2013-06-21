@@ -190,7 +190,8 @@ class gapps_service extends account_service {
 			/* Handle groups */
 			$groups = $this -> prov -> retrieveAllGroupsInDomain();
 			foreach($groups as $group) {
-				$pe = new Provisioning_Email($group -> getgroupId());
+				$groupEmail = $group -> getgroupId();
+				$pe = new Provisioning_Email($groupEmail);
 				$group_cn = $pe -> local;
 				try {
 					$ug = UserGroup_api::get_by_group_cn($group_cn);
@@ -203,12 +204,27 @@ class gapps_service extends account_service {
 				outp("\tChecking $group_cn");
 				$members = $this -> prov -> retrieveMembersOfGroup($group -> getgroupId());
 				foreach($members as $member) {
-					$me = new Provisioning_Email($member -> getmemberId());
+					$memberEmail = $member -> getmemberId();
+					$me = new Provisioning_Email($memberEmail);
 					if($domain_id = $this -> getDomainId($me -> domain)) { // Ignore outside accounts 
 						if($member -> getmemberType() == 'User') {
 							$account_login = $me -> local;
 							if(!$account = Account_model::get_by_account_login($account_login, $this -> service -> service_id, $domain_id)) {
-								outp("\t\t User unknown ($account_login), skipping");
+								// If the account can't be found ...
+								try {
+									$user = $this -> prov -> retrieveUser($memberEmail);
+									$userEmail = $user -> getuserEmail();
+									if($userEmail != $memberEmail) {
+										/* Found as a nickname */
+										outp("\t\t Re-adding nickname ($account_login) without nickname ($userEmail). Run again to add to group later.");
+										$this -> prov -> removeMemberFromGroup($memberEmail, $groupEmail);
+										$this -> prov -> addMemberToGroup($userEmail, $groupEmail);
+									} else {
+										outp("\t\t User unknown ($account_login), skipping. Run again to add to group after the user is found.");
+									}
+								} catch(Exception $e) {
+									outp("\t\t Error working with " . $member -> getmemberId() . ", skipping");
+								}
 							} else {
 								if(!OwnerUserGroup_model::get($account -> owner_id, $ug -> group_id)) {
 									// Add owner to group
@@ -490,54 +506,129 @@ class gapps_service extends account_service {
 				$subUserGroups = UserGroup_api::list_children($ug -> group_id);
 				$ownerusergroups = OwnerUserGroup_model::list_by_group_id($ug -> group_id);
 				
-				// TODO: If !exists, create
-				//if(!...) {
-				//	$this -> groupCreate($ug);
-				//	outp("\t\tCreated just now");
-				
-				//	foreach($subUserGroups as $sug) {
-				//		// TODO: Add sub-group
-				//		outp("\t\tSub-group: " . $sug -> group_cn);
-				//	}
+				$groupEmail = $this -> makeEmail($ug -> group_cn, $ug -> ListDomain);
+				try {
+					$group = $this -> prov -> retrieveGroup($groupEmail);
+					$members = $this -> prov -> retrieveMembersOfGroup($groupEmail);
 					
-				//	foreach($ownerusergroups as $oug) {
-				//		if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
-				//			// TODO: Add user
-				//			outp("\t\tUser: " . $a -> account_login . " " . $a -> account_domain);
-				//		}
-				//	}
-				//}
-				
-				// TODO: Loop through $grpObj and index
-				
-				foreach($subUserGroups as $sug) {
-					// TODO: Sub-group membership
-					outp("\t\tSub-group: " . $sug -> group_cn);
-				}
+					/* Make an index */
+					$idxAccount = array();
+					$idxGroup = array();
+					foreach($members as $member) {
+						$pe = new Provisioning_Email($member -> getMemberId());
+						$domain_id = $this -> getDomainId($pe -> domain);
+						if($domain_id && $member -> getMemberType() == 'Group') {
+							$group_cn = $pe -> local;
+							$idxGroup[$domain_id][$group_cn] = true;
+						} else if($domain_id && $member -> getMemberType() == 'User') {
+							$account_login = $pe -> local;
+							$idxAccount[$domain_id][$account_login] = true;
+						}
+					}
 
-				foreach($ownerusergroups as $oug) {
-					if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
-						// TODO: User membership
-						outp("\t\tUser: " . $a -> account_login . " " . $a -> account_domain);
+					/* Add sub-groups */
+					foreach($subUserGroups as $sug) {
+						if(!isset($idxGroup[$sug -> group_domain][$sug -> group_cn])) {
+							try {
+								$memberEmail = $this -> makeEmail($sug -> group_cn, $sug -> ListDomain);
+								$this -> prov -> addMemberToGroup($memberEmail, $groupEmail);
+								outp("\t\tAdded sub-group: " . $sug -> group_cn);
+							} catch(Exception $e) {
+								outp("\t\tError adding sub-group " . $sug -> group_cn . ": " . $e -> getMessage());
+							}
+						} else {
+							unset($idxGroup[$sug -> group_domain][$sug -> group_cn]);
+						}
+					}
+					foreach($idxGroup as $domain_id => $list) {
+						if(count($list) > 0) {
+							outp("\t\tNotice: There are " . count($list) . " $domain_id groups unaccounted for locally. Run search to import them.");
+							foreach($list as $m => $t) {
+								outp("\t\t\t$m");
+							}
+						}
+					}
+
+					/* Add users */
+					foreach($ownerusergroups as $oug) {
+						if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
+							if(!isset($idxAccount[$a -> account_domain][$a -> account_login])) {
+								try {
+									$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+									$this -> prov -> addMemberToGroup($memberEmail, $groupEmail);
+									outp("\t\tAdded user: " . $a -> account_login . " " . $a -> account_domain);
+								} catch(Exception $e) {
+									outp("\t\tError adding user " . $a -> account_login . ": " . $e -> getMessage());
+								}
+							} else {
+								unset($idxAccount[$a -> account_domain][$a -> account_login]);
+							}
+						}
+					}
+					foreach($idxAccount as $domain_id => $list) {
+						if(count($list) > 0) {
+							outp("\t\tNotice: There are " . count($list) . " $domain_id users unaccounted for locally. Run search to import them:");
+							foreach($list as $m => $t) {
+								outp("\t\t\t$m");
+							}
+						}
+					}
+				} catch(Exception $e) {
+					/* Need to create group */
+					$this -> groupCreate($ug);
+					outp("\t\tCreated just now");
+				
+					foreach($subUserGroups as $sug) {
+						try {
+							$memberEmail = $this -> makeEmail($sug -> group_cn, $sug -> ListDomain);
+							$this -> prov -> addMemberToGroup($memberEmail, $groupEmail);
+							outp("\t\tAdded sub-group: " . $sug -> group_cn);
+						} catch(Exception $e) {
+							outp("\t\tError adding sub-group " . $sug -> group_cn . ": " . $e -> getMessage());
+						}
+					}
+					
+					foreach($ownerusergroups as $oug) {
+						if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
+							try {
+								$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+								$this -> prov -> addMemberToGroup($memberEmail, $groupEmail);
+								outp("\t\tAdded user: " . $a -> account_login . " " . $a -> account_domain);
+							} catch(Exception $e) {
+								outp("\t\tError adding user " . $a -> account_login . ": " . $e -> getMessage());
+							}
+						}
 					}
 				}
-				
 			} catch(Exception $e) {
 				outp("\t\t".$e -> getMessage());
 			}
 		}
 		
 		$accountOwners = AccountOwner_model::list_by_ou_id($o -> ou_id);
+		$orgUnitPath = $this -> orgUnitPath($o -> ou_id);
 		foreach($accountOwners as $ao) {
 			if($a = $this -> getOwnersAccount($ao)) {
-				outp("\tUser: " . $a -> account_login . " " . $a -> account_domain);
+				outp("\tUser: " . $a -> account_login . " (" . $a -> account_domain . ")");
+				$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 				try {
-					// TODO: If !exists, untrack
-					//outp("\t\tAccount has gone missing. Deleting from local database.");
-					//$a -> delete();
-					// TODO: Check firstname & surname (possibly)
+					$user = $this -> prov -> retrieveUser($userEmail);
+					if($user -> getfirstName() != $ao -> owner_firstname || $user -> getlastName() != $ao -> owner_surname) {
+						outp("\t\tUser firstname or surname mis-match ( '" . $user -> getlastName() . ", " . $user -> getfirstName() . "' should be '" . $ao -> owner_surname . ", " . $ao -> owner_firstname . "'). Pushing through an update.");
+						$this -> accountUpdate($a, $a -> account_login);
+					}
+					
+					/* Check org unit */
+					$orgUser = $this -> prov -> retrieveOrganizationUser($userEmail);
+					if(!($orgUnitPath == "/" && $orgUser -> getorgUnitPath() == "") && $orgUser -> getorgUnitPath() != $orgUnitPath) {
+						/* Incorrect org Unit */
+						outp("\t\tFixing orgUnit mis-match: Should be " . $orgUnitPath . " (not " . $orgUser -> getorgUnitPath() . ")");
+						$orgUser -> setorgUnitPath($orgUnitPath);
+						$this -> prov -> updateOrganizationUser($orgUser);
+					}
 				} catch(Exception $e) {
-					outp("\t\t".$e -> getMessage());
+					outp("\t\tAccount has gone missing. Deleting from local database.");
+					$a -> delete();
 				}
 			}
 		}
@@ -546,7 +637,14 @@ class gapps_service extends account_service {
 		foreach($organizationalunits as $ou) {
 			outp("\tUnit: " . $ou -> ou_name);
 			try {
-				// TODO: If !exists, create
+				$orgUnitPath = $this -> orgUnitPath($ou -> ou_id);
+				try {
+					$orgUnit = $this -> prov -> retrieveOrganizationUnit($orgUnitPath);
+				} catch(Exception $e) {
+					$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_id);
+					$this -> prov -> createOrganizationUnit($ou -> ou_name, $ou -> ou_name, $parentOrgUnitPath);
+					outp("\t\tCreated just now");
+				}
 				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'syncOu', $ou -> ou_name);
 			} catch(Exception $e) {
 				outp("\t\t".$e -> getMessage());
