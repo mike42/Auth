@@ -3,7 +3,6 @@
 require_once(dirname(__FILE__) . "/account_service.php");
 
 class ldap_service extends account_service {
-	private $service;
 	private $ldap_url;
 	private $ldap_user;
 	private $ldap_root;
@@ -363,10 +362,13 @@ class ldap_service extends account_service {
 					}
 				}
 
-				if(isset($object['member'])) {
-					foreach($object['member'] as $member) {
-						// TODO import group membership
-						outp("\t\t$member", 1);
+				if($group && isset($object['member'])) {
+					foreach($object['member'] as $memberDn) {
+						if($memberObject = $this -> objectFromDn($memberDn)) {
+							outp("\t\tGot: $memberDn", 1);
+						} else {
+							outp("\t\tNot found: $memberDn", 1);
+						}
 					}
 				}
 			} else {
@@ -725,18 +727,33 @@ class ldap_service extends account_service {
 			outp("\tGroup: " . $ug -> group_cn);
 			
 			try {
-				if(!$dn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $ou)) {
+				$subUserGroups = UserGroup_api::list_children($ug -> group_id);
+				$ownerusergroups = OwnerUserGroup_model::list_by_group_id($ug -> group_id);
+				
+				if(!$grpObj = $this -> objectFromSearch("(cn=" . $ug -> group_cn . ")", $ou)) {
 					$this -> groupCreate($ug);
 					outp("\t\tCreated just now");
+					
+					foreach($subUserGroups as $sug) {
+						// TODO: Add sub-group
+						outp("\t\tSub-group: " . $sug -> group_cn);
+					}
+					
+					foreach($ownerusergroups as $oug) {
+						if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
+							// TODO: Add user
+							outp("\t\tUser: " . $a -> account_login . " " . $a -> account_domain);
+						}
+					}
 				}
-
-				$subUserGroups = UserGroup_api::list_children($ug -> group_id);
+				
+				// TODO: Loop through $grpObj and index
+				
 				foreach($subUserGroups as $sug) {
 					// TODO: Sub-group membership
 					outp("\t\tSub-group: " . $sug -> group_cn);
 				}
-				
-				$ownerusergroups = OwnerUserGroup_model::list_by_group_id($ug -> group_id);
+
 				foreach($ownerusergroups as $oug) {
 					if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
 						// TODO: User membership
@@ -754,9 +771,10 @@ class ldap_service extends account_service {
 			if($a = $this -> getOwnersAccount($ao)) {
 				outp("\tUser: " . $a -> account_login . " " . $a -> account_domain);
 				try {
-					if(!$dn = $this -> dnFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $base)) {
+					if(!$acctObj = $this -> objectFromSearch("(".$this -> loginAttribute."=" . $a -> account_login . ")", $base)) {
+						// TODO: Check firstname & surname (possibly)
 						outp("\t\tAccount has gone missing. Deleting from local database.");
-						$a -> delete();
+						//$a -> delete(); TODO
 					}
 				} catch(Exception $e) {
 					outp("\t\t".$e -> getMessage());
@@ -781,22 +799,6 @@ class ldap_service extends account_service {
 
 		return true;
 	}
-
-	/**
-	 * Given an accountOwner, return their account on this service, or false.
-	 * 
-	 * @param AccountOwner_model $ao
-	 */
-	private function getOwnersAccount(AccountOwner_model $ao) {
-		$ao -> populate_list_Account();
-		foreach($ao -> list_Account as $a) {
-			if($a -> service_id == $this -> service -> service_id) {
-				return $a;
-			}
-		}
-		return false;
-	}
-
 	
 	/**
 	 * Get the dn of the first entry returned from an ldapsearch
@@ -811,8 +813,16 @@ class ldap_service extends account_service {
 		return $a['dn'][0];
 	}
 	
+	/**
+	 * Return an object based on its DN
+	 * 
+	 * @param string $dn
+	 */
 	protected function objectFromDn($dn) {
-		// TODO: Cut first section, filter and find
+		$part = explode(",", $dn);
+		$filter = "(" . array_shift($part) . ")";
+		$base = implode(",", $part);
+		return $this -> objectFromSearch($filter, $base);
 	}
 	
 	/**

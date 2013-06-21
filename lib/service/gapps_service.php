@@ -4,7 +4,6 @@ require_once(dirname(__FILE__) . "/account_service.php");
 require_once(dirname(__FILE__) . "/../vendor/ProvisioningApi/ProvisioningApi.php");
 
 class gapps_service extends account_service {
-	private $service;
 	private $prov;
 	private $config;
 	
@@ -101,7 +100,6 @@ class gapps_service extends account_service {
 
 		return true;
 	}
-
 
 	/**
 	 * Disable a user account.
@@ -484,8 +482,78 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o
 	 */
 	public function syncOu(Ou_model $o) {
-		// TODO
-		throw new Exception("Unimplemented");
+		$usergroups = UserGroup_model::list_by_ou_id($o -> ou_id);
+		foreach($usergroups as $ug) {
+			outp("\tGroup: " . $ug -> group_cn);
+				
+			try {
+				$subUserGroups = UserGroup_api::list_children($ug -> group_id);
+				$ownerusergroups = OwnerUserGroup_model::list_by_group_id($ug -> group_id);
+				
+				// TODO: If !exists, create
+				//if(!...) {
+				//	$this -> groupCreate($ug);
+				//	outp("\t\tCreated just now");
+				
+				//	foreach($subUserGroups as $sug) {
+				//		// TODO: Add sub-group
+				//		outp("\t\tSub-group: " . $sug -> group_cn);
+				//	}
+					
+				//	foreach($ownerusergroups as $oug) {
+				//		if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
+				//			// TODO: Add user
+				//			outp("\t\tUser: " . $a -> account_login . " " . $a -> account_domain);
+				//		}
+				//	}
+				//}
+				
+				// TODO: Loop through $grpObj and index
+				
+				foreach($subUserGroups as $sug) {
+					// TODO: Sub-group membership
+					outp("\t\tSub-group: " . $sug -> group_cn);
+				}
+
+				foreach($ownerusergroups as $oug) {
+					if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
+						// TODO: User membership
+						outp("\t\tUser: " . $a -> account_login . " " . $a -> account_domain);
+					}
+				}
+				
+			} catch(Exception $e) {
+				outp("\t\t".$e -> getMessage());
+			}
+		}
+		
+		$accountOwners = AccountOwner_model::list_by_ou_id($o -> ou_id);
+		foreach($accountOwners as $ao) {
+			if($a = $this -> getOwnersAccount($ao)) {
+				outp("\tUser: " . $a -> account_login . " " . $a -> account_domain);
+				try {
+					// TODO: If !exists, untrack
+					//outp("\t\tAccount has gone missing. Deleting from local database.");
+					//$a -> delete();
+					// TODO: Check firstname & surname (possibly)
+				} catch(Exception $e) {
+					outp("\t\t".$e -> getMessage());
+				}
+			}
+		}
+		
+		$organizationalunits = Ou_model::list_by_ou_parent_id($o -> ou_id);
+		foreach($organizationalunits as $ou) {
+			outp("\tUnit: " . $ou -> ou_name);
+			try {
+				// TODO: If !exists, create
+				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'syncOu', $ou -> ou_name);
+			} catch(Exception $e) {
+				outp("\t\t".$e -> getMessage());
+			}
+		}
+		
+		return true;
 	}
 	
 	/**

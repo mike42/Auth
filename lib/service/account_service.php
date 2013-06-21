@@ -5,6 +5,10 @@
  * @author Michael Billington <michael.billington@gmail.com>
  */
 abstract class account_service {
+	protected $service;
+	
+	abstract public function __construct(Service_model $service);
+	
 	/**
 	 * Make a new user account on this service.
 	 * 
@@ -161,6 +165,21 @@ abstract class account_service {
 			$p .= substr($chars, rand(0, strlen($chars) - 1), 1);
 		}
 		return $p;
+	}
+	
+	/**
+	 * Given an accountOwner, return their account on this service, or false.
+	 *
+	 * @param AccountOwner_model $ao
+	 */
+	protected function getOwnersAccount(AccountOwner_model $ao) {
+		$ao -> populate_list_Account();
+		foreach($ao -> list_Account as $a) {
+			if($a -> service_id == $this -> service -> service_id) {
+				return $a;
+			}
+		}
+		return false;
 	}
 }
 ?>
