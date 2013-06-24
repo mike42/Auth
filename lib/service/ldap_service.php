@@ -353,6 +353,9 @@ class ldap_service extends account_service {
 					} catch(Exception $e) {
 						outp("\t\tWarning: Couldn't create $group_cn: ".$e -> getMessage());
 					}
+				} else if(strtolower($group_cn) != $group -> group_cn) {
+					outp("\tNotice: Skipped '$group_cn', can't use it until it is renamed to match Auth (".$group -> group_cn.").");
+					continue;
 				} else if ($group -> ou_id != $o -> ou_id) {
 					outp("\tNotice: Moving group to where it should be.");
 					try {
@@ -365,7 +368,41 @@ class ldap_service extends account_service {
 				if($group && isset($object['member'])) {
 					foreach($object['member'] as $memberDn) {
 						if($memberObject = $this -> objectFromDn($memberDn)) {
-							outp("\t\tGot: $memberDn", 1);
+							if(!isset($memberObject['objectClass'])) {
+								outp("\t\tNo objectClass: $memberDn", 1);
+							} else if(in_array($this -> userObjectClass, $memberObject['objectClass'])) {
+								outp("\t\tGot user: $memberDn", 1);
+								$account_login = Auth::normaliseName($memberObject[$this -> loginAttribute][0]);
+								if($memberAcct = Account_model::get_by_account_login($account_login, $this -> service -> service_id, $this -> service -> service_domain)) {
+									if(!$oug = OwnerUserGroup_model::get($memberAcct -> owner_id, $group -> group_id)) {
+										try {
+											AccountOwner_api::addtogroup($memberAcct -> owner_id, $group -> group_id);
+											outp("\t\t\tAdded to group", 1);
+										} catch(Exception $e) {
+											outp("\tWarning: Failed to add user to group");
+										}
+									}
+								} else {
+									outp("\t\t\tCouldn't find locally: $account_login", 1);
+								}
+							} else if(in_array($this -> groupObjectClass, $memberObject['objectClass'])) {
+								outp("\t\tGot sub-group: $memberDn", 1);
+								$subgroup_cn = Auth::normaliseName($memberObject['cn'][0]);
+								if($memberGroup = UserGroup_model::get_by_group_cn($subgroup_cn)) {
+									if(!$sug = SubUserGroup_model::get($group -> group_id, $memberGroup -> group_id)) {
+										try {
+											UserGroup_api::addchild($group -> group_id, $memberGroup -> group_id);
+											outp("\t\t\tAdded to group", 1);
+										} catch(Exception $e) {
+											outp("\tWarning: Failed to add sub-group");
+										}
+									}
+								} else {
+									outp("\t\t\tCouldn't find locally: $subgroup_cn", 1);
+								}
+							} else {
+								outp("\t\tUnknown group member: $memberDn", 1);
+							}
 						} else {
 							outp("\t\tNot found: $memberDn", 1);
 						}
@@ -457,6 +494,12 @@ class ldap_service extends account_service {
 			throw new Exception("Can't find user, not adding it to group");
 		}
 
+		/* Veriify that the user is not already a member */
+		$grpObj = $this -> objectFromDn($groupDn);
+		if(isset($grpObj['member']) && in_array($AccountDn, $grpObj['member'])) {
+			throw new Exception("Skipping adding user to group; User is already a member.");
+		}
+		
 		/* Modify */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $groupDn),
@@ -514,6 +557,12 @@ class ldap_service extends account_service {
 			throw new Exception("Can't find child group, not adding it to group");
 		}
 		
+		/* Veriify that the group is not already a member */
+		$parentObj = $this -> objectFromDn($parentDn);
+		if(isset($parentObj['member']) && in_array($childDn, $parentObj['member'])) {
+			throw new Exception("Skipping adding sub-group; It already exists here.");
+		}
+		
 		/* Modify */
 		$map = array(
 				array('attr' => 'dn',			'value'=> $parentDn),
@@ -562,10 +611,10 @@ class ldap_service extends account_service {
 	public function groupMove(UserGroup_model $g, Ou_model $old_parent) {
 		/* Locate */
 		$ou = $this -> dnFromOu($old_parent -> ou_id);
-		if(!$dn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $ou)) {
-			throw new Exception("Group not found where expected, can't re-locate it!");
+		if(!$dn = $this -> dnFromSearch("(cn=" . $g -> group_cn . ")", $ou)) { // Outer search catches most (normal) cases
+			throw new Exception("Group not found under $ou, cannot relocate it.");
 		}
-		
+
 		/* New details */
 		$newsuperior = $this -> dnFromOu($g -> ou_id);
 		$newrdn = "cn=" . $g -> group_cn;
@@ -722,6 +771,8 @@ class ldap_service extends account_service {
 	 * @param Ou_model $o
 	 */
 	public function syncOu(Ou_model $o) {
+		
+		$base = $this -> dnFromOu($o -> ou_id);
 		$usergroups = UserGroup_model::list_by_ou_id($o -> ou_id);
 		foreach($usergroups as $ug) {
 			outp("\tGroup: " . $ug -> group_cn);
@@ -729,35 +780,80 @@ class ldap_service extends account_service {
 			try {
 				$subUserGroups = UserGroup_api::list_children($ug -> group_id);
 				$ownerusergroups = OwnerUserGroup_model::list_by_group_id($ug -> group_id);
-				
-				if(!$grpObj = $this -> objectFromSearch("(cn=" . $ug -> group_cn . ")", $ou)) {
+				if(!$grpObj = $this -> objectFromSearch("(cn=" . $ug -> group_cn . ")", $base)) {
 					$this -> groupCreate($ug);
 					outp("\t\tCreated just now");
 					
 					foreach($subUserGroups as $sug) {
-						// TODO: Add sub-group
 						outp("\t\tSub-group: " . $sug -> group_cn);
+						$this -> groupAddChild($ug, $sug);
 					}
 					
 					foreach($ownerusergroups as $oug) {
 						if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
-							// TODO: Add user
 							outp("\t\tUser: " . $a -> account_login . " " . $a -> account_domain);
+							$this -> groupJoin($a, $ug);
 						}
 					}
-				}
-				
-				// TODO: Loop through $grpObj and index its contents
-				
-				foreach($subUserGroups as $sug) {
-					// TODO: Sub-group membership
-					outp("\t\tSub-group: " . $sug -> group_cn);
-				}
+				} else {
+					/* Index users that are already in */
+					$idxAccount = array();
+					$idxGroup = array();
+					if(isset($grpObj['member'])) {
+						foreach($grpObj['member'] as $memberDn) {
+							try {
+								if($memberDn == $this -> dummyGroupMember) {
+									// Ignore dummy group member
+								} else if($memberObject = $this -> objectFromDn($memberDn)) {
+									if(!isset($memberObject['objectClass'])) {
+										outp("\t\tNo objectClass: $memberDn", 1);
+									} else if(in_array($this -> userObjectClass, $memberObject['objectClass'])) {
+										$account_login = Auth::normaliseName($memberObject[$this -> loginAttribute][0]);
+										$idxAccount[$account_login] = true;
+									} else if(in_array($this -> groupObjectClass, $memberObject['objectClass'])) {
+										$subgroup_cn = Auth::normaliseName($memberObject['cn'][0]);
+										$idxGroup[$subgroup_cn] = true;
+									}
+								} else {
+									outp("\t\tUnknown group member: $memberDn", 1);
+								}
+							} catch(Exception $e) { // lookup errors
+								outp("\t\t$memberDn: ".$e -> getMessage());
+							}
+						}
+					}
+					
+					foreach($subUserGroups as $sug) {
+						if(isset($idxGroup[$sug -> group_cn])) {
+							unset($idxGroup[$sug -> group_cn]);
+						} else {
+							$this -> groupAddChild($ug, $sug);
+							outp("\t\tAdded sub-group: " . $sug -> group_cn);
+						}
+					}
+					if(count($idxGroup) > 0) {
+						outp("\t\tNotice: There are " . count($idxGroup) . " groups unaccounted for locally. Run search to import them.");
+						foreach($idxGroup as $m => $t) {
+							outp("\t\t\t$m");
+						}
+					}
 
-				foreach($ownerusergroups as $oug) {
-					if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
-						// TODO: User membership
-						outp("\t\tUser: " . $a -> account_login . " " . $a -> account_domain);
+					/* User accounts in group */
+					foreach($ownerusergroups as $oug) {
+						if($a = $this -> getOwnersAccount($oug -> AccountOwner)) {
+							if(isset($idxAccount[$a -> account_login])) {
+								unset($idxAccount[$a -> account_login]);
+							} else {
+								$this -> groupJoin($a, $ug);
+								outp("\t\tAdded user: " . $a -> account_login . " " . $a -> account_domain);
+							}
+						}
+					}
+					if(count($idxAccount) > 0) {
+						outp("\t\tNotice: There are " . count($idxAccount) . " users unaccounted for locally. Run search to import them:");
+						foreach($idxAccount as $m => $t) {
+							outp("\t\t\t$m");
+						}
 					}
 				}
 			} catch(Exception $e) {
@@ -766,7 +862,6 @@ class ldap_service extends account_service {
 		}
 
 		$accountOwners = AccountOwner_model::list_by_ou_id($o -> ou_id);
-		$base = $this -> dnFromOu($o -> ou_id);
 		foreach($accountOwners as $ao) {
 			if($a = $this -> getOwnersAccount($ao)) {
 				outp("\tUser: " . $a -> account_login . " " . $a -> account_domain);
