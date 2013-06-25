@@ -1,19 +1,20 @@
 <?php
 /* Require user to be logged in as admin */
 session_start();
-if(!isset($_SESSION['meta-auth']['account']['ldap_username']) || $_SESSION['meta-auth']['account']['ldap_username'] != 'admin') {
+require_once(dirname(__FILE__)."/../../lib/web/Web.php");
+$loginConf = Auth::getConfig('login');
+if(!isset($_SESSION['meta-auth']['account']['ldap_username']) || !in_array($_SESSION['meta-auth']['account']['ldap_username'], $loginConf['admin'])) {
 	/* Clear session and return to login form */
 	session_destroy();
 	header("location: /account/");
 	exit(0);
 }
 
-require_once(dirname(__FILE__)."/../../lib/web/Web.php");
 Auth::loadClass("ActionQueue_api");
 
 /* Set up some basic web things */
 $config['host']						= isset($_SERVER['HTTP_HOST'])? $_SERVER['HTTP_HOST'] : 'localhost';
-$config['webroot']					= isset($_SERVER['HTTP_HOST'])? 'http://'.$_SERVER['HTTP_HOST'].'/admin/' : '';
+$config['webroot']					= isset($_SERVER['HTTP_HOST'])? 'https://'.$_SERVER['HTTP_HOST'].'/admin/' : '';
 $config['default']['controller']	= 'Page';
 $config['default']['action']		= 'view';
 $config['default']['arg']			= array('home');

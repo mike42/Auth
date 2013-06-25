@@ -75,7 +75,7 @@ if(isset($_SESSION['meta-auth']['account']['ldap_username'])) {
 		} else {
 			/* User has logged in, take them to the right place */
 			$_SESSION['meta-auth']['account']['ldap_username'] = $username;
-			if($username == 'admin') {
+			if(in_array($username, $conf['admin'])) {
 				header('location: /admin/');
 			} else {
 				header('location: /account/');
