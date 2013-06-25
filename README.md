@@ -94,7 +94,21 @@ Under site/, create a file called bg.jpg, with some company artwork, and config.
                                 'admin' => array('admin')),
                 );
 
+Note: Debian 6 Uses /var/lock, not /var/run/lock.
+
 You will need to create a 'domain' entry in the database for example.com, and a 'service' entry for its LDAP directory (if you plan to administer that directory with Auth, and not just authenticate against it).
+
+
+To prepare authqueue (a background processs that does all the heavy lifting), you should create its log file, with the right permissions. You could also get super crafty with rotating logs, if you are expecting to generate a lot of data:
+	
+        touch /var/log/meta-auth.log
+        chown www-data /var/log/meta-auth.log
+
+To test the authqueue, run this, and pay close attention to any errors you see:
+        
+        sudo -u www-data bash
+        cd /usr/share/auth/maintenance/bin
+        ./authqueue.php -x -v
 
 Caveats
 -------
