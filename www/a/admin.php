@@ -1,8 +1,10 @@
 <?php
 /* Require user to be logged in as admin */
-session_start();
 require_once(dirname(__FILE__)."/../../lib/web/Web.php");
 $loginConf = Auth::getConfig('login');
+
+/* Start session and output */
+session_start();
 if(!isset($_SESSION['meta-auth']['account']['ldap_username']) || !in_array($_SESSION['meta-auth']['account']['ldap_username'], $loginConf['admin'])) {
 	/* Clear session and return to login form */
 	session_destroy();

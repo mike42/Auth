@@ -5,6 +5,12 @@ $conf = Auth::getConfig('login');
 
 /* Start session and output */
 session_start();
+if(isset($_SESSION['meta-auth']['account']['ldap_username']) && in_array($_SESSION['meta-auth']['account']['ldap_username'], $conf['admin'])) {
+	/* Redirect to admin if logged in */
+	header("location: /admin/");
+	exit(0);
+}
+
 $data = array('active' => 'info');
 
 if(isset($_SESSION['meta-auth']['account']['ldap_username'])) {
