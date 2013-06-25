@@ -48,6 +48,9 @@ if(isset($_SESSION['meta-auth']['account']['ldap_username'])) {
 							$data['active'] = 'reset';
 							$data['message'] = 'Password set!';
 							$data['good'] = true;
+
+							// Start processing
+							ActionQueue_api::start();
 						} catch(Exception $e) {
 							$data['active'] = 'reset';
 							$data['message'] = $e -> getMessage();
