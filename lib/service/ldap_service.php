@@ -1149,12 +1149,11 @@ class ldap_service extends account_service {
 			$newpw = base64_encode($newpw);
 			$value = $newpw;
 			$attr .= ":";
-		} if(!$this -> ldif_match($value, 'safe-string') ||
+		} else if(!$this -> ldif_match($value, 'safe-string') ||
 				strpos($value, '\n') != false ||
 				$value != trim($value) ||
 				strlen($value) > 50 ||
-				strpos($value, '\r') != false ||
-				$attr == "userPassword") {
+				strpos($value, '\r') != false) {
 			$value = base64_encode($value);
 			$attr .= ":";
 		}
