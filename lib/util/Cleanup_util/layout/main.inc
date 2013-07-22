@@ -88,7 +88,7 @@
 					foreach($data['service-enabled'] as $service) {
 						echo "<tr>\n" .
 							"<td>" . Web::escapeHTML($service -> service_name) . "</td>" . 
-							"<td style='width:9em;'><a class='btn' href='#' onClick='recSearch(" . json_encode($service -> service_id) . ");'>Search</a>" .
+							"<td style='width:10em;'><a class='btn' href='#' onClick='recSearch(" . json_encode($service -> service_id) . ");'>Search</a>" .
 							"<a class='btn' href='#' onClick='sync(" . json_encode($service -> service_id) . ");'>Sync</a></td></td>" .
 							"<td style='width:6em;'><a class='btn' href='#' onClick='deactivate(" . json_encode($service -> service_id) . ");'>Deactivate</a></td>" .
 							"</tr>";
