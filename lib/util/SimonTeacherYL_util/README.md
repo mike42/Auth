@@ -30,10 +30,44 @@ Next, enable the utility by adding an entry to the Util list in config.php:
 
 And finally, add all of the configuration options that the utility will be using:
 
-	'SimonTeacherYL' => 
+    'SimonTeacherYL' => 
         array(  'host' => 'hostname',
                 'name' => 'databasename',
                 'user' => 'authusername',
                 'pass' => 'verysecretpassword',
-			),
+                // Service to check for accounts in
+                'check'  =>'gapps',
+                // Domain to check for accounts in
+                'domain' =>'staff',
+                'yl_min' => 7,
+                'yl_max' => 12,
+                'from' => '"Robot" <robot@example.com>'
+            ),
 
+The PHP mail() function needs to work correctly for mail delivery. Additionally, you need to make a file in your 'site' folder to use as an email template. The below is a good starting point:
+
+        <?php
+        // Email template file
+        $message = "<p>Hello ". $person[0] -> Preferred . ",</p>\n";
+        $message .= "<p>It looks like you are timetabled for these classes:</p>\n";
+        $message .= "<table>\n\t<tr><th>Code</th><th>Name</th><th>Year Level</th>\n";
+        print_r($person);
+        foreach($person as $class) {
+            $message .= "\t<tr><td>" . web::escapeHTML($class -> ClassCode) . "</td><td>" . web::escapeHTML($class -> SubjectDescription) . "</td><td>" . web::escapeHTML($class -> NormalYearLevel? $class -> NormalYearLevel : "(none listed)") . "</td></tr>\n";
+        }
+        $message .= "</table>\n";
+
+        if(isset($ylMember[$person[0] -> EmailAlias])) {
+            $message .= "<p>Based on that, you have been added to the following year-level staff groups for this semester:</p>\n<ul>\n";
+            foreach($ylMember[$person[0] -> EmailAlias] as $yl => $true) {
+                $message .= "\t<li><a href=\"mailto:".web::escapeHTML(mkgrpname($yl))."@example.com\">".web::escapeHTML(mkgrpname($yl))."@example.com</a></li>\n";
+            }
+            $message .= "</ul>\n";
+        } else {
+            $message .= "<p>Because none of your classes have a year-level in the timetable, you have not been put in any staff year-level mail groups this semester.</p>\n";
+        }
+
+        $message .= "<p>Please do not respond to this email (I am a robot!)</p>\n";
+        $message .= "<p>-- Robot</p>\n";
+
+Save the file as site/SimonTeacherYL-notify.inc
