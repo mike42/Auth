@@ -157,7 +157,7 @@ class SimonTeacherYL_util extends util {
 				
 		exec($command, $lines, $ret);
 		if($ret != 0) {
-			throw new Exception("Command failed. Verify that everything is configured correctly: sqsh returned $ret");
+			throw new Exception("Command failed. Verify that everything is configured correctly: sqsh returned $ret:\n " . implode($lines, "\n"));
 		}
 		
 		/* Calculate some key details */
@@ -242,7 +242,6 @@ class SimonTeacherYL_util extends util {
 		$from = self::$config['from'];
 		$headers = "From: $from\r\nContent-Type: text/html; charset=UTF-8";
 		mail($to, $subject, $message, $headers);
-
 	}
 }
 
