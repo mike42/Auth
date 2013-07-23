@@ -231,19 +231,18 @@ class SimonTeacherYL_util extends util {
 			if(isset($send[str_replace(".", "_", $email)])) {
 				$message = "";
 				include($fn); // Include file as template
-				self::sendNotifyEmail("mbillington@stjosephs.com.au", "Your semester $semester email groups", $message);
+				self::sendNotifyEmail($email, "Your semester $semester email groups", $message);
 			}
 		}
 		return $data;
 	}
 	
 	private static function sendNotifyEmail($address, $subject, $message) {
-		echo "$address $subject $message";
 		$to = $address;
 		$from = self::$config['from'];
 		$headers = "From: $from\r\nContent-Type: text/html; charset=UTF-8";
 		mail($to, $subject, $message, $headers);
-		die();
+
 	}
 }
 
