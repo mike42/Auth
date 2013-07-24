@@ -77,6 +77,9 @@ class SasStudent_util extends util {
 				$sas_firstname = trim($var[1]);
 				$sas_surname = trim($var[2]);
 				$sas_preferred_name = trim($var[3]);
+				if($sas_preferred_name == "") {
+					$sas_preferred_name = $sas_firstname;
+				}
 				$sas_yl = trim($var[4]);
 				$sas_hr = trim($var[5]);
 				$exists[$sas_stuno] = true;
@@ -130,7 +133,7 @@ class SasStudent_util extends util {
 				} else {
 					$create[] = array('var' => $var);
 					if($apply) {
-						// TODO create account here
+						AccountOwner_api::create($ou -> ou_id, $sas_preferred_name, $sas_surname, $sas_stuno, 'students', self::$config['create']);
 					}
 				}
 			}
