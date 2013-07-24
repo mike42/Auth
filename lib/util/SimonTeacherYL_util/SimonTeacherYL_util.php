@@ -89,7 +89,7 @@ class SimonTeacherYL_util extends util {
 				$group_id = $groupcheck['pass'][$group_cn];
 				/* Compare lists */
 				foreach($list as $account_login => $details) {
-					if(isset($unamecheck['pass'][$account_login])) { // Only bother with verified logins
+					if(isset($data['unamecheck']['pass'][$account_login])) { // Only bother with verified logins
 						$owner_id = $data['unamecheck']['pass'][$account_login];
 						if(isset($groupmembers[$group_cn][$owner_id])) {
 							unset($groupmembers[$group_cn][$owner_id]); // User already in group
@@ -157,7 +157,7 @@ class SimonTeacherYL_util extends util {
 				
 		exec($command, $lines, $ret);
 		if($ret != 0) {
-			throw new Exception("Command failed. Verify that everything is configured correctly: sqsh returned $ret:\n " . implode($lines, "\n"));
+			throw new Exception("Command failed. Verify that everything is configured correctly: sqsh returned $ret.");
 		}
 		
 		/* Calculate some key details */

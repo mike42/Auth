@@ -41,6 +41,14 @@
 					}
 					echo "</ul></li>\n";
 				}
+				
+				if(count($data['run']['unamecheck']['fail']) > 0) {
+					echo "<li>Unrecognised usernames:<ul>";
+					foreach($data['run']['unamecheck']['fail'] as $uname => $true) {
+						echo "<li>".web::escapeHTML($uname)."</li>";
+					}
+					echo "</ul></li>";
+				}
 				echo "</ul></div>";
 			}
 			?>
