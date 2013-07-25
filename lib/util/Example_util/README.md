@@ -14,4 +14,4 @@ Installation
 
 Enable the utility by adding an entry to the Util list in config.php:
 
-    'Example' => 'Example.php1'
+    'Example' => 'Example Utility'
