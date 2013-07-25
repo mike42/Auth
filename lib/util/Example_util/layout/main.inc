@@ -30,7 +30,7 @@
 				<?php echo "<form method=\"post\" action=\"".web::constructURL("Utility", "Example", array(''), 'html')."\"/>"?>
 				<input type="hidden" name="helloworld" value="yes" />
 				<p>The "Hello World" feature says hello to the world</p>
-				<input type="submit" class="btn" value="Do something">
+				<input type="submit" class="btn" value="Do something" />
 				<?php echo "</form>"; ?>
 			</div>
 
