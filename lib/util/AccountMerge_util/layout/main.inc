@@ -1,4 +1,15 @@
 <?php include(dirname(__FILE__)."/../../../web/view/layout/snippet/account_selector.php"); ?>
+<script>
+	function prepare() {
+		$("#action").val('prepare');
+		$("#accountselect").submit();
+	}
+
+	function merge() {
+		$("#action").val('merge');
+		$("#accountselect").submit();
+	}
+</script>
 
 <div class="container">
 	<div class="row">
@@ -29,7 +40,7 @@
 				<h3>Select Accounts to Merge</h3>
 
 				<?php echo "<form method=\"post\" id=\"accountselect\" action=\"".web::constructURL("Utility", "AccountMerge", array(''), 'html')."\"/>"?>
-
+				<input type="hidden" name="action" id="action" value="" />
 				<p>Accounts can only be merged if they are in the same Organization
 					Unit, in no groups at all, and have the same name. The form below
 					will help you find the accounts, and the 'Prepare' button will make
@@ -53,8 +64,8 @@
 					</tr>
 					
 					<tr>
-						<td colspan="2" style="text-align: right"><input type="button" class="btn" value="Prepare" /> <input
-							type="button" class="btn" value="Merge" /></td>
+						<td colspan="2" style="text-align: right"><input type="button" class="btn" value="Prepare" onClick="prepare()" /> <input
+							type="button" class="btn" value="Merge" onClick="merge()" /></td>
 					</tr>
 
 				</table>
