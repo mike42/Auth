@@ -68,7 +68,10 @@ class SasStudent_util extends util {
 		}
 		
 		$prefix = self::$config['prefix'];
-		$reject = $hr_suggest = $create = $move = $rename = array();
+		$reject = $hr_suggest = $create = $move = $rename = $delete = array();
+		$exists = array();
+		$grpExists = array();
+		$grpAdd = $grpRemove = 0;
 		
 		foreach($lines as $line) {
 			$var = explode("|", $line);
@@ -95,22 +98,32 @@ class SasStudent_util extends util {
 				
 				/* Make groups correctly */
 				$group_cn = $prefix . strtolower($sas_hr);
-				$group_name = strtoupper(substr($prefix, 0, 1)) . substr($prefix, 1, strlen($prefix) - 1) . ' ' . strtoupper($sas_hr);
-				if(!$group = UserGroup_model::get_by_group_cn($group_cn)) {
-					if($group_cn != "") {
-						$hr_suggest[$group_cn] = true;
-					}
-					$group_cn = $prefix."unknown";
+				if(isset($group_exists[$group_cn])) {
+					$group = $group_exists[$group_cn];
 				} else {
-					if($group -> group_name != $group_name) {
-						$rename[$group_cn] = $group_name;
-						
-						if($apply) {
-							UserGroup_api::rename($group -> group_id, $group_name, $group -> group_cn);
+					$group_name = strtoupper(substr($prefix, 0, 1)) . substr($prefix, 1, strlen($prefix) - 1) . ' ' . strtoupper($sas_hr);
+					if(!$group = UserGroup_model::get_by_group_cn($group_cn)) {
+						if($group_cn != "") {
+							$hr_suggest[$group_cn] = true;
 						}
+						$group_cn = $prefix."unknown";
+						$group = UserGroup_model::get_by_group_cn($group_cn); // Get again from new name (may or may not exist but at least we tried)
+						if($group) {
+							$groupExists[$group -> group_id] = $group;
+						}
+					} else {
+						if($group -> group_name != $group_name) {
+							$rename[$group_cn] = $group_name;
+							
+							if($apply) {
+								UserGroup_api::rename($group -> group_id, $group_name, $group -> group_cn);
+							}
+						}
+
+						$groupExists[$group -> group_id] = $group;
 					}
 				}
-				
+
 				$ou_name = "y" . ((int)date("Y") + (12 - (int)$sas_yl)); // Name of OU
 				if(!$ou = Ou_model::get_by_ou_name($ou_name)) {
 					$parent_ou_name = self::$config['ou'];
@@ -130,20 +143,53 @@ class SasStudent_util extends util {
 							AccountOwner_api::move($login -> owner_id, $ou -> ou_id);
 						}
 					}
+					
+					/* Remove from incorrect groups */
+					$ao = $login -> AccountOwner;
+					$ao -> populate_list_OwnerUserGroup();
+					$foundCorrect = false;
+					foreach($ao -> list_OwnerUserGroup as $oug) {
+						if(strlen($oug -> UserGroup -> group_cn) >= strlen($prefix) && substr($oug -> UserGroup -> group_cn, 0, strlen($prefix)) == $prefix) {
+							if($group && $oug -> UserGroup -> group_cn == $group -> group_cn) {
+								$foundCorrect = true;
+							} else {
+								if($apply) {
+									AccountOwner_api::rmfromgroup($oug -> owner_id, $oug -> group_id);
+								}
+								$grpRemove++;
+							}
+						}
+					}
+					
+					if(!$foundCorrect && $group) {
+						if($apply) {
+							AccountOwner_api::addtogroup($ao -> owner_id, $group -> group_id);
+						}
+						$grpAdd++;
+					}
 				} else {
 					$create[] = array('var' => $var);
 					if($apply) {
-						AccountOwner_api::create($ou -> ou_id, $sas_preferred_name, $sas_surname, $sas_stuno, 'students', self::$config['create']);
+						$ao = AccountOwner_api::create($ou -> ou_id, $sas_preferred_name, $sas_surname, $sas_stuno, 'students', self::$config['create']);
+						
+						if($group) {
+							AccountOwner_api::addtogroup($ao -> owner_id, $group -> group_id);
+						}
 					}
 				}
 			}
 		}
 
-		//print_r($reject);
-		//print_r($hr_suggest);
-		//print_r($rename);
-		print_r($create);
-		//print_r($move);
-		return $lines;
+		$accList = Account_model::list_by_service_id($service -> service_id);
+		foreach($accList as $a) {
+			if(is_numeric($a -> account_login) && !isset($exists[(int)$a -> account_login])) {
+				$delete[] = array('num' => $a -> account_login, 'firstname' => $a -> AccountOwner -> owner_firstname, 'surname' => $a -> AccountOwner -> owner_surname);
+				if($apply) {
+					AccountOwner_api::delete($a -> owner_id);
+				}
+			}
+		}
+		
+		return array('reject' => $reject, 'hr_suggest' => $hr_suggest, 'rename' => $rename, 'create' => $create, 'move' => $move, 'delete' => $delete, 'grpAdd' => $grpAdd, 'grpRemove' => $grpRemove);
 	}
 }

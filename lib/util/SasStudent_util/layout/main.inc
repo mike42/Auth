@@ -28,6 +28,52 @@
 			<?php 
 			if(isset($data['message'])) {
 				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+			} elseif(isset($data['result']['reject'])) {
+				echo "<div class=\"alert\"><ul>";
+				$show = false;
+				if(count($data['result']['hr_suggest']) != 0) {
+					echo "<li>Homerooms that appear in SAS but don't correspond to user groups: <ul>";
+					foreach($data['result']['hr_suggest'] as $hr => $true) {
+						echo "<li>".web::escapeHTML($hr)."</li>";
+					}
+					echo "</ul></li>";
+					$show = true;
+				}
+				
+				if(count($data['result']['reject']) != 0) {
+					echo "<li>".(int)count($data['result']['reject']) . " accounts rejected due to bad data-keeping.</li>";
+					$show = true;
+				}
+				
+				if(count($data['result']['rename']) != 0) {
+					echo "<li>".(int)count($data['result']['rename']) . " accounts to rename.</li>";
+					$show = true;
+				}
+				
+				if($data['result']['grpAdd'] != 0) {
+					echo "<li>".(int)$data['result']['grpAdd'] . " accounts to add to different homeroom groups.</li>";
+					$show = true;
+				}
+				
+				if($data['result']['grpRemove'] != 0) {
+					echo "<li>".(int)$data['result']['grpRemove'] . " accounts to remove from incorrect homeroom groups.</li>";
+					$show = true;
+				}
+				
+				if(count($data['result']['delete']) != 0) {
+					echo "<li>".(int)count($data['result']['delete']) . " accounts to delete.<ul>";
+					foreach($data['result']['delete'] as $no) {
+						echo "<li>".web::escapeHTML($no['num'] . " " . $no['firstname'] . ' ' . $no['surname'])."</li>";
+					}
+					echo "</ul></li>";
+					$show = true;
+				}
+				
+				if(!$show) {
+					echo "The utility didn't find any changes to make";
+				}
+				
+				echo "</ul></div>";
 			}
 			?>
 			<div class="well">
