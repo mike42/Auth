@@ -82,7 +82,23 @@ class Cleanup_util extends util {
 	}
 
 	public static function doMaintenance() {
-		throw new Exception("Unimplemented");
+		/* Local cleanup */
+		$count = self::localCleanup();
+		echo "\t$count users deleted\n";
+		
+		/* Queue must be empty */
+		ActionQueue_api::runUntilEmpty(false);
+		
+		Auth::loadClass("Service_model");
+		$services = Service_model::list_by_service_enabled('1');
+		foreach($services as $service) {
+			/* Search & sync every service */
+			self::recSearch($service);
+			ActionQueue_api::runUntilEmpty(false);
+
+			self::sync($service);
+			ActionQueue_api::runUntilEmpty(false);
+		}
 	}
 	
 	/**

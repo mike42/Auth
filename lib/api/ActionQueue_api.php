@@ -167,4 +167,16 @@ class ActionQueue_api {
 			system("./authqueue-start.sh");
 		}
 	}
+	
+	/**
+	 * Process the ActionQueue, and return only when it is empty
+	 */
+	static public function runUntilEmpty($force = false) {
+		if(self::$modified || $force) {
+			$dir = dirname(__FILE__) . "/../../maintenance/bin/";
+			chdir($dir);
+			system("./authqueue.php -x -v");
+			self::$modified = false;
+		}
+	}
 }

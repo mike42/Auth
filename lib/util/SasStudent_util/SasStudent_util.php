@@ -37,13 +37,12 @@ class SasStudent_util extends util {
 		} catch(Exception $e) {
 			$data['message'] = $e -> getMessage();
 		}
-		// Nothing implemented yet
 		
 		return $data;
 	}
 	
 	public static function doMaintenance() {
-		throw new Exception("Unimplemented");
+		$lines = self::update(true);
 	}
 	
 	/**

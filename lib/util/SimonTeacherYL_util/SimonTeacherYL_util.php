@@ -63,7 +63,7 @@ class SimonTeacherYL_util extends util {
 	}
 
 	public static function doMaintenance() {
-		throw new Exception("Unimplemented");
+		throw new Exception("No tasks to be done. Please use the web interface.");
 	}
 	
 	private static function update($apply = false, $semester = 1) {
