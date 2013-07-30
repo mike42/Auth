@@ -7,7 +7,7 @@ class SimonTeacherYL_util extends util {
 	/**
 	 * Initialise utility
 	 */
-	function init() {
+	public static function init() {
 		self::$util_name = "SimonTeacherYL";
 		self::verifyEnabled();
 		self::$config = Auth::getConfig(self::$util_name);
@@ -20,7 +20,7 @@ class SimonTeacherYL_util extends util {
 	/**
 	 * Load data for web interface
 	 */
-	function admin() {
+	public static function admin() {
 		$data = array("current" => "Utility", "util" => self::$util_name, "template" => "main");
 		try{
 			if(isset($_POST['action'])) {
@@ -62,6 +62,10 @@ class SimonTeacherYL_util extends util {
 		return $data;
 	}
 
+	public static function doMaintenance() {
+		throw new Exception("Unimplemented");
+	}
+	
 	private static function update($apply = false, $semester = 1) {
 		/* Put users in correct groups, or do a test run where $apply = false */
 		$data = self::loadTeacherYL($semester);
@@ -124,7 +128,7 @@ class SimonTeacherYL_util extends util {
 		return $data;
 	}
 	
-	static function loadTeacherYL($semester) {
+	private static function loadTeacherYL($semester) {
 		$service = Service_model::get(self::$config['check']);
 		
 		/* Query for loading data from external database */

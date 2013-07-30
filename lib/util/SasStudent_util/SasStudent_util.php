@@ -7,7 +7,7 @@ class SasStudent_util extends util {
 	/**
 	 * Initialise utility
 	 */
-	function init() {
+	public static function init() {
 		self::$util_name = "SasStudent";
 		self::verifyEnabled();
 		self::$config = Auth::getConfig(self::$util_name);
@@ -18,7 +18,7 @@ class SasStudent_util extends util {
 	/**
 	 * Load data for web interface
 	 */
-	function admin() {
+	public static function admin() {
 		$data = array("current" => "Utility", "util" => self::$util_name, "template" => "main");
 		try{
 			if(isset($_POST['action'])) {
@@ -40,6 +40,10 @@ class SasStudent_util extends util {
 		// Nothing implemented yet
 		
 		return $data;
+	}
+	
+	public static function doMaintenance() {
+		throw new Exception("Unimplemented");
 	}
 	
 	/**

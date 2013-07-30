@@ -11,7 +11,7 @@ class Example_util extends util {
 	/**
 	 * Initialise utility
 	 */
-	function init() {
+	public static function init() {
 		self::$util_name = "Example";
 		self::verifyEnabled();
 	
@@ -21,7 +21,7 @@ class Example_util extends util {
 	/**
 	 * Load data for web interface
 	 */
-	function admin() {
+	public static function admin() {
 		$data = array("current" => "Utility", "util" => self::$util_name, "template" => "main");
 		
 		// Find data to display
@@ -30,5 +30,14 @@ class Example_util extends util {
 		}
 		
 		return $data;
+	}
+	
+	/**
+	 * Do any maintenance tasks
+	 */
+	public static function doMaintenance() {
+		
+		// Do tasks here
+		throw new Exception("Unimplemented");
 	}
 }

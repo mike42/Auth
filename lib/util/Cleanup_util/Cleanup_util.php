@@ -11,7 +11,7 @@ class Cleanup_util extends util {
 	/**
 	 * Initialise utility
 	 */
-	function init() {
+	public static function init() {
 		self::$util_name = "Cleanup";
 		self::verifyEnabled();
 		
@@ -22,7 +22,7 @@ class Cleanup_util extends util {
 	/**
 	 * Load data for web interface
 	 */
-	function admin() {
+	public static function admin() {
 		$data = array("current" => "Utility", "util" => self::$util_name, "template" => "main");
 		
 		if(isset($_POST['action'])) {
@@ -81,6 +81,10 @@ class Cleanup_util extends util {
 		return $data;
 	}
 
+	public static function doMaintenance() {
+		throw new Exception("Unimplemented");
+	}
+	
 	/**
 	 * Empty the action queue
 	 */
