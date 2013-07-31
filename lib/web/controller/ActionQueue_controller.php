@@ -1,14 +1,14 @@
 <?php
 class ActionQueue_controller {
-	function init() {
+	public static function init() {
 		Auth::loadClass("ActionQueue_api");
 	}
 	
-	function view() {
+	public static function view() {
 		return array("current" => "ActionQueue", "AQ" => ActionQueue_api::getOverview());
 	}
 	
-	function log() {
+	public static function log() {
 		return array("current" => "ActionQueue", "Log" => ActionQueue_api::getLog(500));
 	}
 }

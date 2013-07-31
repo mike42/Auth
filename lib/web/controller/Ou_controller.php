@@ -1,10 +1,10 @@
 <?php
 class Ou_controller {
-	function init() {
+	public static function init() {
 		Auth::loadClass("Ou_api");
 	}
 
-	function view($ou_id = null) {
+	public static function view($ou_id = null) {
 		$data = array('current' => 'Ou');
 		$root = Ou_api::getHierarchy();
 		$data['Ou_root'] = $root;
@@ -35,7 +35,7 @@ class Ou_controller {
 		return $data;
 	}
 
-	function create($ou_id = null) {
+	public static function create($ou_id = null) {
 		/* Verify that correct arguments were passed */
 		$data = array('current' => 'Ou');
 		if($ou_id == null) {
@@ -61,7 +61,7 @@ class Ou_controller {
 		return $data;
 	}
 
-	function rename($ou_id = null) {
+	public static function rename($ou_id = null) {
 		$data = array('current' => 'Ou');
 		$root = Ou_api::getHierarchy();
 		$data['Ou_root'] = $root;
@@ -91,7 +91,7 @@ class Ou_controller {
 		return $data;
 	}
 
-	function move($ou_id = null) {
+	public static function move($ou_id = null) {
 		$data = array('current' => 'Ou');
 		$root = Ou_api::getHierarchy();
 		$data['Ou_root'] = $root;
