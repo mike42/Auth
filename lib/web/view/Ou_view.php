@@ -1,31 +1,31 @@
 <?php
 class Ou_view {
-	function init() {
+	public static function init() {
 		Web::loadView("Page_view");
 	}
 
-	function view_html($data) {
+	public static function view_html($data) {
 		self::useTemplate("view", $data);
 	}
 	
-	function move_html($data) {
+	public static function move_html($data) {
 		self::useTemplate("move", $data);
 	}
 	
-	function rename_html($data) {
+	public static function rename_html($data) {
 		self::useTemplate("rename", $data);
 	}
 	
-	function create_html($data) {
+	public static function create_html($data) {
 		self::useTemplate("create", $data);
 	}
 	
-	function useTemplate($template, $data) {
+	public static function useTemplate($template, $data) {
 		$template = "Ou/".$template;
 		include(dirname(__FILE__) . "/layout/htmlLayout.inc");
 	}
 	
-	function error_html($data) {
+	public static function error_html($data) {
 		page_view::error_html($data);
 	}
 }
