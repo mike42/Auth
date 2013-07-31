@@ -1,11 +1,11 @@
 <?php 
 class Account_controller {
-	function init() {
+	public static function init() {
 		Auth::loadClass("Account_api");
 		Auth::loadClass("AccountOwner_api");
 	}
 
-	function view($account_id = false) {
+	public static function view($account_id = false) {
 		$data = array('current' => "Ou");
 		try {
 			$data['Account'] = Account_api::get($account_id);
@@ -37,7 +37,7 @@ class Account_controller {
 		return $data;
 	}
 
-	function create($owner_id) {
+	public static function create($owner_id) {
 		$data = array('current' => "Ou");
 		try {
 			$data['AccountOwner'] = AccountOwner_api::get($owner_id);
@@ -72,7 +72,7 @@ class Account_controller {
 		return $data;
 	}
 
-	function search($term) {
+	public static function search($term) {
 		if(isset($_POST['term'])) {
 			$term = $_POST['term'];
 		}
@@ -80,7 +80,7 @@ class Account_controller {
 		return Array("current" => "Ou", "Accounts" => $results);
 	}
 
-	function rename($account_id) {
+	public static function rename($account_id) {
 		$data = array('current' => "Ou");
 		try {
 			$data['Account'] = Account_api::get($account_id);

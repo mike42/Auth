@@ -1,10 +1,10 @@
 <?php
 class UserGroup_controller {
-	function init() {
+	public static function init() {
 		Auth::loadClass("UserGroup_api");	
 	}
 	
-	function view($group_id) {
+	public static function view($group_id) {
 		$data = array('current' => 'Ou');
 		try {
 			$ug = UserGroup_api::get($group_id);
@@ -49,7 +49,7 @@ class UserGroup_controller {
 	/**
 	 * @param string $ou_id The ID of the organizational unit for this group to go in.
 	 */
-	function create($ou_id = null) {
+	public static function create($ou_id = null) {
 		$data = array('current' => 'Ou');		
 		if($ou_id == null || !$parent = Ou_model::get($ou_id)) {
 			$data['error'] = '404';
@@ -78,7 +78,7 @@ class UserGroup_controller {
 		return $data;
 	}
 	
-	function rename($group_id) {
+	public static function rename($group_id) {
 		$data = array('current' => 'Ou');
 		try {
 			$ug = UserGroup_api::get($group_id);
@@ -102,7 +102,7 @@ class UserGroup_controller {
 		return $data;
 	}
 	
-	static function move($group_id) {
+	public static function move($group_id) {
 		$data = array('current' => 'Ou');
 		$root = Ou_api::getHierarchy();
 		$data['Ou_root'] = $root;
@@ -131,7 +131,7 @@ class UserGroup_controller {
 		return $data;
 	}
 	
-	function addparent($group_id) {
+	public static function addparent($group_id) {
 		$data = array('current' => 'Ou');
 		try {
 			$ug = UserGroup_api::get($group_id);
@@ -162,7 +162,7 @@ class UserGroup_controller {
 		return $data;
 	}
 	
-	function addchild($group_id) {
+	public static function addchild($group_id) {
 		$data = array('current' => 'Ou');
 		try {
 			$ug = UserGroup_api::get($group_id);
@@ -193,7 +193,7 @@ class UserGroup_controller {
 		return $data;
 	}
 	
-	function adduser($group_id) {
+	public static function adduser($group_id) {
 		$data = array('current' => 'Ou');
 		try {
 			$ug = UserGroup_api::get($group_id);
@@ -216,7 +216,7 @@ class UserGroup_controller {
 		return $data;
 	}
 	
-	function search() {
+	public static function search() {
 		if(!isset($_POST['term'])) {
 			return array('error' => '404');
 		}

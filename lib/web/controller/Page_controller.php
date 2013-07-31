@@ -1,11 +1,11 @@
 <?php 
 
 class Page_controller {
-	function init() {
+	public static function init() {
 		Auth::loadClass("AccountOwner_api");
 	}
 	
-	function view($page) {
+	public static function view($page) {
 		$data = array('current' => 'Dashboard');
 		if(isset($_POST['owner_id']) && isset($_POST['uname'])) {
 			$owner_id = $_POST['owner_id'];
@@ -25,7 +25,7 @@ class Page_controller {
 		return $data;
 	}
 	
-	function logout() {
+	public static function logout() {
 		if(isset($_SESSION)) {
 			session_destroy();
 		}
