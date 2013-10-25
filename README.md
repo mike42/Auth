@@ -37,7 +37,7 @@ Clone the repo into /usr/share/auth:
 
         su
         cd /usr/share
-        git clone --recursive http://github.com/mike42/Auth auth
+        git clone --recursive https://github.com/mike42/Auth auth
 
 Configure apache! You need an ssl virtual host, with AllowOverride All set, mod_rewrite enabled, and its DocumentRoot at /var/www.
 
@@ -74,6 +74,7 @@ Now cd /usr/share/auth.
 
 Under site/, create a file called bg.jpg, with some company artwork, and config.php. Remembering database and LDAP settings, this is a basic config example.
 
+        <?php 
         $config = array(
             'Database' =>
                 array(
@@ -115,3 +116,8 @@ Caveats
 Auth does not know your schema, so by default it uses very basic data structures for groups and users. If you want to take advantage of extra LDAP features, then you should modify ldap_service.php to suit your organization.
 
 Auth will attempt to bring different services "into line" with eachother in terms of group membership and account locations. This process will be annoying, and you should screen-capture your group membership so that you can fix it.
+
+Credits
+-------
+
+- The default login background is modified from [this image](http://commons.wikimedia.org/wiki/File:Great_Barrier_Reef_105_(5383117759).jpg) on Wikimedia Commons, CC2.
