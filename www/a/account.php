@@ -1,4 +1,4 @@
-<?
+<?php
 require_once(dirname(__FILE__).'/../../lib/web/Web.php');
 Auth::loadClass('AccountOwner_api');
 $conf = Auth::getConfig('login');

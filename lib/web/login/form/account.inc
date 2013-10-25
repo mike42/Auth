@@ -3,13 +3,11 @@
 		<div class="span6 offset3" style="background: white;">
 			<div style="padding: 10px;">
 				<ul class="nav nav-tabs">
-				  <li<? if($data['active'] == 'info') { echo ' class="active"'; } ?>><a href="#info" data-toggle="tab">Info</a></li>
-				  <li<? if($data['active'] == 'reset') { echo ' class="active"'; } ?>><a href="#reset" data-toggle="tab">Reset Password</a></li>
+				  <li<?php if($data['active'] == 'info') { echo ' class="active"'; } ?>><a href="#info" data-toggle="tab">Info</a></li>
+				  <li<?php if($data['active'] == 'reset') { echo ' class="active"'; } ?>><a href="#reset" data-toggle="tab">Reset Password</a></li>
 				</ul>
 				<div class="tab-content">
-				  <div class="tab-pane<? if($data['active'] == 'info') { echo ' active'; } ?>" id="info">
-
-
+				  <div class="tab-pane<?php if($data['active'] == 'info') { echo ' active'; } ?>" id="info">
 
 <?php
 		echo "<table class='table table-bordered'>
@@ -55,11 +53,11 @@
 
 		?>
 				  </div>
-				  <div class="tab-pane<? if($data['active'] == 'reset') { echo ' active'; } ?>" id="reset">
+				  <div class="tab-pane<?php if($data['active'] == 'reset') { echo ' active'; } ?>" id="reset">
 
 
 					<form action="index.php" method="post">
-					  <?if(isset($data['message'])) {
+					  <?php if(isset($data['message'])) {
 					    echo "<div class=\"control-group ".(isset($data['good']) ? "login-ok" : "login-fail" ) ."\">" . htmlspecialchars($data['message']) . "</div>";
 					    } ?>
 					  <input type="hidden" name="action" value="password-reset" />

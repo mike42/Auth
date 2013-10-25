@@ -9,7 +9,7 @@
 	<div class="well">
 		<form style="text-align: center; margin: 3em;" method="post" id="accountselect">
 			<p>
-				<?	if(isset($data['message'])) {
+				<?php	if(isset($data['message'])) {
 					echo "<b>".web::escapeHTML($data['message']) . "</b>";
 				} else {
 					echo "Enter a username:";

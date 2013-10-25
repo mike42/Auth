@@ -39,13 +39,13 @@
 			<div class="navbar">
 			  <div class="navbar-inner" style="text-align: center;">
 		  		
-			    <? if($form != 'login') {
+			    <?php if($form != 'login') {
 					 echo "<a href=\"?action=logout\" class=\"btn btn-primary pull-right\">Log Out</a>";
 					} ?>
 				<a class="brand" href="?" style="margin-left: 0; float: none;">Auth</a>
 			  </div>
 			</div>
 		</div>
-		<? include(dirname(__FILE__) . "/form/$form.inc"); ?>
+		<?php include(dirname(__FILE__) . "/form/$form.inc"); ?>
 	</body>
 </html>
