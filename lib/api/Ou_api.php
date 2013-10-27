@@ -7,7 +7,7 @@
  * @author Michael Billington <michael.billington@gmail.com>
  */
 class Ou_api {
-	function init() {
+	public static function init() {
 		Auth::loadClass("Ou_model");
 		Auth::loadClass("UserGroup_api");
 		Auth::loadClass("AccountOwner_api");
@@ -19,7 +19,7 @@ class Ou_api {
 	 * 
 	 * @param Ou_model $parent The starting point, or null to start at the root.
 	 */
-	function getHierarchy(Ou_model $parent = null) {
+	public static function getHierarchy(Ou_model $parent = null) {
 		if($parent == null) {
 			$parent = Ou_model::get_by_ou_name("root");
 			if(!$parent) {
@@ -44,7 +44,7 @@ class Ou_api {
 	 * @throws Exception
 	 * @return Ou_model The newly created organizational unit
 	 */
-	function create($ou_name, $ou_parent_id) {
+	public static function create($ou_name, $ou_parent_id) {
 		$ou_name = Auth::normaliseName($ou_name);
 		$ou_parent_id = (int)$ou_parent_id;
 		
@@ -81,7 +81,7 @@ class Ou_api {
 	 * @param integer $ou_id The ID of the unit to delete.
 	 * @throws Exception
 	 */
-	function delete($ou_id) {
+	public static function delete($ou_id) {
 		$ou = self::get($ou_id);
 		$parent = self::get($ou -> ou_parent_id);
 		
@@ -125,7 +125,7 @@ class Ou_api {
 	 * @param int $ou_id The unit to move.
 	 * @param int $ou_parent_id The new parent unit.
 	 */
-	function move($ou_id, $ou_parent_id) {
+	public static function move($ou_id, $ou_parent_id) {
 		$ou = self::get($ou_id);
 		$oldparent = self::get($ou -> ou_parent_id);
 		$parent = self::get($ou_parent_id);
@@ -148,7 +148,7 @@ class Ou_api {
 	 * @param string $ou_name The new name of the unit (this will be filtered for sanity)
 	 * @throws Exception
 	 */
-	function rename($ou_id, $ou_name) {
+	public static function rename($ou_id, $ou_name) {
 		$ou_name = Auth::normaliseName($ou_name);
 		
 		if($ou = Ou_model::get_by_ou_name($ou_name)) {
@@ -178,7 +178,7 @@ class Ou_api {
 	 * @throws Exception If it cannot be found
 	 * @return Ou_model the Organizational unit.
 	 */
-	function get($ou_id) {
+	public static function get($ou_id) {
 		if(!$ou = Ou_model::get((int)$ou_id)) {
 			throw new Exception("No such organizational unit");
 		}

@@ -83,7 +83,7 @@ class Database {
 		return $res;
 	}
 	
-	function retrieve_arg($arg) {
+	public static function retrieve_arg($arg) {
 		/* Escape an argument for an SQL query, or return false if there was none */
 		if($arg) {
 			return database::escape($arg);
@@ -91,7 +91,7 @@ class Database {
 		return false;
 	}
 	
-	static function row_from_template($row, $template) {
+	public static function row_from_template($row, $template) {
 		/* This copies an associative array from the database, copying only fields which exist in this template */
 		$res = $template;
 		foreach($row as $key => $val) {

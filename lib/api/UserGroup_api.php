@@ -7,13 +7,13 @@
  * @author Michael Billington <michael.billington@gmail.com>
  */
 class UserGroup_api {
-	function init() {
+	static public function init() {
 		Auth::loadClass("Ou_api");
 		Auth::loadClass("UserGroup_model");
 		Auth::loadClass("ActionQueue_api");
 	}
 	
-	function create($group_cn, $group_name, $ou_id, $domain_id) {
+	static public function create($group_cn, $group_name, $ou_id, $domain_id) {
 		/* Normalise inputs */
 		$group_cn = Auth::normaliseName($group_cn);
 		$group_name = trim($group_name);
@@ -67,7 +67,7 @@ class UserGroup_api {
 	 * @throws Exception
 	 * @return unknown
 	 */
-	function get($group_id) {
+	static public function get($group_id) {
 		if(!$ug = UserGroup_model::get((int)$group_id)) {
 			throw new Exception("No such user group");
 		}
@@ -83,7 +83,7 @@ class UserGroup_api {
 	 * @throws Exception
 	 * @return unknown
 	 */
-	function get_by_group_cn($group_cn) {
+	static public function get_by_group_cn($group_cn) {
 		if(!$ug = UserGroup_model::get_by_group_cn($group_cn)) {
 			throw new Exception("No such user group");
 		}
@@ -98,7 +98,7 @@ class UserGroup_api {
 	 * @param integer $group_id The ID of the group to delete
 	 * @return boolean
 	 */
-	function delete($group_id) {
+	static public function delete($group_id) {
 		$ug = self::get($group_id);
 		
 		$children = SubUserGroup_model::list_by_parent_group_id($group_id);

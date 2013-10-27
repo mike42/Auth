@@ -8,7 +8,7 @@
 class ActionQueue_api {
 	private static $modified = false;
 	
-	function init() {
+	static function init() {
 		Auth::loadClass("ListDomain_model");
 		Auth::loadClass("ListServiceDomain_model");
 		Auth::loadClass("Service_model");
@@ -20,7 +20,7 @@ class ActionQueue_api {
 	 * 
 	 * @param $id The ID of the action to cancel
 	 */
-	function cancel($aq_id) {
+	static function cancel($aq_id) {
 		if(!$aq = ActionQueue_model::get($aq_id)) {
 			throw new Exception("ActionQueue entry not found.");
 		}
@@ -37,7 +37,7 @@ class ActionQueue_api {
 	/**
 	 * @return The number of pending items in the ActionQueue.
 	 */
-	function count() {
+	static function count() {
 		return ActionQueue_model::count();
 	}
 	
