@@ -68,7 +68,7 @@ If Auth is the only program that runs here, you might want to also make an index
         <?php
         header('location: /account/');
 
-Now import the schema into phpmyadmin, from maintenance/schema/auth.sql.
+Now import the schema into phpmyadmin, from maintenance/schema/auth.sql, and the default data from maintenance/schema/data/defaults.sql
 
 Now cd /usr/share/auth.
 
@@ -104,7 +104,7 @@ Under site/, create a file called bg.jpg, with some company artwork, and config.
 
 Note: Debian 6 Uses /var/lock, not /var/run/lock.
 
-You will need to create a 'domain' entry in the database for example.com, and a 'service' entry for its LDAP directory (if you plan to administer that directory with Auth, and not just authenticate against it).
+Open the database up and look at the 'service' table. If you are administering LDAP on localhost (this is the default set-up), then correct the domain name and password to make it work. 
 
 To prepare authqueue (a background processs that does all the heavy lifting), you should create its log file, with the right permissions. You could also get super crafty with rotating logs, if you are expecting to generate a lot of data:
 	
