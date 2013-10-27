@@ -4,6 +4,7 @@
 		<script type="text/javascript" src="/a/public/js/jquery.backstretch.min.js"></script>
 		<script type="text/javascript" src="/a/public/js/bootstrap/js/bootstrap.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="/a/public/js/bootstrap/css/bootstrap.min.css">
+		<title>Auth</title>
 		<script type="text/javascript">
 			$(function(){
 				$.backstretch( "/a/public/bg.jpg" );
