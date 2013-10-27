@@ -74,31 +74,37 @@ Now cd /usr/share/auth.
 
 Under site/, create a file called bg.jpg, with some company artwork, and config.php. Remembering database and LDAP settings, this is a basic config example.
 
-        <?php 
+        <?php
+        /* Timezone for the ActionQueue */
+        date_default_timezone_set('UTC');
+
+        /* All other options */
         $config = array(
-            'Database' =>
-                array(
-                    'name' => 'auth_main',
-                    'host' => 'localhost',
-                    'user' => 'auth',
-                    'password' => '...password here...'
-                    ),
-                'Util' =>
-                    array(
-                        'Cleanup'     => 'Directory Cleanup Tools'),
-                        'pidfile' => '/var/run/lock/meta-auth.pid',
-                        'logfile' => '/var/log/meta-auth.log',
-                        'login' =>
-                            array('url' => 'ldap://localhost',
-                                'domain' => "dc=example,dc=com",
-                                'service_id' => 'ldap',
-                                'admin' => array('admin')),
-                );
+	        'Database' =>
+		        array(
+			        'name' => 'auth_main',
+			        'host' => 'localhost',
+			        'user' => 'auth',
+			        'password' => '...password here...'
+		        ),
+	        'Util' =>
+		        array(
+			        'Cleanup'     => 'Directory Cleanup Tools'
+		        ),
+	        'pidfile' => '/var/run/lock/meta-auth.pid',
+	        'logfile' => '/var/log/meta-auth.log',
+	        'login' =>
+		        array(
+			        'url' => 'ldap://localhost',
+			        'domain' => "dc=example,dc=com",
+         			'service_id' => 'ldap',
+			        'admin' => array('admin')
+		        )
+        );
 
 Note: Debian 6 Uses /var/lock, not /var/run/lock.
 
 You will need to create a 'domain' entry in the database for example.com, and a 'service' entry for its LDAP directory (if you plan to administer that directory with Auth, and not just authenticate against it).
-
 
 To prepare authqueue (a background processs that does all the heavy lifting), you should create its log file, with the right permissions. You could also get super crafty with rotating logs, if you are expecting to generate a lot of data:
 	
