@@ -21,7 +21,7 @@ $config = array(
 		array(
 			'url' => 'ldap://localhost',
 			'domain' => "dc=example,dc=com",
- 			'service_id' => 'ldap',
+ 			'service_id' => 'ldap1',
 			'admin' => array('admin')
 		)
 );

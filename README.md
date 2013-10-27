@@ -97,7 +97,7 @@ Under site/, create a file called bg.jpg, with some company artwork, and config.
 		        array(
 			        'url' => 'ldap://localhost',
 			        'domain' => "dc=example,dc=com",
-         			'service_id' => 'ldap',
+         			'service_id' => 'ldap1',
 			        'admin' => array('admin')
 		        )
         );
