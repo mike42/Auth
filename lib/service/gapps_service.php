@@ -1,26 +1,57 @@
 <?php 
 
 require_once(dirname(__FILE__) . "/account_service.php");
-//require_once(dirname(__FILE__) . "/../vendor/ProvisioningApi/ProvisioningApi.php");
+require_once(dirname(__FILE__) . "/../vendor/google-api-php-client/src/Google_Client.php");
+require_once(dirname(__FILE__) . "/../vendor/google-api-php-client/src/contrib/Google_DirectoryService.php");
 
 class gapps_service extends account_service {
-	private $prov;
+	private $gds;
 	private $config;
 	
 	function __construct(Service_model $service) {
 		$this -> service = $service;
 		$this -> config = Auth::getConfig($service -> service_id);
 
-		throw new Exception("Google API not implemented");
-		
-// 		$token = false;
-// 		$token = @file_get_contents($this -> config['tokenfile']);
-		
-// 		if($token) {
-// 			outp("\tUsing saved login token: " . $this -> config['tokenfile']);
-// 		}	
-// 		$this -> prov = new ProvisioningApi($service -> service_username, $service -> service_password, $token);
-// 		@file_put_contents($this -> config['tokenfile'], $this -> prov -> token);
+		/* Load key */
+		$client = new Google_Client();
+		$client -> setApplicationName("Auth https://github.com/mike42/Auth");		
+ 		$key = file_get_contents($this -> config['key_file']);
+ 		if(!$key) {
+ 			throw new Exception("Key could not be loaded from file " .$this -> config['key_file']);
+ 		}
+ 		
+ 		/* Load token */
+ 		$token = false;
+ 		$token = @file_get_contents($this -> config['tokenfile']);
+ 		if($token) {
+ 			outp("\tUsing saved login token: " . $this -> config['tokenfile']);
+ 			$client -> setAccessToken($token);
+ 		}
+ 		
+ 		/* Set up auth */
+ 		$gauth = new Google_AssertionCredentials(
+ 				$this -> config['service_account'],
+ 				array('https://www.googleapis.com/auth/admin.directory.group',
+ 						'https://www.googleapis.com/auth/admin.directory.orgunit',
+ 						'https://www.googleapis.com/auth/admin.directory.user'),
+ 				$key);
+ 		$gauth -> sub = $service -> service_username;
+ 		$client->setAssertionCredentials($gauth);
+ 		$client->setClientId($this -> config['client_id']);	
+ 		$this -> gds = new Google_DirectoryService($client);
+ 	
+ 		/* Look itself up to see if it's logged in */
+ 		try {
+ 			$this -> gds -> users -> get($service -> service_username);
+ 		} catch(Exception $e) {
+ 			throw new Exception("Failed to retrieve " . $service -> service_username . ": " . $e -> getMessage());
+ 		}
+ 		
+ 		/* Token check */
+ 		if (!$client->getAccessToken()) {
+ 			throw new Exception("Login failed!");
+ 		}
+ 		@file_put_contents($this -> config['tokenfile'], $client -> getAccessToken());
 	}
 	
 	/**
@@ -28,7 +59,8 @@ class gapps_service extends account_service {
 	 * 
 	 * @param Account_model $a The account to create
 	 */
-	public function accountCreate(Account_model $a) {		
+	public function accountCreate(Account_model $a) {
+		throw new Exception("Unimplemented");
 // 		/* Figure out info */
 // 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 // 		$orgUnitPath = $this -> orgUnitPath($a -> AccountOwner -> ou_id);
@@ -63,6 +95,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o Unit to search for the login in.
 	 */
 	public function accountDelete($account_login, ListDomain_model $d, Ou_model $o) {
+		throw new Exception("Unimplemented");
 // 		$userEmail = $this -> makeEmail($account_login, $d);
 // 		$this -> prov -> deleteUser($userEmail);
 // 		return true;
@@ -75,6 +108,7 @@ class gapps_service extends account_service {
 	 * @param string $account_old_login The login to search for (may be different to the one stored currently, if it has been changed)
 	 */
 	public function accountUpdate(Account_model $a, $account_old_login) {
+		throw new Exception("Unimplemented");
 // 		/* Load user */
 // 		$userEmail = $this -> makeEmail($account_old_login, $a -> ListDomain);
 // 		$user = $this -> prov -> retrieveUser($userEmail);
@@ -109,6 +143,7 @@ class gapps_service extends account_service {
 	 * @param Account_model $a The user account to disable
 	 */
 	public function accountDisable(Account_model $a) {
+		throw new Exception("Unimplemented");
 // 		/* Get user */
 // 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 // 		$user = $this -> prov -> retrieveUser($userEmail);
@@ -128,6 +163,7 @@ class gapps_service extends account_service {
 	 * @param Account_model $a The user account to enable
 	 */
  	public function accountEnable(Account_model $a) {
+ 		throw new Exception("Unimplemented");
 // 		/* Get user */
 // 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 // 		$user = $this -> prov -> retrieveUser($userEmail);
@@ -148,6 +184,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o		Unit that the account was formerly located under
 	 */
 	public function accountRelocate(Account_model $a, Ou_model $old_parent) {
+		throw new Exception("Unimplemented");
 // 		/* Figure out what we're doing */
 // 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 // 		$orgUnitPath = $this -> orgUnitPath($a -> AccountOwner -> ou_id);
@@ -170,6 +207,7 @@ class gapps_service extends account_service {
 	 * @param string p The password to use
 	 */
 	public function accountPassword(Account_model $a, $p) {
+		throw new Exception("Unimplemented");
 // 		/* Get user */
 // 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 // 		$user = $this -> prov -> retrieveUser($userEmail);
@@ -188,6 +226,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o The organizational unit to search.
 	 */
 	public function recursiveSearch(Ou_model $o) {
+		throw new Exception("Unimplemented");
 // 		if($o -> ou_name == 'root') {
 // 			/* Handle groups */
 // 			$groups = $this -> prov -> retrieveAllGroupsInDomain();
@@ -305,6 +344,7 @@ class gapps_service extends account_service {
 	 * @param Group_model $g The group to create.
 	 */
 	public function groupCreate(UserGroup_model $g) {
+		throw new Exception("Unimplemented");
 // 		$groupId = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
 // 		$this -> prov -> createGroup($groupId, $g -> group_name, "");
 // 		return true;
@@ -318,6 +358,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o				The organziational unit to search for this group in.
 	 */
 	public function groupDelete($group_cn, ListDomain_model $d, Ou_model $o) {
+		throw new Exception("Unimplemented");
 // 		$groupId = $this -> makeEmail($group_cn, $d);
 // 		$this -> prov -> deleteGroup($groupId);
 // 		return true;
@@ -330,6 +371,7 @@ class gapps_service extends account_service {
 	 * @param Group_model $g The group to add it to
 	 */
 	public function groupJoin(Account_model $a, UserGroup_model $g) {
+		throw new Exception("Unimplemented");
 // 		$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 // 		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
 // 		$this -> prov -> addMemberToGroup($memberEmail, $groupEmail);
@@ -343,6 +385,7 @@ class gapps_service extends account_service {
 	 * @param Group_model $g	The group to remove it from
 	 */
 	public function groupLeave(Account_model $a, UserGroup_model $g) {
+		throw new Exception("Unimplemented");
 // 		$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 // 		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
 // 		$this -> prov -> removeMemberFromGroup($memberEmail, $groupEmail);
@@ -356,6 +399,7 @@ class gapps_service extends account_service {
 	 * @param Group_model $child	The group to add
 	 */
 	public function groupAddChild(UserGroup_model $parent, UserGroup_model $child) {
+		throw new Exception("Unimplemented");
 // 		$childEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
 // 		$parentEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
 // 		$this -> prov -> addMemberToGroup($childEmail, $parentEmail);
@@ -369,6 +413,7 @@ class gapps_service extends account_service {
 	 * @param Group_model $child The group to remove
 	 */
 	public function groupDelChild(UserGroup_model $parent, UserGroup_model $child) {
+		throw new Exception("Unimplemented");
 // 		$childEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
 // 		$parentEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
 // 		$this -> prov -> removeMemberFromGroup($childEmail, $parentEmail);
@@ -382,6 +427,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $old_parent	The organizational unit which it was formerly located under
 	 */
  	public function groupMove(UserGroup_model $g, Ou_model $old_parent) {
+ 		throw new Exception("Unimplemented");
 // 		/* Groups do not exist in the context of an Ou in google apps */
 // 		throw new Exception("Operation not supported");
 	}
@@ -394,6 +440,7 @@ class gapps_service extends account_service {
 	 * @param unknown_type $ug_old_cn	The old 'common name' of the group
 	 */
 	public function groupRename(UserGroup_model $g, $ug_old_cn) {
+		throw new Exception("Unimplemented");
 // 		if($g -> group_cn != $ug_old_cn) {
 // 			/* This is mad, but the API leaves no other options */
 // 			try {
@@ -441,6 +488,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o The organizational unit to create
 	 */
 	public function ouCreate(Ou_model $o) {
+		throw new Exception("Unimplemented");
 // 		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_parent_id);
 // 		$this -> prov -> createOrganizationUnit($o -> ou_name, $o -> ou_name, $parentOrgUnitPath);
 // 		return true;
@@ -454,6 +502,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o		The parent unit.
 	 */
 	public function ouDelete($ou_name, ListDomain_model $d, Ou_model $o) {
+		throw new Exception("Unimplemented");
 // 		$orgUnitPath = ltrim($this -> orgUnitPath($o -> ou_id) . "/" . urlencode($ou_name), "/");
 // 		$this -> prov -> deleteOrganizationUnit($orgUnitPath);
 // 		return true;
@@ -465,6 +514,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $old_parent	The unit which it was formerly located under.
 	 */
 	public function ouMove(Ou_model $o, Ou_model $old_parent) {
+		throw new Exception("Unimplemented");
 // 		/* Get unit */
 // 		$parentOrgUnitPath = $this -> orgUnitPath($old_parent -> ou_id);
 // 		$orgUnitPath = ltrim($parentOrgUnitPath . "/" . urlencode($o -> ou_name), "/");
@@ -483,6 +533,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $name
 	 */
 	public function ouRename(Ou_model $o, $ou_old_name) {
+		throw new Exception("Unimplemented");
 // 		/* Get unit (at old name) */
 // 		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_parent_id);
 // 		$orgUnitPath = ltrim($parentOrgUnitPath . "/" . urlencode($ou_old_name), "/");
@@ -500,6 +551,7 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o
 	 */
 	public function syncOu(Ou_model $o) {
+		throw new Exception("Unimplemented");
 // 		$usergroups = UserGroup_model::list_by_ou_id($o -> ou_id);
 // 		foreach($usergroups as $ug) {
 // 			outp("\tGroup: " . $ug -> group_cn);
@@ -664,14 +716,14 @@ class gapps_service extends account_service {
 	 * @return string path/to/orgUnit, or "/" for the root.
 	 */
 	private function orgUnitPath($ou_id) {
-// 		$ou = Ou_model::get($ou_id);
-// 		if(!$ou) {
-// 			throw new Exception("Organizational unit not found");
-// 		}
+ 		$ou = Ou_model::get($ou_id);
+		if(!$ou) {
+			throw new Exception("Organizational unit not found");
+ 		}
 
-// 		if($ou -> ou_name == "root") {
-// 			return "/";
-// 		}
+ 		if($ou -> ou_name == "root") {
+ 			return "/";
+ 		}
 		return ltrim($this -> orgUnitPath($ou -> ou_parent_id) . "/" . urlencode($ou -> ou_name), "/");
 	}
 	
