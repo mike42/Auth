@@ -11,7 +11,7 @@ class gapps_service extends account_service {
 		$this -> service = $service;
 		$this -> config = Auth::getConfig($service -> service_id);
 
-		throw new Exeption("Google API not implemented");
+		throw new Exception("Google API not implemented");
 		
 // 		$token = false;
 // 		$token = @file_get_contents($this -> config['tokenfile']);
@@ -672,7 +672,7 @@ class gapps_service extends account_service {
 // 		if($ou -> ou_name == "root") {
 // 			return "/";
 // 		}
-// 		return ltrim($this -> orgUnitPath($ou -> ou_parent_id) . "/" . urlencode($ou -> ou_name), "/");
+		return ltrim($this -> orgUnitPath($ou -> ou_parent_id) . "/" . urlencode($ou -> ou_name), "/");
 	}
 	
 	/**
@@ -684,10 +684,10 @@ class gapps_service extends account_service {
 	 * @return string
 	 */
 	private function makeEmail($alias, ListDomain_model $domain) {
-// 		if(!isset($this -> config['domain'][$domain -> domain_id])) {
-// 			throw new Exception("Couldn't map " . $domain -> domain_id . " to a domain name to make an email address. Check the configuration file!");	
-// 		}
-// 		return $alias . "@" . $this -> config['domain'][$domain -> domain_id];
+		if(!isset($this -> config['domain'][$domain -> domain_id])) {
+			throw new Exception("Couldn't map " . $domain -> domain_id . " to a domain name to make an email address. Check the configuration file!");	
+		}
+		return $alias . "@" . $this -> config['domain'][$domain -> domain_id];
 	}
 	
 	/**
@@ -696,7 +696,7 @@ class gapps_service extends account_service {
 	 * @param string $domain
 	 */
 	private function getDomainId($domain) {
-// 		return array_search($domain, $this -> config['domain']);
+		return array_search($domain, $this -> config['domain']);
 	}
 }
 ?>
