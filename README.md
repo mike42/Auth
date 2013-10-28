@@ -127,3 +127,4 @@ Credits
 -------
 
 - The default login background is modified from [this image](http://commons.wikimedia.org/wiki/File:Great_Barrier_Reef_105_(5383117759).jpg) on Wikimedia Commons, CC2.
+- The Google API [PHP client](https://code.google.com/p/google-api-php-client/) is included, and is under the Apache License.

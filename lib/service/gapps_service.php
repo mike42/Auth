@@ -9,6 +9,9 @@ class gapps_service extends account_service {
 	private $config;
 	
 	function __construct(Service_model $service) {
+		global $apiConfig;
+		$apiConfig['use_objects'] = true;
+		
 		$this -> service = $service;
 		$this -> config = Auth::getConfig($service -> service_id);
 
@@ -36,19 +39,19 @@ class gapps_service extends account_service {
  						'https://www.googleapis.com/auth/admin.directory.user'),
  				$key);
  		$gauth -> sub = $service -> service_username;
- 		$client->setAssertionCredentials($gauth);
- 		$client->setClientId($this -> config['client_id']);	
+ 		$client -> setAssertionCredentials($gauth);
+ 		$client -> setClientId($this -> config['client_id']);	
  		$this -> gds = new Google_DirectoryService($client);
- 	
+ 		
  		/* Look itself up to see if it's logged in */
  		try {
- 			$this -> gds -> users -> get($service -> service_username);
+ 			$service_user = $this -> gds -> users -> get($service -> service_username);
  		} catch(Exception $e) {
  			throw new Exception("Failed to retrieve " . $service -> service_username . ": " . $e -> getMessage());
  		}
  		
  		/* Token check */
- 		if (!$client->getAccessToken()) {
+ 		if (!$client -> getAccessToken()) {
  			throw new Exception("Login failed!");
  		}
  		@file_put_contents($this -> config['tokenfile'], $client -> getAccessToken());
@@ -60,31 +63,33 @@ class gapps_service extends account_service {
 	 * @param Account_model $a The account to create
 	 */
 	public function accountCreate(Account_model $a) {
-		throw new Exception("Unimplemented");
-// 		/* Figure out info */
-// 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
-// 		$orgUnitPath = $this -> orgUnitPath($a -> AccountOwner -> ou_id);
+ 		/* Figure out info */
+		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+ 		$orgUnitPath = $this -> orgUnitPath($a -> AccountOwner -> ou_id);
 		
-// 		/* Make user */
-// 		try {
-// 			$user = $this -> prov -> createUser($userEmail, $a -> AccountOwner -> owner_firstname, $a -> AccountOwner -> owner_surname, sha1($this -> junkPassword()));
-// 		} catch(Exception $e) {
-// 			throw new Exception("Couldn't create account. A group, nickname, or user might already be on that address!");
-// 		}
-			
-// 		/* Move into the right Ou */
-// 		if($orgUnitPath != "/") {
-// 			try {
-// 				$orgUser = $this -> prov -> retrieveOrganizationUser($userEmail);
-// 				$orgUser -> setorgUnitPath($orgUnitPath);
-// 				$this -> prov -> updateOrganizationUser($orgUser);
-// 			} catch(Exception $e) {
-// 				/* Has not shown up in directory yet! */
-// 				outp("\t\tFailed to relocate user. Submitting to queue!");
-// 				ActionQueue_api::submit($this -> service -> service_id, $a -> account_domain, 'acctRelocate', $a -> account_login, 'root');
-// 			}
-// 		}
-// 		return true;
+ 		try {
+ 			$this -> gds -> users -> get($service -> service_username);
+ 			throw new Exception("Account already exists");
+ 		} catch(Exception $e) {
+ 			// User does not exist (this is good)
+ 		} 		
+ 		
+ 		/* Make user */
+ 		try {
+ 			$user = new Google_User();
+ 			$user -> setPrimaryEmail($userEmail);
+ 			$username = new Google_UserName();
+ 			$username -> setGivenName($a -> AccountOwner -> owner_firstname);
+ 			$username -> setFamilyName($a -> AccountOwner -> owner_surname);
+ 			$user -> setName($username);
+ 			$user -> setOrgUnitPath($orgUnitPath);
+ 			$user -> setPassword(sha1($this -> junkPassword()));
+ 			$user -> setHashFunction("SHA-1");
+ 			$user = $this -> gds -> users -> insert($user);
+ 		} catch(Exception $e) {
+ 			throw new Exception("Couldn't create account: " . $e -> getMessage());
+ 		}
+ 		return true;
 	}
 
 	/**
@@ -95,10 +100,15 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o Unit to search for the login in.
 	 */
 	public function accountDelete($account_login, ListDomain_model $d, Ou_model $o) {
-		throw new Exception("Unimplemented");
-// 		$userEmail = $this -> makeEmail($account_login, $d);
-// 		$this -> prov -> deleteUser($userEmail);
-// 		return true;
+ 		$userEmail = $this -> makeEmail($account_login, $d);
+ 		
+ 		try {
+ 			$user = $this -> gds -> users -> get($userEmail);
+ 			$this -> gds -> users -> delete($userEmail);
+ 		} catch(Exception $e) {
+ 			throw new Exception("Couldn't delete account: " . $e -> getMessage());
+ 		}
+		return true;
 	}
 
 	/**
@@ -108,33 +118,38 @@ class gapps_service extends account_service {
 	 * @param string $account_old_login The login to search for (may be different to the one stored currently, if it has been changed)
 	 */
 	public function accountUpdate(Account_model $a, $account_old_login) {
-		throw new Exception("Unimplemented");
-// 		/* Load user */
-// 		$userEmail = $this -> makeEmail($account_old_login, $a -> ListDomain);
-// 		$user = $this -> prov -> retrieveUser($userEmail);
-		
-// 		/* Apply name changes */
-// 		$doUpdate = false;
-// 		if($a -> AccountOwner -> owner_firstname != $user -> getfirstName()) {
-// 			$user -> setfirstName($a -> AccountOwner -> owner_firstname);
-// 			$doUpdate = true;
-// 		}
-// 		if($a -> AccountOwner -> owner_surname != $user -> getlastName()) {
-// 			$user -> setlastName($a -> AccountOwner -> owner_surname);
-// 			$doUpdate = true;
-// 		}
-// 		if($doUpdate) {
-// 			$this -> prov -> updateUser($user);
-// 		}
-		
-// 		/* Login has changed */
-// 		if($account_old_login != $a -> account_login) {
-// 			$newUserEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
-// 			$this -> prov -> renameUser($userEmail, $newUserEmail);
+ 		/* Load user */
+		$userEmail = $this -> makeEmail($account_old_login, $a -> ListDomain);
+		try {
+			$user = $this -> gds -> users -> get($userEmail);
+			print_r($user);
+			$doUpdate = false;
 			
-// 		}
+			$name = $user -> getName();
+	 		if($a -> AccountOwner -> owner_firstname != $name -> getGivenName() || $a -> AccountOwner -> owner_surname != $name -> getFamilyName) {
+	 			/* Name changes */
+	 			$name -> setGivenName($a -> AccountOwner -> owner_firstname);
+	 			$name -> setFamilyName($a -> AccountOwner -> owner_surname);
+	 			$user -> setName($name);
+	 			$doUpdate = true;
+	 		}
 
-// 		return true;
+	 		if($account_old_login != $a -> account_login) {
+	 			/* Login has changed */
+	 			$newUserEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+	 			$user -> setPrimaryEmail($newUserEmail);
+	 			$doUpdate = true;
+	 		}
+	 		
+	 		/* Apply changes */
+	 		if(!$doUpdate) {
+	 			throw new Exception("No changes to make");
+	 		}
+	 		$user = $this -> gds -> users -> update($userEmail, $user);
+		} catch(Exception $e) {
+			throw new Exception("Couldn't update account: " . $e -> getMessage());
+		}
+ 		return true;
 	}
 
 	/**
@@ -143,18 +158,19 @@ class gapps_service extends account_service {
 	 * @param Account_model $a The user account to disable
 	 */
 	public function accountDisable(Account_model $a) {
-		throw new Exception("Unimplemented");
-// 		/* Get user */
-// 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
-// 		$user = $this -> prov -> retrieveUser($userEmail);
-// 		if($user -> getisSuspended()) {
-// 			throw new Exception("Account is already suspended");
-// 		}
-		
-// 		/* Suspend user */
-// 		$user -> setisSuspended(true);
-// 		$this -> prov -> updateUser($user);
-// 		return true;
+ 		/* Get user */
+ 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+ 		try {
+ 			$user = $this -> gds -> users -> get($userEmail);
+ 			if($user -> getSuspended()) {
+ 				throw new Exception("Account is already suspended");
+ 			}
+ 			$user -> setSuspended(true);
+ 			$this -> gds -> users -> update($userEmail, $user);
+ 		} catch(Exception $e) {
+ 			throw new Exception("Couldn't disable account: " . $e -> getMessage());
+ 		}
+ 		return true;
 	}
 
 	/**
@@ -163,18 +179,19 @@ class gapps_service extends account_service {
 	 * @param Account_model $a The user account to enable
 	 */
  	public function accountEnable(Account_model $a) {
- 		throw new Exception("Unimplemented");
-// 		/* Get user */
-// 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
-// 		$user = $this -> prov -> retrieveUser($userEmail);
-// 		if(!$user -> getisSuspended()) {
-// 			throw new Exception("Account is already restored");
-// 		}
-		
-// 		/* Suspend user */
-// 		$user -> setisSuspended(false);
-// 		$this -> prov -> updateUser($user);
-// 		return true;
+ 		/* Get user */
+ 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+ 		try {
+ 			$user = $this -> gds -> users -> get($userEmail);
+ 			if(!$user -> getSuspended()) {
+ 				throw new Exception("Account is already active");
+ 			}
+ 			$user -> setSuspended(false);
+ 			$this -> gds -> users -> update($userEmail, $user);
+ 		} catch(Exception $e) {
+ 			throw new Exception("Couldn't enable account: " . $e -> getMessage());
+ 		}
+ 		return true;
 	}
 
 	/**
@@ -184,19 +201,18 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o		Unit that the account was formerly located under
 	 */
 	public function accountRelocate(Account_model $a, Ou_model $old_parent) {
-		throw new Exception("Unimplemented");
-// 		/* Figure out what we're doing */
+		throw new Exception("Unimplemented"); // TODO: Add Ou functions below before enabling this
+		/* Decide what to do */
 // 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 // 		$orgUnitPath = $this -> orgUnitPath($a -> AccountOwner -> ou_id);
-		
-// 		/* Get orgUser, and update orgUnitPath */
-// 		try {
-// 			$orgUser = $this -> prov -> retrieveOrganizationUser($userEmail);
-// 			$orgUser -> setorgUnitPath($orgUnitPath);
-// 			$this -> prov -> updateOrganizationUser($orgUser);
-// 		} catch(Exception $e) {
-// 			return false;
+// 		$user = $this -> gds -> users -> get($userEmail);
+// 		if($user -> getOrgUnitPath() == $orgUnitPath) {
+// 			throw new Exception("User is already in that orgUnit");
 // 		}
+		
+// 		/* Update */
+// 		$user -> setOrgUnitPath($orgUnitPath);
+// 		$this -> gds -> users -> update($userEmail, $user);
 // 		return true;
 	}
 
@@ -207,16 +223,13 @@ class gapps_service extends account_service {
 	 * @param string p The password to use
 	 */
 	public function accountPassword(Account_model $a, $p) {
-		throw new Exception("Unimplemented");
-// 		/* Get user */
-// 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
-// 		$user = $this -> prov -> retrieveUser($userEmail);
-		
-// 		/* Set password */
-// 		$user -> setpassword(sha1($p));
-// 		$user -> sethashFunction("SHA-1");
-// 		$this -> prov -> updateUser($user);
-// 		return true;
+ 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+ 		$user = $this -> gds -> users -> get($userEmail);
+ 		
+ 		$user -> setPassword(sha1($p));
+ 		$user -> setHashFunction("SHA-1");
+ 		$this -> gds -> users -> update($userEmail, $user);
+ 		return true;
 	}
 
 	/**
