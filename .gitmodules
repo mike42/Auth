@@ -1,3 +1,0 @@
-[submodule "lib/vendor/ProvisioningApi"]
-	path = lib/vendor/ProvisioningApi
-	url = https://github.com/mike42/ProvisioningApi
