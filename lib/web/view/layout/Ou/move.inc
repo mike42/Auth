@@ -46,7 +46,7 @@
 				</li>
 				</ul>
 				
-				<? echo "<a class=\"btn\" href=\"" . Web::constructURL("Ou", "view", array($data['Ou'] -> ou_id), "html"). "\">Cancel</a>"; ?>
+				<?php echo "<a class=\"btn\" href=\"" . Web::constructURL("Ou", "view", array($data['Ou'] -> ou_id), "html"). "\">Cancel</a>"; ?>
 			</div>
 		</div>
 	</div>

@@ -546,13 +546,13 @@ class gapps_service extends account_service {
 	public function ouMove(Ou_model $o, Ou_model $old_parent) {
 		/* Get unit */
 		$oldParentOrgUnitPath = $this -> orgUnitPath($old_parent -> ou_id);
-		$orgUnitPath = ltrim($oldParentOrgUnitPath . "/" . urlencode($ou_name), "/");
+		$orgUnitPath = ltrim($oldParentOrgUnitPath . "/" . urlencode($o -> ou_name), "/");
 		$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
 		
 		/* Change parent */
-		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_parent_id);
+		$parentOrgUnitPath = "/" . ltrim($this -> orgUnitPath($o -> ou_parent_id), "/");
 		$orgUnit -> setParentOrgUnitPath($parentOrgUnitPath);
-		$this -> gds -> orgunits -> update($this -> customerId, $orgUnit);
+		$this -> gds -> orgunits -> update($this -> customerId, $orgUnitPath, $orgUnit);
  		return true;
 	}
 
