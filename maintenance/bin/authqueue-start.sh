@@ -1,3 +1,3 @@
 #!/bin/sh
 # Launch and fork the queue program.
-./authqueue.php > /dev/null &
+#./authqueue.php > /dev/null &
