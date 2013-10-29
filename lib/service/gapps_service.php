@@ -6,6 +6,7 @@ require_once(dirname(__FILE__) . "/../vendor/google-api-php-client/src/contrib/G
 
 class gapps_service extends account_service {
 	private $gds;
+	private $customerId;
 	private $config;
 	
 	function __construct(Service_model $service) {
@@ -46,6 +47,7 @@ class gapps_service extends account_service {
  		/* Look itself up to see if it's logged in */
  		try {
  			$service_user = $this -> gds -> users -> get($service -> service_username);
+ 			$this -> customerId = $service_user -> getCustomerId();
  		} catch(Exception $e) {
  			throw new Exception("Failed to retrieve " . $service -> service_username . ": " . $e -> getMessage());
  		}
@@ -501,10 +503,23 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o The organizational unit to create
 	 */
 	public function ouCreate(Ou_model $o) {
-		throw new Exception("Unimplemented");
-// 		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_parent_id);
-// 		$this -> prov -> createOrganizationUnit($o -> ou_name, $o -> ou_name, $parentOrgUnitPath);
-// 		return true;
+		$orgUnitPath = ltrim($this -> orgUnitPath($o -> ou_id), "/");
+		$parentOrgUnitPath = "/" . ltrim($this -> orgUnitPath($o -> ou_parent_id), "/");
+		try {
+			$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
+			throw new Exception("OrgUnit already exists at $orgUnitPath");
+		} catch(Exception $e) {
+			// Does not exist yet (this is good)
+		}
+		
+		/* Set up */
+ 		$orgUnit = new Google_OrgUnit();
+ 		$orgUnit -> setName($o -> ou_name);
+ 		$orgUnit -> setParentOrgUnitPath($parentOrgUnitPath);
+ 		
+ 		/* Create */
+		$orgUnit = $this -> gds -> orgunits -> insert($this -> customerId, $orgUnit);
+ 		return true;
 	}
 
 	/**
@@ -515,10 +530,12 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o		The parent unit.
 	 */
 	public function ouDelete($ou_name, ListDomain_model $d, Ou_model $o) {
-		throw new Exception("Unimplemented");
-// 		$orgUnitPath = ltrim($this -> orgUnitPath($o -> ou_id) . "/" . urlencode($ou_name), "/");
-// 		$this -> prov -> deleteOrganizationUnit($orgUnitPath);
-// 		return true;
+		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_id);
+		$orgUnitPath = ltrim($parentOrgUnitPath . "/" . urlencode($ou_name), "/");
+		$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
+		/* Delete the orgUnit */
+		$this -> gds -> orgunits -> delete($this -> customerId, $orgUnitPath);
+ 		return true;
 	}
 
 	/**
@@ -527,10 +544,9 @@ class gapps_service extends account_service {
 	 * @param Ou_model $old_parent	The unit which it was formerly located under.
 	 */
 	public function ouMove(Ou_model $o, Ou_model $old_parent) {
-		throw new Exception("Unimplemented");
-// 		/* Get unit */
-// 		$parentOrgUnitPath = $this -> orgUnitPath($old_parent -> ou_id);
-// 		$orgUnitPath = ltrim($parentOrgUnitPath . "/" . urlencode($o -> ou_name), "/");
+		/* Get unit */
+ 		$parentOrgUnitPath = $this -> orgUnitPath($old_parent -> ou_id);
+ 		$orgUnitPath = "/" . ltrim($parentOrgUnitPath . "/" . urlencode($o -> ou_name), "/");
 // 		$ou = $this -> prov -> retrieveOrganizationUnit($orgUnitPath);
 		
 // 		/* Change parent */
