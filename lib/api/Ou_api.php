@@ -48,6 +48,10 @@ class Ou_api {
 		$ou_name = Auth::normaliseName($ou_name);
 		$ou_parent_id = (int)$ou_parent_id;
 		
+		if($ou_name == "") {
+			throw new Exception("Organization unit name cannot be empty");
+		}
+		
 		/* Check name */
 		if($ou = Ou_model::get_by_ou_name($ou_name)) {
 			throw new Exception("An organizational unit with that name already exists");
