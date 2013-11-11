@@ -68,13 +68,18 @@ class gapps_service extends account_service {
  		/* Figure out info */
 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
  		$orgUnitPath = $this -> orgUnitPath(false, $a -> AccountOwner -> Ou -> ou_id);
-		echo $orgUnitPath . "\n";
+		
+ 		/* Check that the account does not exist yet */
+ 		$okay = false;
  		try {
  			$this -> gds -> users -> get($userEmail);
- 			throw new Exception("Account already exists");
  		} catch(Exception $e) {
  			// User does not exist (this is good)
- 		} 		
+ 			$okay = true;
+ 		}
+ 		if(!$okay) {
+ 			throw new Exception("Account already exists");
+ 		}
  		
  		/* Make user */
  		try {
@@ -356,10 +361,27 @@ class gapps_service extends account_service {
 	 * @param Group_model $g The group to create.
 	 */
 	public function groupCreate(UserGroup_model $g) {
-		throw new Exception("Unimplemented");
-// 		$groupId = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
-// 		$this -> prov -> createGroup($groupId, $g -> group_name, "");
-// 		return true;
+ 		$groupId = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
+ 		
+ 		/* Check that the group does not exist */
+ 		try { // Make sure that retrieving the group does not work
+ 			$this -> gds -> groups -> get($groupId);
+ 			$okay = false;
+ 		} catch(Exception $e) {
+ 			$okay = true;
+ 		}
+ 		
+ 		if(!$okay) {
+ 			throw new Exception("Group already exists");
+ 		}
+
+ 		/* Create the group */
+ 		$group = new Google_Group();
+ 		$group -> setId($groupId);
+ 		$group -> setEmail($groupId);
+ 		$group -> setName($g -> group_cn);
+ 		$this -> gds -> groups -> insert($group);
+ 		return true;
 	}
 
 	/**
@@ -370,10 +392,10 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o				The organziational unit to search for this group in.
 	 */
 	public function groupDelete($group_cn, ListDomain_model $d, Ou_model $o) {
-		throw new Exception("Unimplemented");
-// 		$groupId = $this -> makeEmail($group_cn, $d);
-// 		$this -> prov -> deleteGroup($groupId);
-// 		return true;
+		$groupId = $this -> makeEmail($group_cn, $d);
+		$this -> gds -> groups -> get($groupId);
+		$this -> gds -> groups -> delete($groupId);
+		return true;
 	}
 
 	/**
@@ -383,11 +405,13 @@ class gapps_service extends account_service {
 	 * @param Group_model $g The group to add it to
 	 */
 	public function groupJoin(Account_model $a, UserGroup_model $g) {
-		throw new Exception("Unimplemented");
-// 		$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
-// 		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
+ 		$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+ 		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
+ 		
+ 		// TODO
+ 		throw new Exception("Unimplemented");
 // 		$this -> prov -> addMemberToGroup($memberEmail, $groupEmail);
-// 		return true;
+ 		return true;
 	}
 
 	/**
@@ -397,11 +421,13 @@ class gapps_service extends account_service {
 	 * @param Group_model $g	The group to remove it from
 	 */
 	public function groupLeave(Account_model $a, UserGroup_model $g) {
-		throw new Exception("Unimplemented");
-// 		$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
-// 		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
+ 		$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+ 		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
+ 		
+ 		// TODO
+ 		throw new Exception("Unimplemented");		
 // 		$this -> prov -> removeMemberFromGroup($memberEmail, $groupEmail);
-// 		return true;
+ 		return true;
 	}
 
 	/**
@@ -411,11 +437,13 @@ class gapps_service extends account_service {
 	 * @param Group_model $child	The group to add
 	 */
 	public function groupAddChild(UserGroup_model $parent, UserGroup_model $child) {
-		throw new Exception("Unimplemented");
-// 		$childEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
-// 		$parentEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
+ 		$childEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
+ 		$parentEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
+ 		
+ 		// TODO
+		throw new Exception("Unimplemented"); 		
 // 		$this -> prov -> addMemberToGroup($childEmail, $parentEmail);
-// 		return true;
+ 		return true;		
 	}
 
 	/**
@@ -425,11 +453,13 @@ class gapps_service extends account_service {
 	 * @param Group_model $child The group to remove
 	 */
 	public function groupDelChild(UserGroup_model $parent, UserGroup_model $child) {
+ 		$childEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
+ 		$parentEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
+ 		
+ 		// TODO
 		throw new Exception("Unimplemented");
-// 		$childEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
-// 		$parentEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
 // 		$this -> prov -> removeMemberFromGroup($childEmail, $parentEmail);
-// 		return true;
+ 		return true;
 	}
 
 	/**
@@ -438,10 +468,9 @@ class gapps_service extends account_service {
 	 * @param UserGroup_model $g	The group to re-locate
 	 * @param Ou_model $old_parent	The organizational unit which it was formerly located under
 	 */
- 	public function groupMove(UserGroup_model $g, Ou_model $old_parent) {
- 		throw new Exception("Unimplemented");
-// 		/* Groups do not exist in the context of an Ou in google apps */
-// 		throw new Exception("Operation not supported");
+	public function groupMove(UserGroup_model $g, Ou_model $old_parent) {
+ 		/* Groups are not placed within an orgUnit in Google Apps */
+ 		throw new Exception("Operation not supported");
 	}
 
 	/**
@@ -452,6 +481,7 @@ class gapps_service extends account_service {
 	 * @param unknown_type $ug_old_cn	The old 'common name' of the group
 	 */
 	public function groupRename(UserGroup_model $g, $ug_old_cn) {
+		// TODO
 		throw new Exception("Unimplemented");
 // 		if($g -> group_cn != $ug_old_cn) {
 // 			/* This is mad, but the API leaves no other options */
