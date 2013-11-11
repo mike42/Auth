@@ -67,10 +67,10 @@ class gapps_service extends account_service {
 	public function accountCreate(Account_model $a) {
  		/* Figure out info */
 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
- 		$orgUnitPath = $this -> orgUnitPath($a -> AccountOwner -> ou_id);
-		
+ 		$orgUnitPath = $this -> orgUnitPath(false, $a -> AccountOwner -> Ou -> ou_id);
+		echo $orgUnitPath . "\n";
  		try {
- 			$this -> gds -> users -> get($service -> service_username);
+ 			$this -> gds -> users -> get($userEmail);
  			throw new Exception("Account already exists");
  		} catch(Exception $e) {
  			// User does not exist (this is good)
@@ -124,7 +124,6 @@ class gapps_service extends account_service {
 		$userEmail = $this -> makeEmail($account_old_login, $a -> ListDomain);
 		try {
 			$user = $this -> gds -> users -> get($userEmail);
-			print_r($user);
 			$doUpdate = false;
 			
 			$name = $user -> getName();
@@ -203,19 +202,17 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o		Unit that the account was formerly located under
 	 */
 	public function accountRelocate(Account_model $a, Ou_model $old_parent) {
-		throw new Exception("Unimplemented"); // TODO: Add Ou functions below before enabling this
-		/* Decide what to do */
-// 		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
-// 		$orgUnitPath = $this -> orgUnitPath($a -> AccountOwner -> ou_id);
-// 		$user = $this -> gds -> users -> get($userEmail);
-// 		if($user -> getOrgUnitPath() == $orgUnitPath) {
-// 			throw new Exception("User is already in that orgUnit");
-// 		}
-		
-// 		/* Update */
-// 		$user -> setOrgUnitPath($orgUnitPath);
-// 		$this -> gds -> users -> update($userEmail, $user);
-// 		return true;
+		/* Get user */
+		$userEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
+		$orgUnitPath = $this -> orgUnitPath(false, $a -> AccountOwner -> ou_id);
+		try {
+			$user = $this -> gds -> users -> get($userEmail);
+			$user -> setOrgUnitPath($orgUnitPath);
+			$this -> gds -> users -> update($userEmail, $user);
+		} catch(Exception $e) {
+			throw new Exception("Couldn't enable account: " . $e -> getMessage());
+		}
+		return true;
 	}
 
 	/**
@@ -503,9 +500,9 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o The organizational unit to create
 	 */
 	public function ouCreate(Ou_model $o) {
-		$orgUnitPath = ltrim($this -> orgUnitPath($o -> ou_id), "/");
-		$parentOrgUnitPath = "/" . ltrim($this -> orgUnitPath($o -> ou_parent_id), "/");
+		$parentOrgUnitPath = $this -> orgUnitPath(false, $o -> ou_parent_id);
 		try {
+			$orgUnitPath = $this -> orgUnitPath(false, $o -> ou_id, false);
 			$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
 			throw new Exception("OrgUnit already exists at $orgUnitPath");
 		} catch(Exception $e) {
@@ -530,9 +527,10 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o		The parent unit.
 	 */
 	public function ouDelete($ou_name, ListDomain_model $d, Ou_model $o) {
-		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_id);
-		$orgUnitPath = ltrim($parentOrgUnitPath . "/" . urlencode($ou_name), "/");
+		/* Look up the orgUnit to verify that it exists */
+		$orgUnitPath = $this -> orgUnitPath($ou_name, $o -> ou_id, false);
 		$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
+		
 		/* Delete the orgUnit */
 		$this -> gds -> orgunits -> delete($this -> customerId, $orgUnitPath);
  		return true;
@@ -545,14 +543,13 @@ class gapps_service extends account_service {
 	 */
 	public function ouMove(Ou_model $o, Ou_model $old_parent) {
 		/* Get unit */
-		$oldParentOrgUnitPath = $this -> orgUnitPath($old_parent -> ou_id);
-		$orgUnitPath = ltrim($oldParentOrgUnitPath . "/" . urlencode($o -> ou_name), "/");
-		$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
+		$oldOrgUnitPath = $this -> orgUnitPath($o -> ou_name, $old_parent -> ou_id, false);
+		$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $oldOrgUnitPath);
 		
-		/* Change parent */
-		$parentOrgUnitPath = "/" . ltrim($this -> orgUnitPath($o -> ou_parent_id), "/");
+		/* Change parent and update */
+		$parentOrgUnitPath = $this -> orgUnitPath(false, $o -> ou_parent_id);
 		$orgUnit -> setParentOrgUnitPath($parentOrgUnitPath);
-		$this -> gds -> orgunits -> update($this -> customerId, $orgUnitPath, $orgUnit);
+		$this -> gds -> orgunits -> update($this -> customerId, $oldOrgUnitPath, $orgUnit);
  		return true;
 	}
 
@@ -564,8 +561,7 @@ class gapps_service extends account_service {
 	 */
 	public function ouRename(Ou_model $o, $ou_old_name) {
 		/* Get unit */
-		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_parent_id);
-		$orgUnitPath = ltrim($parentOrgUnitPath . "/" . urlencode($ou_old_name), "/");
+		$orgUnitPath = $this -> orgUnitPath($ou_old_name, $o -> ou_parent_id, false);
 		$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
 		
 		/* Change name */
@@ -745,16 +741,22 @@ class gapps_service extends account_service {
 	 * @throws Exception
 	 * @return string path/to/orgUnit, or "/" for the root.
 	 */
-	private function orgUnitPath($ou_id) {
- 		$ou = Ou_model::get($ou_id);
-		if(!$ou) {
-			throw new Exception("Organizational unit not found");
- 		}
-
- 		if($ou -> ou_name == "root") {
- 			return "/";
- 		}
-		return ltrim($this -> orgUnitPath($ou -> ou_parent_id) . "/" . urlencode($ou -> ou_name), "/");
+	private function orgUnitPath($ou_name = false, $ou_parent_id, $leading_slash = true) {
+		$ou = Ou_model::get($ou_parent_id);
+		$name = array();
+		if($ou_name) {
+			array_unshift($name, $ou_name);
+		}
+		
+		while($ou && $ou -> ou_name != "root") {
+			array_unshift($name, $ou -> ou_name);
+			$ou = Ou_model::get($ou -> ou_parent_id);
+		}
+		
+		if(count($name) == 0) {
+			return "/";
+		}
+		return ($leading_slash? "/" : "") . implode("/", $name);
 	}
 	
 	/**
