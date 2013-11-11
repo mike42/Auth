@@ -111,7 +111,7 @@ class Ou_api {
 
 		if(count($ou -> list_UserGroup) > 0) {
 			if(count($ou -> list_UserGroup) == 1) {
-				throw new Exception("This unit contains " . $ou -> list_UserGroup[0] -> group_name . " , you need to delete or move that user first!");
+				throw new Exception("This unit contains " . $ou -> list_UserGroup[0] -> group_name . ", you need to delete or move that user first!");
 			} else {
 				throw new Exception("This unit contains " . count($ou -> list_UserGroup) ." user groups, you need to delete or move them first!");
 			}

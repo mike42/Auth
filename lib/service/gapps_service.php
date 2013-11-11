@@ -563,16 +563,16 @@ class gapps_service extends account_service {
 	 * @param Ou_model $name
 	 */
 	public function ouRename(Ou_model $o, $ou_old_name) {
-		throw new Exception("Unimplemented");
-// 		/* Get unit (at old name) */
-// 		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_parent_id);
-// 		$orgUnitPath = ltrim($parentOrgUnitPath . "/" . urlencode($ou_old_name), "/");
-// 		$ou = $this -> prov -> retrieveOrganizationUnit($orgUnitPath);
+		/* Get unit */
+		$parentOrgUnitPath = $this -> orgUnitPath($o -> ou_parent_id);
+		$orgUnitPath = ltrim($parentOrgUnitPath . "/" . urlencode($ou_old_name), "/");
+		$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
 		
-// 		/* Change name */
-// 		$ou -> setname($o -> ou_name);
-// 		$this -> prov -> updateOrganizationUnit($ou);
-// 		return true;
+		/* Change name */
+		$orgUnit -> setName($o -> ou_name);
+		$this -> gds -> orgunits -> update($this -> customerId, $orgUnitPath, $orgUnit);
+		
+		return true;
 	}
 	
 	/**
