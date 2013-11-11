@@ -244,9 +244,10 @@ class gapps_service extends account_service {
 	 */
 	public function recursiveSearch(Ou_model $o) {
 		throw new Exception("Unimplemented");
-// 		if($o -> ou_name == 'root') {
-// 			/* Handle groups */
-// 			$groups = $this -> prov -> retrieveAllGroupsInDomain();
+ 		if($o -> ou_name == 'root') {
+ 			/* Handle groups */
+ 			$groups = $this -> gds -> groups -> listGroups();
+// 			print_r($groups);
 // 			foreach($groups as $group) {
 // 				$groupEmail = $group -> getgroupId();
 // 				$pe = new Provisioning_Email($groupEmail);
@@ -303,7 +304,7 @@ class gapps_service extends account_service {
 // 					}
 // 				}
 // 			}
-// 		}
+ 		}
 
 // 		/* Handle users */
 // 		$orgUnitPath = $this -> orgUnitPath($o -> ou_id);
@@ -379,7 +380,7 @@ class gapps_service extends account_service {
  		$group = new Google_Group();
  		$group -> setId($groupId);
  		$group -> setEmail($groupId);
- 		$group -> setName($g -> group_cn);
+ 		$group -> setName($g -> group_name);
  		$this -> gds -> groups -> insert($group);
  		return true;
 	}
@@ -393,7 +394,7 @@ class gapps_service extends account_service {
 	 */
 	public function groupDelete($group_cn, ListDomain_model $d, Ou_model $o) {
 		$groupId = $this -> makeEmail($group_cn, $d);
-		$this -> gds -> groups -> get($groupId);
+		$group = $this -> gds -> groups -> get($groupId);
 		$this -> gds -> groups -> delete($groupId);
 		return true;
 	}
@@ -405,12 +406,13 @@ class gapps_service extends account_service {
 	 * @param Group_model $g The group to add it to
 	 */
 	public function groupJoin(Account_model $a, UserGroup_model $g) {
+		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
  		$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
- 		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
  		
- 		// TODO
- 		throw new Exception("Unimplemented");
-// 		$this -> prov -> addMemberToGroup($memberEmail, $groupEmail);
+ 		/* Create new member and insert */
+ 		$member = new Google_Member();
+ 		$member -> setEmail($memberEmail);
+ 		$this -> gds -> members -> insert($groupEmail, $member);
  		return true;
 	}
 
@@ -421,12 +423,12 @@ class gapps_service extends account_service {
 	 * @param Group_model $g	The group to remove it from
 	 */
 	public function groupLeave(Account_model $a, UserGroup_model $g) {
+		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
  		$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
- 		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
  		
- 		// TODO
- 		throw new Exception("Unimplemented");		
-// 		$this -> prov -> removeMemberFromGroup($memberEmail, $groupEmail);
+ 		/* Check the membership and then delete it */
+ 		$member = $this -> gds -> members -> get($groupEmail, $memberEmail);
+ 		$this -> gds -> members -> delete($groupEmail, $memberEmail);
  		return true;
 	}
 
@@ -437,13 +439,14 @@ class gapps_service extends account_service {
 	 * @param Group_model $child	The group to add
 	 */
 	public function groupAddChild(UserGroup_model $parent, UserGroup_model $child) {
- 		$childEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
- 		$parentEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
+		$groupEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
+ 		$memberEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
  		
- 		// TODO
-		throw new Exception("Unimplemented"); 		
-// 		$this -> prov -> addMemberToGroup($childEmail, $parentEmail);
- 		return true;		
+ 		/* Create new member and insert */
+ 		$member = new Google_Member();
+ 		$member -> setEmail($memberEmail);
+ 		$this -> gds -> members -> insert($groupEmail, $member);
+ 		return true;	
 	}
 
 	/**
@@ -453,12 +456,12 @@ class gapps_service extends account_service {
 	 * @param Group_model $child The group to remove
 	 */
 	public function groupDelChild(UserGroup_model $parent, UserGroup_model $child) {
- 		$childEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
- 		$parentEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
- 		
- 		// TODO
-		throw new Exception("Unimplemented");
-// 		$this -> prov -> removeMemberFromGroup($childEmail, $parentEmail);
+		$groupEmail = $this -> makeEmail($parent -> group_cn, $parent -> ListDomain);
+ 		$memberEmail = $this -> makeEmail($child -> group_cn, $child -> ListDomain);
+
+ 		/* Check the membership and then delete it */
+ 		$member = $this -> gds -> members -> get($groupEmail, $memberEmail);
+ 		$this -> gds -> members -> delete($groupEmail, $memberEmail);
  		return true;
 	}
 
@@ -481,47 +484,14 @@ class gapps_service extends account_service {
 	 * @param unknown_type $ug_old_cn	The old 'common name' of the group
 	 */
 	public function groupRename(UserGroup_model $g, $ug_old_cn) {
-		// TODO
-		throw new Exception("Unimplemented");
-// 		if($g -> group_cn != $ug_old_cn) {
-// 			/* This is mad, but the API leaves no other options */
-// 			try {
-// 				outp("\tCreating replacement group..");
-// 				$this -> groupCreate($g);
-				
-// 				outp("\tMoving sub-groups..");
-// 				$subgroup = UserGroup_api::list_children($g -> group_id);
-// 				foreach($subgroup as $child) {
-// 					outp("\t\t " . $child -> group_cn . "..");
-// 					$this -> groupAddChild($g, $child);
-// 				}
-// 				$ougs = SubUserGroup_model::list_by_group_id($g -> group_id);
-// 				foreach($oug as $oug) {
-// 					if($account = get_by_service_owner_unique($this -> service -> service_id, $oug -> owner_id)) {
-// 						$this -> groupJoin($account, $g);
-// 					}
-// 				}
-// 				$this -> groupDelete($ug_old_cn, $g -> ListDomain, $g -> Ou);
-// 			} catch(Exception $e) {
-// 				outp("\tProblems encountered. Import may be needed!");
-// 			}
-// 		}
+		$oldGroupEmail = $this -> makeEmail($ug_old_cn, $g -> ListDomain);
+		$groupEmail = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
+		$group = $this -> gds -> groups -> get($oldGroupEmail);
 		
-// 		/* Change display name */
-// 		$groupId = $this -> makeEmail($g -> group_cn, $g -> ListDomain);
-// 		try {
-// 			$group = $this -> prov -> retrieveGroup($groupId);
-// 		} catch(Exception $e) {
-// 			throw new Exception("Failed to retrieve group: " . $e -> getMessage());
-// 		}
-		
-// 		if($g -> group_name != $group -> getgroupName()) {
-// 			outp("\tChanging group name..");
-// 			$group -> setgroupName($g -> group_name);
-// 			$this -> prov -> updateGroup($group);
-// 		}
-		
-// 		return true;
+		$group -> setName($g -> group_name);
+		$group -> setEmail($groupEmail);
+		$this -> gds -> groups -> update($oldGroupEmail, $group);
+		return true;
 	}
 
 	/**
@@ -608,7 +578,7 @@ class gapps_service extends account_service {
 	 */
 	public function syncOu(Ou_model $o) {
 		throw new Exception("Unimplemented");
-// 		$usergroups = UserGroup_model::list_by_ou_id($o -> ou_id);
+ 		$usergroups = UserGroup_model::list_by_ou_id($o -> ou_id);
 // 		foreach($usergroups as $ug) {
 // 			outp("\tGroup: " . $ug -> group_cn);
 				
