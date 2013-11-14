@@ -1,3 +1,4 @@
 site/*
 .settings/*
 .buildpath
+*.bak
