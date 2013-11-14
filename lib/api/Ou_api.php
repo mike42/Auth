@@ -48,6 +48,10 @@ class Ou_api {
 		$ou_name = Auth::normaliseName($ou_name);
 		$ou_parent_id = (int)$ou_parent_id;
 		
+		if($ou_name == "") {
+			throw new Exception("Organization unit name cannot be empty");
+		}
+		
 		/* Check name */
 		if($ou = Ou_model::get_by_ou_name($ou_name)) {
 			throw new Exception("An organizational unit with that name already exists");
@@ -107,7 +111,7 @@ class Ou_api {
 
 		if(count($ou -> list_UserGroup) > 0) {
 			if(count($ou -> list_UserGroup) == 1) {
-				throw new Exception("This unit contains " . $ou -> list_UserGroup[0] -> group_name . " , you need to delete or move that user first!");
+				throw new Exception("This unit contains " . $ou -> list_UserGroup[0] -> group_name . ", you need to delete or move that user first!");
 			} else {
 				throw new Exception("This unit contains " . count($ou -> list_UserGroup) ." user groups, you need to delete or move them first!");
 			}

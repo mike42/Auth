@@ -139,7 +139,7 @@ class AccountMerge_util extends util {
 			if($prepare) {
 				/* Move into the same OU, remove all groups */
 				$model = array_shift($found);
-				print_r($model);
+				
 				foreach($found as $ao) {
 					if($ao -> ou_id != $model -> ou_id) {
 						AccountOwner_api::move($ao -> owner_id, $model -> ou_id);

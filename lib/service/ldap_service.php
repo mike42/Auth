@@ -367,7 +367,12 @@ class ldap_service extends account_service {
 
 				if($group && isset($object['member'])) {
 					foreach($object['member'] as $memberDn) {
-						if($memberObject = $this -> objectFromDn($memberDn)) {
+						try {
+							$memberObject = $this -> objectFromDn($memberDn);
+						} catch(Exception $e) {
+							$memberObject = false;
+						}
+						if($memberObject) {
 							if(!isset($memberObject['objectClass'])) {
 								outp("\t\tNo objectClass: $memberDn", 1);
 							} else if(in_array($this -> userObjectClass, $memberObject['objectClass'])) {

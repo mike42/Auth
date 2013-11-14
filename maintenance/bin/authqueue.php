@@ -251,7 +251,7 @@ function process(ActionQueue_model $aq) {
 			return $services[$aq -> service_id] -> ouCreate($o);
 		case 'ouDelete':
 			if(!$parent = Ou_model::get_by_ou_name($aq -> aq_arg1)) {
-				throw new Exception("acctRelocate: Parent unit not found");
+				throw new Exception("ouDelete: Parent unit not found");
 			}
 			return $services[$aq -> service_id] -> ouDelete($aq -> aq_target, $aq -> ListDomain, $parent);
 		case 'ouMove':
