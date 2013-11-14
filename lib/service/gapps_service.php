@@ -87,7 +87,7 @@ class gapps_service extends account_service {
 		if(!$okay) {
 			throw new Exception("Account already exists");
 		}
-			
+
 		/* Make user */
 		try {
 			$user = new Google_User();
@@ -264,7 +264,7 @@ class gapps_service extends account_service {
 				}
 			}
 			if(!is_array($groups)) {
-				$group = array();
+				$groups = array();
 			}
 
 			foreach($groups as $group) {
@@ -309,9 +309,8 @@ class gapps_service extends account_service {
 										outp("\t\t Re-adding nickname ($account_login) without nickname ($userEmail). Run again to add to group later.");
 										$m = new Google_Member();
 										$m -> setEmail($userEmail);
-										// TODO: Check this
-										//$this -> gds -> members -> delete($groupEmail, $memberEmail);
-										//$this -> gds -> members -> insert($groupEmail, $m);
+										$this -> gds -> members -> delete($groupEmail, $memberEmail);
+										$this -> gds -> members -> insert($groupEmail, $m);
 									} else {
 										$unknown[$account_login] = true;
 										outp("\t\t User unknown ($account_login), skipping. Run again to add to group after the user is found.");
@@ -388,8 +387,7 @@ class gapps_service extends account_service {
 			} else if ($account -> AccountOwner -> ou_id != $o -> ou_id) {
 				outp("\tNotice: Moving account to where it should be.");
 				try {
-					// TODO Test this
-					//$this -> accountRelocate($account, $o);
+					$this -> accountRelocate($account, $o);
 				} catch(Exception $e) {
 					outp("\tWarning: failed to move $account_login: " . $e -> getMessage());
 				}
@@ -423,7 +421,7 @@ class gapps_service extends account_service {
 			ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'recSearch', $ou -> ou_name);
 		}
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -570,14 +568,18 @@ class gapps_service extends account_service {
 	 */
 	public function ouCreate(Ou_model $o) {
 		$parentOrgUnitPath = $this -> orgUnitPath(false, $o -> ou_parent_id);
+		$okay = false;
 		try {
 			$orgUnitPath = $this -> orgUnitPath(false, $o -> ou_id, false);
 			$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
-			throw new Exception("OrgUnit already exists at $orgUnitPath");
 		} catch(Exception $e) {
 			// Does not exist yet (this is good)
+			$okay = true;
 		}
-
+		if(!$okay) {
+			throw new Exception("OrgUnit already exists at $orgUnitPath");
+		}
+		
 		/* Set up */
 		$orgUnit = new Google_OrgUnit();
 		$orgUnit -> setName($o -> ou_name);
@@ -646,7 +648,6 @@ class gapps_service extends account_service {
 	 * @param Ou_model $o
 	 */
 	public function syncOu(Ou_model $o) {
-		throw new Exception("Unimplemented");
 		$usergroups = UserGroup_model::list_by_ou_id($o -> ou_id);
 		foreach($usergroups as $ug) {
 			outp("\tGroup: " . $ug -> group_cn);
@@ -720,8 +721,7 @@ class gapps_service extends account_service {
 									$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 									$m = new Google_Member();
 									$m -> setEmail($memberEmail);
-									// TODO: Check this
-									//$this -> gds -> members -> insert($groupEmail, $m);
+									$this -> gds -> members -> insert($groupEmail, $m);
 									outp("\t\tAdded user: " . $a -> account_login . " " . $a -> account_domain);
 								} catch(Exception $e) {
 									outp("\t\tError adding user " . $a -> account_login . ": " . $e -> getMessage());
@@ -749,8 +749,7 @@ class gapps_service extends account_service {
 							$memberEmail = $this -> makeEmail($sug -> group_cn, $sug -> ListDomain);
 							$m = new Google_Member();
 							$m -> setEmail($memberEmail);
-							// TODO: Check this
-							//$this -> gds -> members -> insert($groupEmail, $m);
+							$this -> gds -> members -> insert($groupEmail, $m);
 							outp("\t\tAdded sub-group: " . $sug -> group_cn);
 						} catch(Exception $e) {
 							outp("\t\tError adding sub-group " . $sug -> group_cn . ": " . $e -> getMessage());
@@ -763,8 +762,7 @@ class gapps_service extends account_service {
 								$memberEmail = $this -> makeEmail($a -> account_login, $a -> ListDomain);
 								$m = new Google_Member();
 								$m -> setEmail($memberEmail);
-								// TODO: Check this
-								//$this -> gds -> members -> insert($groupEmail, $m);
+								$this -> gds -> members -> insert($groupEmail, $m);
 								outp("\t\tAdded user: " . $a -> account_login . " " . $a -> account_domain);
 							} catch(Exception $e) {
 								outp("\t\tError adding user " . $a -> account_login . ": " . $e -> getMessage());
@@ -788,7 +786,6 @@ class gapps_service extends account_service {
 					$name = $user -> getName();
 					if($name -> getGivenName() != $ao -> owner_firstname || $name -> getFamilyName() != $ao -> owner_surname) {
 						outp("\t\tUser firstname or surname mis-match ( '" . $name -> getGivenName() . ", " . $name -> getFamilyName() . "' should be '" . $ao -> owner_surname . ", " . $ao -> owner_firstname . "'). Pushing through an update.");
-						// TODO test this
 						$this -> accountUpdate($a, $a -> account_login);
 					}
 	
@@ -796,14 +793,13 @@ class gapps_service extends account_service {
 					if($user -> getOrgUnitPath() != $orgUnitPath) {
 						/* Incorrect org Unit */
 						outp("\t\tFixing orgUnit mis-match: Should be " . $orgUnitPath . " (not " . $orgUser -> getorgUnitPath() . ")");
-						// TODO Test this
-						//$user -> setOrgUnitPath($orgUnitPath);
-						//$this -> gds -> users -> update($userEmail, $user);
+						$user -> setOrgUnitPath($orgUnitPath);
+						$this -> gds -> users -> update($userEmail, $user);
 					}
 				} catch(Exception $e) {
-					outp("\t\tAccount has gone missing. Deleting from local database.");
-					// TODO Test this
-					//$a -> delete();
+					/* Note: This block previously deleted the account locally. This is not good, as errors will be thrown for rate
+					 * limiting which would untrack many accounts. */
+					outp("\t\tWarning: Could not load the account: ".$e -> getMessage());
 				}
 			}
 		}
@@ -812,12 +808,11 @@ class gapps_service extends account_service {
 		foreach($organizationalunits as $ou) {
 			outp("\tUnit: " . $ou -> ou_name);
 			try {
-				$orgUnitPath = $this -> orgUnitPath(false, $ou -> ou_id);
+				$orgUnitPath = $this -> orgUnitPath(false, $ou -> ou_id, false);
 				try {
 					$orgUnit = $this -> gds -> orgunits -> get($this -> customerId, $orgUnitPath);
 				} catch(Exception $e) {
-					// TODO: Test this
-					//$this -> ouCreate($ou);
+					$this -> ouCreate($ou);
 					outp("\t\tCreated just now");
 				}
 				ActionQueue_api::submit($this -> service -> service_id, $this -> service -> service_domain, 'syncOu', $ou -> ou_name);
