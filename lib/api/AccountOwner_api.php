@@ -138,7 +138,7 @@ class AccountOwner_api {
 		
 		if($print) {
 			Auth::loadClass("ReceiptPrinter");
-			ReceiptPrinter::resetReceipt($owner, $password);
+			ReceiptPrinter::pwresetReceipt($owner, $password);
 		}
 		
 		return $owner;

@@ -62,7 +62,7 @@
 								"			placeholder=\"Password\" /> <input type=\"password\" id=\"password2\"" .
 								"			name=\"password2\" placeholder=\"Confirm Password\" />" .
 								"	</div>" .
-								"</div>" .
+								"</div>" . // TODO: Add check-box
 								"<div class=\"form-actions\">" .
 								"	<a class=\"btn\" href=\"".$userURL."\">Back to User</a>" .
 								"	<button type=\"submit\" class=\"btn\">Reset</button>" .
