@@ -23,5 +23,11 @@ $config = array(
 			'domain' => "dc=example,dc=com",
  			'service_id' => 'ldap1',
 			'admin' => array('admin')
+		),
+	'ReceiptPrinter' => array( // Receipt printer, or 0.0.0.0 for no printer
+			'ip' => '0.0.0.0',
+			'port' => '9100',
+			'header' => 'Example',
+			'footer' => 'Terms and conditions'
 		)
 );

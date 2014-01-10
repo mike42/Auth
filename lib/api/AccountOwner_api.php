@@ -120,7 +120,7 @@ class AccountOwner_api {
 	 * @throws Exception
 	 * @return unknown
 	 */
-	public static function pwreset($owner_id, $password) {
+	public static function pwreset($owner_id, $password, $print = false) {
 		$owner = self::get($owner_id);
 		$password = trim($password);
 
@@ -134,6 +134,11 @@ class AccountOwner_api {
 		/* Submit for updating */
 		foreach($owner -> list_Account as $account) {
 			ActionQueue_api::submit($account -> service_id, $account -> account_domain, 'acctPasswd', $account -> account_login, $password);
+		}
+		
+		if($print) {
+			Auth::loadClass("ReceiptPrinter");
+			ReceiptPrinter::resetReceipt($owner, $password);
 		}
 		
 		return $owner;

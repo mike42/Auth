@@ -137,7 +137,7 @@ class AccountOwner_controller {
 					$password = $_POST['password1'];
 					$data['message'] = "Password set";
 				}
-				AccountOwner_api::pwreset($owner_id, $password);
+				AccountOwner_api::pwreset($owner_id, $password, true);
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();
 			}

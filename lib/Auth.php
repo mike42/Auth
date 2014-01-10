@@ -45,7 +45,7 @@ class Auth {
 		if(!file_exists($fn)) {
 			throw new Exception("The class '$className' could not be found at $fn.");
 		}
-	
+		
 		require_once($fn);
 		if(is_callable($className . "::init")) {
 			call_user_func($className . "::init");
