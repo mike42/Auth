@@ -31,7 +31,7 @@ class ReceiptPrinter {
 		/* User info */
 		$barcode = "";
 		$seen = array();
-		$printer -> text("User Account:\n  ".$owner['owner_firstname'] . " " . $owner['owner_surname'] . "\n\n");
+		$printer -> text("User Account:\n  " . $owner -> owner_firstname . " " . $owner -> owner_surname . "\n\n");
 		$printer -> text("Login name(s):\n");
 		foreach($owner -> list_Account as $acct) {
 			if(!isset($seen[$acct -> account_login])) {
