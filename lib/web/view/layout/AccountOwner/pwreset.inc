@@ -34,9 +34,9 @@
 			<?php 
 			if(isset($data['message'])) {
 				if(isset($data['set'])) {
-					echo "<div class=\"alert alert-success\">"
+					echo "<div class=\"alert alert-success\">";
 				} else {
-					echo "<div class=\"alert\">"
+					echo "<div class=\"alert\">";
 				}
 				echo web::escapeHTML($data['message']) . "</div>";
 			}?>

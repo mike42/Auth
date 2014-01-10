@@ -48,7 +48,7 @@ class ReceiptPrinter {
 		
 		/* Footer */
 		$printer -> text(self::$conf['footer']  . "\n");
-		$printer -> feed(2);
+		$printer -> feed();
 		
 		/* Barcode */
 		if($barcode != "") {
@@ -56,7 +56,7 @@ class ReceiptPrinter {
 			$printer -> barcode($barcode, escpos::BARCODE_CODE39);
 			$printer -> feed();
 			$printer -> text($barcode);
-			$printer -> feed(2);
+			$printer -> feed(1);
 			$printer -> set_justification(escpos::JUSTIFY_LEFT);
 		}
 		$printer -> cut();
