@@ -21,12 +21,12 @@ class ReceiptPrinter {
 		$printer = new escpos($fp);
 		$printer -> set_justification(escpos::JUSTIFY_CENTER);
 		$printer -> set_emphasis(true);
-		$printer -> text(self::$conf['header']);
-		$printer -> feed(2);
+		$printer -> text(self::$conf['header'] . "\n");
 		$printer -> set_emphasis(false);
-		$printer -> text("User Account Information");
+		$printer -> feed();
+		$printer -> text("User Account Information\n");
 		$printer -> feed(2);
-		$printer -> set_justification(escpos::JUSTIFY_CENTER);
+		$printer -> set_justification(escpos::JUSTIFY_LEFT);
 		
 		/* User info */
 		$barcode = "";
@@ -56,6 +56,7 @@ class ReceiptPrinter {
 			$printer -> barcode($barcode, escpos::BARCODE_CODE39);
 			$printer -> feed();
 			$printer -> text($barcode);
+			$printer -> feed();
 		}
 		$printer -> cut();
 		
