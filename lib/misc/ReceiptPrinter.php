@@ -49,6 +49,7 @@ class ReceiptPrinter {
 		$printer -> select_print_mode(escpos::MODE_FONT_B);
 		$printer -> text(self::$conf['footer']);
 		$printer -> select_print_mode(escpos::MODE_FONT_A);
+		$printer -> feed(2);
 		
 		/* Barcode */
 		if($barcode != "") {
