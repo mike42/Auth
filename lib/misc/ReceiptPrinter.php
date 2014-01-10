@@ -44,19 +44,20 @@ class ReceiptPrinter {
 		}
 		$printer -> feed();
 		$printer -> text("Password:\n  $password\n");
+		$printer -> feed(2);
 		
 		/* Footer */
-		$printer -> select_print_mode(escpos::MODE_FONT_B);
-		$printer -> text(self::$conf['footer']);
-		$printer -> select_print_mode(escpos::MODE_FONT_A);
+		$printer -> text(self::$conf['footer']  . "\n");
 		$printer -> feed(2);
 		
 		/* Barcode */
 		if($barcode != "") {
+			$printer -> set_justification(escpos::JUSTIFY_CENTER);
 			$printer -> barcode($barcode, escpos::BARCODE_CODE39);
 			$printer -> feed();
 			$printer -> text($barcode);
-			$printer -> feed();
+			$printer -> feed(2);
+			$printer -> set_justification(escpos::JUSTIFY_LEFT);
 		}
 		$printer -> cut();
 		

@@ -138,6 +138,7 @@ class AccountOwner_controller {
 					$data['message'] = "Password set";
 				}
 				AccountOwner_api::pwreset($owner_id, $password, isset($_POST['print_receipt']));
+				$data['set'] = true;
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();
 			}

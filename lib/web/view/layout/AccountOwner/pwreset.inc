@@ -33,16 +33,21 @@
 
 			<?php 
 			if(isset($data['message'])) {
-				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+				if(isset($data['set'])) {
+					echo "<div class=\"alert alert-success\">"
+				} else {
+					echo "<div class=\"alert\">"
+				}
+				echo web::escapeHTML($data['message']) . "</div>";
 			}?>
 
 			<div class="well">
-				<form id="pwreset" method="post">
-					<fieldset>
-						<legend>Reset Password</legend>
-						<?php
-						$userURL = Web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), "html");
-						
+			<?php
+				$userURL = Web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), "html");
+				if(!isset($data['set'])) {
+						echo "<form id=\"pwreset\" method=\"post\">" .
+							"<fieldset>" .
+							"<legend>Reset Password</legend>";
 						/* Figure out which box to tick */
 						$isAuto = !isset($_POST['source']) || (isset($_POST['source']) && $_POST['source'] == 'auto');
 						$auto = $isAuto ? " checked" : "";
@@ -68,9 +73,15 @@
 								"	<button type=\"submit\" class=\"btn\">Reset</button>" .
 								"	<div class=\"control-group\"><input type=\"checkbox\" checked=\"yes\" name=\"print_receipt\"/> Print account details</div>" .
 								"</div>";
-						?>
-					</fieldset>
-				</form>
+						
+						echo "</fieldset>" .
+							"</form>";
+				} else {
+					echo "<div class=\"form-actions\">" .
+						"	<a class=\"btn\" href=\"".$userURL."\">Back to User</a>" .
+						"</div>";
+				}
+				?>
 			</div>
 		</div>
 	</div>
