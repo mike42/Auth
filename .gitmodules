@@ -1,3 +1,6 @@
 [submodule "lib/vendor/google-api-php-client"]
 	path = lib/vendor/google-api-php-client
 	url = https://github.com/mike42/google-api-php-client.git
+[submodule "lib/vendor/escpos-php"]
+	path = lib/vendor/escpos-php
+	url = https://github.com/mike42/escpos-php
