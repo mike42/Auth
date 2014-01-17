@@ -48,13 +48,18 @@ This utility only resets the passwords of the direct members of the defined grou
 				<h4>Group:</h4>
 				<?php echo "<form onsubmit=\"return confirm('Do you really want to reset all these passwords?');\" onkeypress=\"return event.keyCode != 13;\" method=\"post\" action=\"".web::constructURL("Utility", "Groupr", array(''), 'html')."\"/>"?>
 				
-				<div class="input-append"><input type="hidden" name="group_cn" id="group_cn" />
+				<div class="input-append">
+					<input type="hidden" name="group_cn" id="group_cn" />
 					<input type="text" style="width: 14.7em;" name="gname" id="gname" class="span2" />
-				<input type="submit" class="btn" value="Reset" />
+					<input type="submit" class="btn" value="Reset" />
+				</div>
+				<div class="input-group">
+					<label class="checkbox inline">
+						<input type="checkbox" name="print"/> Print account details
+					</label>
 				</div>
 				<?php echo "</form>"; ?>
 			</div>
-			
 			
 				<?php if(isset($data['passwrd'])) {
 				echo "<div class=\"well\">";

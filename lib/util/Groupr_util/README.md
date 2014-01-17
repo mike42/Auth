@@ -10,10 +10,15 @@ Installation
 
 To enable the utility add an entry to the Util list in config.php:
 
-    'Grour' => 'GroupReset'
+        'Util' =>
+            array(
+                // List of other utilities ...
+                'Groupr' => 'GroupReset'
+            )
 
 And finally, add all of the configuration options that the utility will be using:
 
-    'Groupr' => 
-        array(  'service_id' => 'ldap')
+        'Groupr' => 
+            array(  'service_id' => 'ldap')
+
 This ensures that only users who have accounts on this service can have their passwords reset using this utility.
