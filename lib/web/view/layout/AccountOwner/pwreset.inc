@@ -71,7 +71,7 @@
 								"<div class=\"form-actions\">" .
 								"	<a class=\"btn\" href=\"".$userURL."\">Back to User</a>" .
 								"	<button type=\"submit\" class=\"btn\">Reset</button>" .
-								"	<div class=\"control-group\"><input type=\"checkbox\" checked=\"yes\" name=\"print_receipt\"/> Print account details</div>" .
+								"	<div class=\"control-group\"><label class=\"checkbox inline\"><input type=\"checkbox\" checked=\"yes\" name=\"print_receipt\"/> Print account details</label></div>" .
 								"</div>";
 						
 						echo "</fieldset>" .
