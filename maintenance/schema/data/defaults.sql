@@ -36,7 +36,7 @@ INSERT INTO `ListDomain` (`domain_id`, `domain_name`, `domain_enabled`) VALUES
 --
 
 INSERT INTO `ListServiceType` (`service_type`) VALUES
-('ldap', 'gapps', 'ad');
+('ldap'), ('gapps'), ('ad');
 
 --
 -- Data for table `Ou`
@@ -58,3 +58,5 @@ INSERT INTO `Service` (`service_id`, `service_name`, `service_enabled`, `service
 
 INSERT INTO `ListServiceDomain` (`service_id`, `domain_id`, `sd_root`, `sd_secondary`) VALUES
 ('ldap1', 'default', '', 0);
+
+INSERT INTO `auth_main`.`ListServiceDomain` (`service_id`, `domain_id`, `sd_root`, `sd_secondary`) VALUES ('ldap1', 'default', '', '0');

@@ -29,9 +29,9 @@ Installation
 ------------
 The installation steps here cover installing Auth as a standalone LDAP front-end.
 
-Install dependencies, writing down all the information which you will be prompted for.
+Install dependencies:
 
-        apt-get install git apache2 slapd mysql-server phpmyadmin php5-ldap php5-cli php5-curl libapache2-mod-php5
+        apt-get install git apache2 slapd mysql-server phpmyadmin php5-ldap php5-cli php5-curl libapache2-mod-php5 openssl ldap-utils
 
 Clone the repo into /usr/share/auth:
 
@@ -80,26 +80,32 @@ Under site/, create a file called bg.jpg, with some company artwork, and config.
 
         /* All other options */
         $config = array(
-	        'Database' =>
-		        array(
-			        'name' => 'auth_main',
-			        'host' => 'localhost',
-			        'user' => 'auth',
-			        'password' => '...password here...'
-		        ),
-	        'Util' =>
-		        array(
-			        'Cleanup'     => 'Directory Cleanup Tools'
-		        ),
-	        'pidfile' => '/var/run/lock/meta-auth.pid',
-	        'logfile' => '/var/log/meta-auth.log',
-	        'login' =>
-		        array(
-			        'url' => 'ldap://localhost',
-			        'domain' => "dc=example,dc=com",
-         			'service_id' => 'ldap1',
-			        'admin' => array('admin')
+            'Database' =>
+                array(
+                    'name' => 'auth_main',
+                        'host' => 'localhost',
+                        'user' => 'auth',
+                        'password' => '...password here...'
+                ),
+                'Util' =>
+                    array(
+                        'Cleanup'     => 'Directory Cleanup Tools'
+                    ),
+                'pidfile' => '/var/run/lock/meta-auth.pid',
+                'logfile' => '/var/log/meta-auth.log',
+                'login' =>
+                    array(
+                        'url' => 'ldap://localhost',
+                            'domain' => "dc=example,dc=com",
+                            'service_id' => 'ldap1',
+                            'admin' => array('admin')
 		        )
+		'ReceiptPrinter' => array( // Receipt printer, or 0.0.0.0 for no printer
+				'ip' => '0.0.0.0',
+				'port' => '9100',
+				'header' => 'Example',
+				'footer' => 'Terms and conditions'
+			)
         );
 
 Note: Debian 6 Uses /var/lock, not /var/run/lock.
@@ -117,9 +123,24 @@ To test the authqueue, run this, and pay close attention to any errors you see:
         cd /usr/share/auth/maintenance/bin
         ./authqueue.php -x -v
 
+Apache/PHP/MySQL setup on Debian
+--------------------------------
+The next steps are
+- Set up a SSL virtual host
+- Change MySQL timezone settings.
+
+Auth must run over SSL, for obvious security reasons. On an internal network, you can simply follow [these instructions](https://wiki.debian.org/Self-Signed_Certificate) to set up a Self-Signed Certificate.
+
+To use the .htaccess file above, you need to set "AllowOverride All" in apache2.conf, and then enable mod_rewrite:
+        a2enmod rewrite
+        service apache2 reload
+
+Make MySQL timezone-aware with the [mysql_tzinfo_to_sql](http://dev.mysql.com/doc/refman/5.5/en/mysql-tzinfo-to-sql.html) tool.
+        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p
+
 Caveats
 -------
-Auth does not know your schema, so by default it uses very basic data structures for groups and users. If you want to take advantage of extra LDAP features, then you should modify ldap_service.php to suit your organization.
+Auth does not know your LDAP schema, so by default it uses very basic data structures for groups and users. If you want to take advantage of extra LDAP features, then you should modify ldap_service.php to suit your organization.
 
 Auth will attempt to bring different services "into line" with eachother in terms of group membership and account locations. This process will be annoying, and you should screen-capture your group membership so that you can fix it.
 
