@@ -45,10 +45,15 @@ Next, enable the utility by adding an entry to the Util list in config.php:
 
         'SimonTeacherYL' => 'Automatic mail groups'
 
-And finally, add the login username and password to a new section in config.php:
+And finally, add the login username and password, plus some domain info to a new section in config.php:
 
         'SimonTeacherYL' => 
         array(
                 'user' => 'authusername',
                 'pass' => 'verysecretpassword',
+                'domain_staff' => 'default',
+                'domain_student' => 'student',
+                'group_ou_name' => 'root',
+                'service_id' => 'ldap1',
+                'domain' => array('default' => 'example.com', 'student' => 'student.example.com')
             )

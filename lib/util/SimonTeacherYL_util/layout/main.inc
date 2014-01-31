@@ -14,7 +14,6 @@
 	}
 
 </script>
-
 <div class="container">
 	<div class="row">
 		<div class="span4">
@@ -22,12 +21,12 @@
 				<p>
 					<b>What does this do?</b>
 				</p>
-				<p>This utility logs on to Simon and checks teacher timetables. All of the teachers are then put into year-level user groups. Their email address must be correct on SIMON for this to work.</p>
+				<p>This utility logs on to SIMON and checks timetables. All teachers and students are then sorted into email groups. Their email address must be correct on SIMON for this to work.</p>
 			</div>
 		</div>
 		<div class="span8">
 			<div class="alert alert-info">
-				<h3>SimonTeacherYL Utility</h3>
+				<h3>Automatic mail groups</h3>
 			</div>
 			<?php 
 			if(isset($data['message'])) {
@@ -64,8 +63,15 @@
 						<td>
 							<select name="semester">
 								<option>(please select)</option>
-								<option value=1>Semester 1</option>
-								<option value=2>Semester 2</option>
+								<?php 
+								foreach($data['semester'] as $semester) {
+									$selected = "";
+									if(isset($_POST['semester']) && (int)$_POST['semester'] == $semester['FileSeq']) {
+										$selected  = " selected";
+									}
+									echo "<option value=\"" . (int)$semester['FileSeq'] . "\"$selected>" . web::escapeHTML($semester['FileYear'] . ", Semeser " . $semester['FileSemester']) . "</option>";
+								}
+								?>
 							</select>
 						</td>
 					</tr>
@@ -75,37 +81,13 @@
 					</tr>
 					<tr>
 						<th>Run</th>
-						<td><a class="btn" href="#" onClick="updateNow();">Update</a></td>
+						<td><a class="btn" href="#" onClick="updateNow();">Update</a><label><input type="checkbox" checked name="limit" /> 100 changes only</label></td>
 					</tr>				
 				</table>
 				<?php echo "</form>"; ?>
 			</div>
 			
-			<div class="well">
-				<h3>Notification</h3>
-				<?php  echo "<form id=\"notifySelect\" method=\"post\" action=\"".web::constructURL("Utility", "SimonTeacherYL", array(''), 'html')."\">" .
-				"<input type=\"hidden\" name=\"action\" value=\"notifySelect\" />"; ?>
-				<p>This will send emails to people to tell them their timetable and email groups.</p>
-				
-				<table>
-					<tr>
-						<th>Semester:</th>
-						<td>
-							<select name="semester">
-								<option>(please select)</option>
-								<option value=1>Semester 1</option>
-								<option value=2>Semester 2</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="2">
-							<a class="btn" href="#" onClick="notifySelect();">Select users to notify</a>
-						</td>
-					</tr>
-				</table>
-				<?php echo "</form>"; ?>
-			</div>
+			
 		</div>
 	</div>
 </div>

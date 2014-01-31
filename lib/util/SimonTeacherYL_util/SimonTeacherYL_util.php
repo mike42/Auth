@@ -1,8 +1,41 @@
 <?php
 require_once(dirname(__FILE__) . "/../util.php");
+require_once(dirname(__FILE__) . "/../../misc/Provisioning_Email.php");
 
 class SimonTeacherYL_util extends util {
+	/**
+	 * Most recent 4 semesters
+	 */
+	const QUERY_SEMESTER = "SELECT TOP 4 FileSeq, FileYear, FileSemester From FileSemesters ORDER BY FileYear DESC, FileSemester DESC;";
+	
+	/**
+	 * Student email addresses for each class
+	 */
+	const QUERY_STUCLASS = "SELECT Community.UID,EmailAddress, ClassCode FROM StudentClasses
+			JOIN Community ON Community.UID = StudentClasses.UID
+			WHERE FileSeq= %d;";
+	
+	/**
+	 * All classes, and which subject they are under
+	 */
+	const QUERY_SUBCLASS = "SELECT SubjectCode, ClassCode FROM SubjectClasses
+			WHERE FileSeq = %d
+			ORDER BY SubjectCode, ClassCode;";
+	
+	/**
+	 * Teacher subjects with year levels
+	 */
+	const QUERY_TEACHSUB = "SELECT Community.UID, Community.EmailAddress, Subjects.SubjectCode, SubjectClassStaff.ClassCode, Subjects.SubjectDescription, Subjects.NormalYearLevel
+			FROM SubjectClassStaff
+			JOIN Community ON Community.UID = SubjectClassStaff.UID
+			JOIN SubjectClasses ON SubjectClasses.ClassCode = SubjectClassStaff.ClassCode AND SubjectClasses.FileSeq = SubjectClassStaff.FileSeq
+			JOIN FileSemesters ON SubjectClassStaff.FileSeq = FileSemesters.FileSeq
+			JOIN Subjects ON Subjects.SubjectCode = SubjectClasses.SubjectCode AND Subjects.FileYear = FileSemesters.FileYear
+			WHERE SubjectClassStaff.FileSeq = %d
+			ORDER BY cast(Subjects.NormalYearLevel as int), Subjects.SubjectCode, SubjectClassStaff.ClassCode;";
+	
 	private static $config;
+	private static $dbh;
 	
 	/**
 	 * Initialise utility
@@ -11,271 +44,300 @@ class SimonTeacherYL_util extends util {
 		self::$util_name = "SimonTeacherYL";
 		self::verifyEnabled();
 		self::$config = Auth::getConfig(self::$util_name);
-		
+		try {
+			self::$dbh = new PDO('odbc:simon', self::$config['user'], self::$config['pass']);
+			self::$dbh -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		} catch(Exception $e) {
+			throw new Exception("Database connection to SIMON failed. Please check your settings.");
+		}
+
 		Auth::loadClass("AccountOwner_api");
 		Auth::loadClass("Account_model");
 		Auth::loadClass("UserGroup_model");
 	}
-
+	
 	/**
 	 * Load data for web interface
 	 */
 	public static function admin() {
 		$data = array("current" => "Utility", "util" => self::$util_name, "template" => "main");
-		try{
-			if(isset($_POST['action'])) {
-				/* Allow semester 1 or 2 to be selected */
-				if(!isset($_POST['semester'])) {
-					throw new Exception("Please select a semester from the dropdown box");
+		$data['semester'] = self::getSemesters();
+		try {
+			if(isset($_POST['action']) && isset($_POST['semester'])) {
+				$semester = (int)$_POST['semester'];
+				$limit = isset($_POST['limit']) ? 100 : -1;
+				if(!isset($data['semester'][$semester])) {
+					throw new Exception("Please select a semester from the drop-down list");
 				}
-				$data['semester'] = (int)$_POST['semester'];
-				if($data['semester'] < 1 || $data['semester'] > 2) {
-					throw new Exception("Please select a semester from the dropdown box");
-				}
-				/* Choose action */
 				switch($_POST['action']) {
-					case "check":
-						$data['run'] = self::update(false, $data['semester']);
+					case 'check':
+						self::update(false, $semester);
 						break;
-					case "update":
-						$data['run'] = self::update(true, $data['semester']);
-						break;
-					case "notifySelect":
-						$data['notify'] = self::notify($data['semester']);
-						$data['template'] = "notify-select";
-						break;
-					case "notify":
-						$address = array();
-						foreach($_POST as $addr => $on) {
-							if(!(strpos($addr, "@") === false)) {
-								$address[$addr] = true;
-							}
-						}
-
-						$data['notify'] = self::notify($data['semester'], $address);
+					case 'update':
+						self::update(true, $semester, $limit);
 						break;
 				}
+	
 			}
+			
 		} catch(Exception $e) {
 			$data['message'] = $e -> getMessage();
 		}
 		return $data;
 	}
 
+	public static function getSemesters() {
+		$sth = self::$dbh -> prepare(self::QUERY_SEMESTER);
+		$sth -> execute();
+		$s = $sth -> fetchAll(PDO::FETCH_ASSOC);
+		$ret = array();
+		foreach($s as $t) {
+			$ret[$t['FileSeq']] = $t;
+		}
+		return $ret;
+	}
+
 	public static function doMaintenance() {
 		throw new Exception("No tasks to be done. Please use the web interface.");
 	}
-	
-	private static function update($apply = false, $semester = 1) {
-		/* Put users in correct groups, or do a test run where $apply = false */
-		$data = self::loadTeacherYL($semester);
+
+	private static function update($apply = false, $fileseq, $limit = 100) {
+		/* Get config */
+		if(!$ou = Ou_model::get_by_ou_name(self::$config['group_ou_name'])) {
+			throw new Exception("OU '".self::$config['group_ou_name']."' not found!");
+		}
+		if(!$domain_staff = ListDomain_model::get(self::$config['domain_staff'])) {
+			throw new Exception("Staff domain not found. Check config.");
+		}
+		if(!$domain_student = ListDomain_model::get(self::$config['domain_student'])) {
+			throw new Exception("Student domain not found. Check config.");
+		}
+		if(!$service = Service_model::get(self::$config['service_id'])) {
+			throw new Exception("Email service not found. Check config.");
+		}
 		
-		$groupcheck = array('pass' => array(), 'fail' => array());
-		$groupmembers = array();
+		/* Teachers to groups */
+		$sth = self::$dbh -> prepare(sprintf(self::QUERY_TEACHSUB, (int)$fileseq));
+		$sth -> execute();
+		$ts = $sth -> fetchAll(PDO::FETCH_ASSOC);
+		$group = array();
+		$member = array();
+		$sub = array();
+		foreach($ts as $t) {
+			/* Year level */
+			$yl = $t['NormalYearLevel'];
+			if(is_numeric($yl) && $yl != "") {
+				$group_cn = "year".$yl."teachers";
+				if(!isset($member[$group_cn]) && !($ug = UserGroup_model::get_by_group_cn($group_cn))) {
+					$ug = new UserGroup_model();
+					$ug -> group_cn = $group_cn;
+					$ug -> group_name = "Year $yl Teachers";
+					$ug -> group_domain = $domain_staff -> domain_id;
+					$group[] = $ug;
+				}
+				$member[$group_cn][$t['EmailAddress']] = true;
+			}
+			
+			$subj = $t['SubjectCode'];
+			$class =  $t['ClassCode'];
+
+			/* Subject teachers */
+			$group_cn = "teachers".$subj;
+			if(!isset($member[$group_cn]) && !($ug = UserGroup_model::get_by_group_cn($group_cn))) {
+				$ug = new UserGroup_model();
+				$ug -> group_cn = $group_cn;
+				$ug -> group_name = "Teachers $subj: " . $t['SubjectDescription'];
+				$ug -> group_domain = $domain_staff -> domain_id;
+				$group[] = $ug;
+			}
+			$member[$group_cn][$t['EmailAddress']] = true;
+			
+			/* Subject group */
+			$group_cn = "subject".$subj;
+			if(!isset($member[$group_cn]) && !($ug = UserGroup_model::get_by_group_cn($group_cn))) {
+				$ug = new UserGroup_model();
+				$ug -> group_cn = $group_cn;
+				$ug -> group_name = "Subject $subj: ".$t['SubjectDescription'];
+				$ug -> group_domain = $domain_student -> domain_id;
+				$group[] = $ug;
+			}
+			$member[$group_cn] = array();
+			$sub[$group_cn]["teachers".$subj] = true;
+
+			/* Class group */
+			$group_cn = "class".$class;
+			if(!isset($member[$group_cn]) && !($ug = UserGroup_model::get_by_group_cn($group_cn))) {
+				$ug = new UserGroup_model();
+				$ug -> group_cn = $group_cn;
+				$ug -> group_name = "Class $class: ".$t['SubjectDescription'];
+				$ug -> group_domain = $domain_student -> domain_id;
+				$group[] = $ug;
+			}
+			$member[$group_cn][$t['EmailAddress']] = true;
+		}
+
+		/* Students in classes */
+		$sth = self::$dbh -> prepare(sprintf(self::QUERY_STUCLASS, (int)$fileseq));
+		$sth -> execute();
+		$sc = $sth -> fetchAll(PDO::FETCH_ASSOC);
+		foreach($sc as $s) {
+			$class =  $s['ClassCode'];
+			$group_cn = "class".$class;
+			if(isset($member[$group_cn])) {
+				$member[$group_cn][$s['EmailAddress']] = true;
+			}
+		}
+
+		/* Classes under subject */
+		$sth = self::$dbh -> prepare(sprintf(self::QUERY_SUBCLASS, (int)$fileseq));
+		$sth -> execute();
+		$sg = $sth -> fetchAll(PDO::FETCH_ASSOC);
+		foreach($sg as $s) {
+			$class =  $s['ClassCode'];
+			$subj = $s['SubjectCode'];
+			$class_cn = "class".$class;
+			$subj_cn = "subject".$subj;
+			
+			if(isset($member[$subj_cn])) {
+				$sub[$subj_cn][$class_cn] = true;
+			}
+		}
 		
-		foreach($data['yl'] as $level => $list) {
-			/* Verify that all of the year-level groups exist */
-			$group_cn = mkgrpname($level);
-			if(!isset($groupcheck['pass'][$group_cn]) && !isset($groupcheck['fail'][$group_cn])) {
-				if($ug = UserGroup_model::get_by_group_cn($group_cn)) {
-					$groupcheck['pass'][$group_cn] = $ug -> group_id;
-					$ug -> populate_list_OwnerUserGroup();
-					$groupmembers[$group_cn] = array();
-					foreach($ug -> list_OwnerUserGroup as $oug) {
-						$groupmembers[$group_cn][$oug -> owner_id] = true;
+		/* Create groups */
+		$count = 0;
+		if(count($group) != 0) {
+			if(!$apply) {
+				throw new Exception("Need to create ".count($group) . " groups.");
+			} else {
+				foreach($group as $g) {
+					UserGroup_api::create($g -> group_cn, $g -> group_name, $ou -> ou_id, $g -> group_domain);
+					$count++;
+					if($count >= $limit && $limit != -1) {
+						throw new Exception("Stopped after $limit operations. Click Update to continue");
 					}
-				} else {
-					$groupcheck['fail'][$group_cn] = true;
+				}
+				throw new Exception("All groups created");
+			}
+		}
+		
+		$count_add  = 0;
+		$count_rm = 0;
+		$notfound = array();
+		$todo = array();
+		/* Compute new things to add */
+		foreach($member as $group_cn => $memberList) {
+			if($ug = UserGroup_model::get_by_group_cn($group_cn)) {
+				$ug -> populate_list_OwnerUserGroup();
+				$add = array();
+				$rm = array();
+				foreach($ug -> list_OwnerUserGroup as $oug) {
+					$rm[$oug -> owner_id] = true;
+				}
+				foreach($memberList as $m => $true) {
+					$me = new Provisioning_Email($m);
+					$account_login = $me -> local;
+					$account_domain = self::getDomainId($me -> domain);
+					if($account = Account_model::get_by_account_login($account_login, $service -> service_id, $account_domain)) {
+						if(isset($rm[$account -> owner_id])) {
+							unset($rm[$account -> owner_id]);
+						} else {
+							$add[$account -> owner_id] = true;
+						}
+					} else {
+						$notFound[$m] = true;
+					}
+				}
+				$todo[$ug -> group_id] = array("add" => $add, "rm" => $rm);
+				$count_add += count($add);
+				$count_rm += count($rm);
+			} else {
+				throw new Exception("Group '".  $group_cn . "' not found, but should exist!");
+			}
+		}
+		
+		if(!$apply) {
+			throw new Exception("$count_add members to add, $count_rm members to remove, ".count($notFound) . " unrecognised.");
+		} else {
+			foreach($todo as $group_id => $item) {
+				foreach($item['add'] as $owner_id => $true) {
+					// TODO add users to group
+					
+					$count++;
+					if($count >= $limit && $limit != -1) {
+						throw new Exception("Stopped after $limit operations. Click Update to continue");
+					}
+				}
+				
+				foreach($item['rm'] as $owner_id => $true) {
+					// TODO remove users from group
+						
+					$count++;
+					if($count >= $limit && $limit != -1) {
+						throw new Exception("Stopped after $limit operations. Click Update to continue");
+					}
 				}
 			}
 			
-			if(isset($groupcheck['pass'][$group_cn])) { // Only interested in extant groups
-				$group_id = $groupcheck['pass'][$group_cn];
-				/* Compare lists */
-				foreach($list as $account_login => $details) {
-					if(isset($data['unamecheck']['pass'][$account_login])) { // Only bother with verified logins
-						$owner_id = $data['unamecheck']['pass'][$account_login];
-						if(isset($groupmembers[$group_cn][$owner_id])) {
-							unset($groupmembers[$group_cn][$owner_id]); // User already in group
+			
+		}
+		
+		/* Sub-groups */
+		$count_add  = 0;
+		$count_rm = 0;
+		foreach($sub as $group_cn => $memberList) {
+			if($ug = UserGroup_model::get_by_group_cn($group_cn)) {
+				$children = UserGroup_api::list_children($ug -> group_id);
+				$add = array();
+				$rm = array();
+				
+				foreach($children as $sug) {
+					$rm[$sug -> group_id] = true;
+				}
+				
+				foreach($memberList as $sug_cn => $true) {
+					if($sug = UserGroup_model::get_by_group_cn($sug_cn)) {
+						if(isset($rm[$sug -> group_id])) {
+							unset($rm[$sug -> group_id]);
 						} else {
-							// Need to add $owner_id to group_id
-							if($apply) {
-								try {
-									AccountOwner_api::addtogroup($owner_id, $group_id);
-								} catch(Exception $e) {
-									// Ignore. You only get here if the user is already in a sub-group, which is not a problem
-								}
-							}
+							$add[$sug -> group_id] = true;
 						}
 					}
 				}
-				
-				foreach($groupmembers[$group_cn] as $owner_id => $true) {
-					// Need to remove from group
-					if($apply) {
-						try {
-							AccountOwner_api::rmfromgroup($owner_id, $group_id);
-						} catch(Exception $e) {
-							// Ignore. User probably removed from group while the script was running?
-						}
-					}
-				}
-			}
-		}
-
-		ksort($data['yl']); // So that these come out in numeric order
-		$data['groupcheck'] = $groupcheck;
-		return $data;
-	}
-	
-	private static function loadTeacherYL($semester) {
-		$service = Service_model::get(self::$config['check']);
-		
-		/* Query for loading data from external database */
-		$query = "SELECT \n" .
-				"SubjectClasses.ClassCode, Subjects.Semester1Code, Subjects.Semester2Code, \n" .
-				"Subjects.SubjectCode, Subjects.SubjectDescription, Subjects.NormalYearLevel, \n" .
-				"Community.Preferred, Community.Surname, Community.EmailAddress \n" .
-				"FROM dbo.SubjectClassStaff \n" .
-				"JOIN dbo.SubjectClasses ON SubjectClassStaff.ClassCode = SubjectClasses.ClassCode \n" .
-				"JOIN CISNet3.dbo.Subjects ON Subjects.SubjectCode = SubjectClasses.SubjectCode \n" .
-				"JOIN CISNet3.dbo.Community ON community.UID = SubjectClassStaff.UID \n" .
-				"ORDER BY SubjectClasses.ClassCode, Subjects.SubjectDescription; \n" .
-				"\go -f \n" .
-				"quit \n" .
-				"EOF;";
-		
-		/* Run command and get ouput */
-		$command = sprintf("sqsh " .
-				"-S %s \\\n" .
-				"-U %s \\\n" .
-				"-D %s \\\n" .
-				"-P %s \\\n" .
-				"-mbcp << EOF \n" .
-				"%s\n" .
-				"EOF", escapeshellarg(self::$config['host']), escapeshellarg(self::$config['user']), escapeshellarg(self::$config['name']), escapeshellarg(self::$config['pass']), $query);
-		$lines = array();
-		$people = array();
-		$yl = array();
-		$ylMember = array();
-				
-		exec($command, $lines, $ret);
-		if($ret != 0) {
-			throw new Exception("Command failed. Verify that everything is configured correctly: sqsh returned $ret.");
-		}
-		
-		/* Calculate some key details */
-		$unamecheck = array('pass' => array(), 'fail' => array()); // Verifying that user accounts actually exist
-		
-		foreach($lines as $line) {
-			$part = explode("|", $line);
-		
-			$member = new YLGroupMember();
-			$member -> ClassCode = trim($part[0]);
-			$member -> Semester1Code = trim($part[1]);
-			$member -> Semester2Code = trim($part[2]);
-			$member -> SubjectCode = trim($part[3]);
-			$member -> SubjectDescription = trim($part[4]);
-			$member -> NormalYearLevel = trim($part[5]);
-			if(is_numeric($member -> NormalYearLevel) && (int)$member -> NormalYearLevel >= self::$config['yl_min'] && $member -> NormalYearLevel <= self::$config['yl_max']) {
-				$member -> NormalYearLevel = (int)$member -> NormalYearLevel;
-			} else {
-				$member -> NormalYearLevel = false;
-			}
-			$member -> Preferred = trim($part[6]);
-			$member -> Surname  = trim($part[7]);
-			$member -> EmailAddress = $part[8];
-			$member -> EmailAlias = strpos($part[8], '@') === false? $part[8] : substr($part[8], 0, strpos($part[8], '@')); // Ignore email domain (service-independent, may not be checking with a service that does an email backend)
-			$account_login = $member -> EmailAlias;
-			if(!isset($unamecheck['pass'][$account_login]) && !isset($unamecheck['fail'][$account_login])) {
-				/* Lookup user in DB */
-				$service_id = $service -> service_id;
-				$account_domain = self::$config['domain'];
-				if($account = Account_model::get_by_account_login($account_login, $service_id, $account_domain)) {
-					$unamecheck['pass'][$account_login] = $account -> owner_id;
-				} else {
-					$unamecheck['fail'][$account_login] = true;
-				}
-			}
-			$member -> Semester = $member -> calcSemester();
-		
-			if($member -> Semester == $semester && !isset($unamecheck['fail'][$account_login])) { // Only use valid usernames within the correct semester
-				if(!isset($people[$member -> EmailAddress])) {
-					$people[$member -> EmailAddress] = array();
-				}
-				$people[$member -> EmailAddress][] = $member;
-		
-				if($member -> NormalYearLevel) {
-					if(!isset($yl[$member -> NormalYearLevel])) {
-						$yl[$member -> NormalYearLevel] = array();
-					}
-					if(!isset($yl[$member -> NormalYearLevel][$member -> EmailAlias])) {
-						$yl[$member -> NormalYearLevel][$member -> EmailAlias] = array();
-					}
-					$yl[$member -> NormalYearLevel][$member -> EmailAlias][] = $member;
-					$ylMember[$member -> EmailAlias][$member -> NormalYearLevel] = true;
-				}
+				$todo[$ug -> group_id] = array("add" => $add, "rm" => $rm);
+				$count_add += count($add);
+				$count_rm += count($rm);
 			}
 		}
 		
-		return array('yl' => $yl, 'ylMember' => $ylMember, 'unamecheck' => $unamecheck, 'people' => $people);
-	}
-
-	private static function notify($semester = 1, $send = array()) {
-		/* Put users in correct groups, or do a test run where $apply = false */
-		$data = self::loadTeacherYL($semester);
-		
-		$fn = dirname(__FILE__) . "/../../../site/SimonTeacherYL-notify.inc";
-		if(!file_exists($fn)) {
-			throw new Exception("Template file $fn needs to be created");
-		}
-		
-		$ylMember = $data['ylMember'];
-		foreach($data['people'] as $email => $person) {
-			if(isset($send[str_replace(".", "_", $email)])) {
-				$message = "";
-				include($fn); // Include file as template
-				self::sendNotifyEmail($email, "Your semester $semester email groups", $message);
-			}
-		}
-		return $data;
-	}
-	
-	private static function sendNotifyEmail($address, $subject, $message) {
-		$to = $address;
-		$from = self::$config['from'];
-		$headers = "From: $from\r\nContent-Type: text/html; charset=UTF-8";
-		mail($to, $subject, $message, $headers);
-	}
-}
-
-function mkgrpname($yl) {
-	/* Return group_cn for the given year level */
-	return "year".$yl."teachers";
-}
-
-class YLGroupMember {
-	public $ClassCode;
-	public $Semester1Code;
-	public $Semester2Code;
-	public $SubjectCode;
-	public $SubjectDescription;
-	public $NormalYearLevel;
-	public $Preferred;
-	public $Surname;
-	public $EmailAddress;
-	public $EmailAlias;
-	public $Semester;
-
-	public function calcSemester() {
-		/* Figure out which semester this class is in, and return it (0 for unknown) */
-
-		if(substr($this -> ClassCode, 0, strlen($this -> Semester1Code)) == $this -> Semester1Code) {
-			return 1;
-		} else if(substr($this -> ClassCode, 0, strlen($this -> Semester2Code)) == $this -> Semester2Code) {
-			return 2;
+		if(!$apply) {
+			throw new Exception("$count_add sub-groups to add, $count_rm sub-groups to remove.");
 		} else {
-			return 0;
+			foreach($todo as $group_id => $item) {
+				foreach($item['add'] as $subgroup_id => $true) {
+					// TODO add subgroups
+					
+					$count++;
+					if($count >= $limit && $limit != -1) {
+						throw new Exception("Stopped after $limit operations. Click Update to continue");
+					}
+				}
+				
+				foreach($item['rm'] as $subgroup_id => $true) {
+					// TODO remove subgroups
+						
+					$count++;
+					if($count >= $limit && $limit != -1) {
+						throw new Exception("Stopped after $limit operations. Click Update to continue");
+					}
+				}
+			}
+			throw new Exception("Everything is done!");
 		}
+		
+		throw new Exception("Nothing to do!");
+	}
+	
+	private static function getDomainId($domain) {
+		return array_search($domain, self::$config['domain']);
 	}
 }
