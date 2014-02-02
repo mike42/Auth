@@ -256,7 +256,12 @@ class SimonTeacherYL_util extends util {
 		}
 		
 		if(!$apply) {
-			throw new Exception("$count_add members to add, $count_rm members to remove, ".count($notFound) . " unrecognised.");
+			// List unrecognised accounts
+			$nf = array();
+			foreach($notFound as $name => $true) {
+				$nf[] = $name;
+			}
+			throw new Exception("$count_add members to add, $count_rm members to remove, ".count($notFound) . " unrecognised:\n".implode(", ", $nf));
 		} else {
 			foreach($todo as $group_id => $item) {
 				foreach($item['add'] as $owner_id => $true) {
