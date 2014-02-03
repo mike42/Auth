@@ -265,7 +265,7 @@ class SimonTeacherYL_util extends util {
 		} else {
 			foreach($todo as $group_id => $item) {
 				foreach($item['add'] as $owner_id => $true) { 
-					UserGroup_api::addtogroup($owner_id, $group_id);
+					AccountOwner_api::addtogroup($owner_id, $group_id);
 					
 					$count++;
 					if($count >= $limit && $limit != -1) {

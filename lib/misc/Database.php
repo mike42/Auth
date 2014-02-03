@@ -35,7 +35,7 @@ class Database {
 		return mysql_real_escape_string($str);
 	}
 	
-	public function insert_id() {
+	public static function insert_id() {
 		return mysql_insert_id();
 	}
 	
@@ -63,7 +63,7 @@ class Database {
 		return true;
 	}
 	
-	private function doQuery($query, array $arg) {
+	private static function doQuery($query, array $arg) {
 		/* Query wrapper to be sure everything is escaped. All SQL must go through here! */
 		foreach($arg as $key => $val) {
 			$arg[$key] = database::retrieve_arg($val);
