@@ -264,8 +264,8 @@ class SimonTeacherYL_util extends util {
 			throw new Exception("$count_add members to add, $count_rm members to remove, ".count($notFound) . " unrecognised:\n".implode(", ", $nf));
 		} else {
 			foreach($todo as $group_id => $item) {
-				foreach($item['add'] as $owner_id => $true) {
-					// TODO add users to group
+				foreach($item['add'] as $owner_id => $true) { 
+					UserGroup_api::addtogroup($owner_id, $group_id);
 					
 					$count++;
 					if($count >= $limit && $limit != -1) {
@@ -274,7 +274,7 @@ class SimonTeacherYL_util extends util {
 				}
 				
 				foreach($item['rm'] as $owner_id => $true) {
-					// TODO remove users from group
+					AccountOwner_api::rmfromgroup($owner_id, $group_id);
 						
 					$count++;
 					if($count >= $limit && $limit != -1) {
@@ -319,7 +319,7 @@ class SimonTeacherYL_util extends util {
 		} else {
 			foreach($todo as $group_id => $item) {
 				foreach($item['add'] as $subgroup_id => $true) {
-					// TODO add subgroups
+					UserGroup_api::addchild($group_id, $subgroup_id);
 					
 					$count++;
 					if($count >= $limit && $limit != -1) {
@@ -328,7 +328,7 @@ class SimonTeacherYL_util extends util {
 				}
 				
 				foreach($item['rm'] as $subgroup_id => $true) {
-					// TODO remove subgroups
+					UserGroup_api::delchild($group_id, $subgroup_id);
 						
 					$count++;
 					if($count >= $limit && $limit != -1) {
