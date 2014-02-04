@@ -1,16 +1,17 @@
 <script>
 	function updateNow() {
-		$("#action").val('update');		
+		$("#action").val('update');
 		$("#frmUpdate").submit();
 	}
 
 	function check() {
-		$("#action").val('check');		
+		$("#action").val('check');
 		$("#frmUpdate").submit();
 	}
 	
-	function notifySelect() {
-		$("#notifySelect").submit();
+	function summary() {
+		$("#action").val('summary');
+		$("#frmUpdate").submit();
 	}
 
 </script>
@@ -50,6 +51,27 @@
 				}
 				echo "</ul></div>";
 			}
+			
+			if(isset($data['summary'])) {
+				echo "<div class=\"panel\">" .
+					"<h4>Summary of groups</h4>";
+				echo "<ul>";
+				foreach($data['summary'] as $group) {
+					$email = $group -> group_cn . "@" . SimonTeacherYL_util::getHostname($group -> group_domain);
+					echo "<li>" . web::escapeHTML($group -> group_name) . " (<a href=\"mailto:$email\">" . $email . "</a>)";
+					if(count($group -> children) != 0) {
+						echo "<ul>";
+						foreach($group -> children as $subgroup) {
+							$email = $subgroup -> group_cn . "@" . SimonTeacherYL_util::getHostname($subgroup -> group_domain);
+							echo "<li>" . web::escapeHTML($subgroup -> group_name) . " (<a href=\"mailto:$email\">" . $email . "</a>)";
+						}
+						echo "</ul>";
+					}
+					echo "</li>";
+				}
+				echo "</ul>";
+				echo "</div>";
+			}
 			?>
 			<div class="well">
 				<h3>Update groups</h3>
@@ -76,13 +98,17 @@
 						</td>
 					</tr>
 					<tr>
-						<th>Get info</th>
-						<td><a class="btn" href="#" onClick="check();">Test</a></td>
+						<th>Detect changes</th>
+						<td><a class="btn btn-primary" href="#" onClick="check();">Test</a></td>
 					</tr>
 					<tr>
-						<th>Run</th>
-						<td><a class="btn" href="#" onClick="updateNow();">Update</a><label><input type="checkbox" checked name="limit" /> 100 changes only</label></td>
-					</tr>				
+						<th>Apply changes</th>
+						<td><a class="btn btn-warning" href="#" onClick="updateNow();">Update</a><label><input type="checkbox" checked name="limit" /> 100 changes only</label></td>
+					</tr>		
+					<tr>
+						<th>Get info</th>
+						<td><a class="btn btn-info" href="#" onClick="summary();">Summary</a></td>
+					</tr>	
 				</table>
 				<?php echo "</form>"; ?>
 			</div>
