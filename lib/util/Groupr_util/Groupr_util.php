@@ -13,6 +13,7 @@ class Groupr_util extends util {
 	public static function init() {
 		self::$util_name = "Groupr";
 		self::verifyEnabled();
+		self::$config = Auth::getConfig(self::$util_name);
 		Auth::loadClass("AccountOwner_api");
 	}
 	
