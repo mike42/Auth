@@ -2,15 +2,15 @@
 	  ?>
 
 <style type="text/css">
-#txtarea {
-display:block;
-width:25%;
-padding:0.5%;
-margin:0;
-border:1px solid #fbeed5;
-background-color:#fcf8e3;
-overflow:auto;
-}
+	#txtarea {
+		display:block;
+		width:100%;
+		padding:0.5%;
+		margin:0;
+		border:1px solid #fbeed5;
+		background-color:#fcf8e3;
+		overflow:auto;
+	}
 </style>
 
 <div class="container">
@@ -39,7 +39,7 @@ This utility only resets the passwords of the direct members of the defined grou
 			</div>
 			<?php
 			if(isset($data['message'])) {
-				echo "<div class=\"alert\">".web::escapeHTML($data['message']). ' has been reset.' . "</div>";
+				echo "<div class=\"alert\">".web::escapeHTML($data['message'])."</div>";
 			}
 			?>
 			<div class="well">
@@ -63,7 +63,7 @@ This utility only resets the passwords of the direct members of the defined grou
 			
 				<?php if(isset($data['passwrd'])) {
 				echo "<div class=\"well\">";
-				echo "<textarea id=\"txtarea\" cols=\"1\" rows=\"15\" >";
+				echo "<textarea id=\"txtarea\" cols=\"80\" rows=\"25\" >";
 					foreach($data['passwrd'] as $account_login => $password){
  						
    						echo web::escapeHTML("$account_login, $password\n");

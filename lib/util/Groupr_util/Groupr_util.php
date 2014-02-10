@@ -25,10 +25,19 @@ class Groupr_util extends util {
 		
 		if(isset($_POST['group_cn']) && isset($_POST['gname'])) {
 			Auth::loadClass("PasswordGen");
-			$data['message'] = $_POST['group_cn'];
-			$group_cn = ($_POST['group_cn'] == '') ? $_POST['gname'] : $_POST['group_cn'];
-			$group = usergroup_model::get_by_group_cn($group_cn);
+			$group_cn = trim($_POST['group_cn']);
+			if($group_cn == "") {
+				$group_cn = trim($_POST['gname']);
+			}
+			if(!$group = UserGroup_model::get_by_group_cn($group_cn)) {
+				$data['message'] = "Group $group_cn does not exist!";
+				return $data;
+			}
 			$group -> populate_list_OwnerUserGroup();
+			if(count($group -> list_OwnerUserGroup) == 0) {
+				$data['message'] = "Group $group_cn has no direct members.";
+			}
+			
 			$print = isset($_POST['print']);
 			foreach($group -> list_OwnerUserGroup as $oug) {
 				$preset = passwordGen::Generate();
@@ -39,6 +48,7 @@ class Groupr_util extends util {
 				}
 					
 			}
+			$data['message'] = count($group -> list_OwnerUserGroup) . " users in $group_cn have been reset.";
 			$data['passwrd'] = $passwrd;
 		}
 		
