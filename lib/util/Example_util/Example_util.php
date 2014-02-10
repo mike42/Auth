@@ -14,7 +14,7 @@ class Example_util extends util {
 	public static function init() {
 		self::$util_name = "Example";
 		self::verifyEnabled();
-		self::$config = Auth::getConfig(self::$util_name);
+		//self::$config = Auth::getConfig(self::$util_name);
 	
 		// Use Auth::loadClass to load dependencies
 	}
