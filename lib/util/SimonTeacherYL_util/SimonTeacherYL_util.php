@@ -76,6 +76,9 @@ class SimonTeacherYL_util extends util {
 					case 'update':
 						self::update(true, $semester, $limit);
 						break;
+					case 'summary':
+						$data['summary'] = self::update(false, $semester, $limit, true);
+						break;
 				}
 	
 			}
@@ -101,7 +104,7 @@ class SimonTeacherYL_util extends util {
 		throw new Exception("No tasks to be done. Please use the web interface.");
 	}
 
-	private static function update($apply = false, $fileseq, $limit = 100) {
+	private static function update($apply = false, $fileseq, $limit = 100, $summary = false) {
 		/* Get config */
 		if(!$ou = Ou_model::get_by_ou_name(self::$config['group_ou_name'])) {
 			throw new Exception("OU '".self::$config['group_ou_name']."' not found!");
@@ -203,6 +206,24 @@ class SimonTeacherYL_util extends util {
 			}
 		}
 		
+		if($summary) {
+			$ret = array();
+			$levels = array("7", "8", "9", "10", "11", "12");
+			foreach($levels as $yl) {
+				$group_cn = "year".$yl."teachers";
+				$ug = UserGroup_model::get_by_group_cn($group_cn);
+				$ug -> children = array();
+				$ret[] = $ug;
+			}
+			foreach($sub as $group_cn => $class) {
+				$ug = UserGroup_model::get_by_group_cn($group_cn);
+				$ug -> children = UserGroup_api::list_children($ug -> group_id);
+				$ret[] = $ug;
+			}
+		
+			return $ret;
+		}
+		
 		/* Create groups */
 		$count = 0;
 		if(count($group) != 0) {
@@ -255,14 +276,14 @@ class SimonTeacherYL_util extends util {
 			}
 		}
 		
-		if(!$apply) {
+		if(($count_add > 0 || $count_rm > 0) && !$apply) {
 			// List unrecognised accounts
 			$nf = array();
 			foreach($notFound as $name => $true) {
 				$nf[] = $name;
 			}
 			throw new Exception("$count_add members to add, $count_rm members to remove, ".count($notFound) . " unrecognised:\n".implode(", ", $nf));
-		} else {
+		} else if($apply) {
 			foreach($todo as $group_id => $item) {
 				foreach($item['add'] as $owner_id => $true) { 
 					AccountOwner_api::addtogroup($owner_id, $group_id);
@@ -289,6 +310,7 @@ class SimonTeacherYL_util extends util {
 		/* Sub-groups */
 		$count_add  = 0;
 		$count_rm = 0;
+		$todo = array();
 		foreach($sub as $group_cn => $memberList) {
 			if($ug = UserGroup_model::get_by_group_cn($group_cn)) {
 				$children = UserGroup_api::list_children($ug -> group_id);
@@ -314,9 +336,9 @@ class SimonTeacherYL_util extends util {
 			}
 		}
 		
-		if(!$apply) {
+		if(($count_add > 0 || $count_rm > 0) && !$apply) {
 			throw new Exception("$count_add sub-groups to add, $count_rm sub-groups to remove.");
-		} else {
+		} else if($apply) {
 			foreach($todo as $group_id => $item) {
 				foreach($item['add'] as $subgroup_id => $true) {
 					UserGroup_api::addchild($group_id, $subgroup_id);
@@ -344,5 +366,9 @@ class SimonTeacherYL_util extends util {
 	
 	private static function getDomainId($domain) {
 		return array_search($domain, self::$config['domain']);
+	}
+	
+	public static function getHostname($domain_id) {
+		return self::$config['domain'][$domain_id];
 	}
 }
