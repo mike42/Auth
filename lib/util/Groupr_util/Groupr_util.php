@@ -21,7 +21,11 @@ class Groupr_util extends util {
 	 */
 	public static function admin() {
 		$data = array("current" => "Utility", "util" => self::$util_name, "template" => "main");
-		$service_id = 'ldap1';	
+		$service_id = self::$config['service_id'];
+		$service = Service_model::get($service_id);
+		if(!$service) {
+			throw new Exception("Service '$service_id' does not exist.");
+		}
 		
 		if(isset($_POST['group_cn']) && isset($_POST['gname'])) {
 			Auth::loadClass("PasswordGen");
@@ -35,20 +39,24 @@ class Groupr_util extends util {
 			}
 			$group -> populate_list_OwnerUserGroup();
 			if(count($group -> list_OwnerUserGroup) == 0) {
-				$data['message'] = "Group $group_cn has no direct members.";
+				$data['message'] = "Group '$group_cn' has no direct members.";
 			}
 			
 			$print = isset($_POST['print']);
+			$good = $fail = 0;
 			foreach($group -> list_OwnerUserGroup as $oug) {
 				$preset = passwordGen::Generate();
 				$account = Account_model::get_by_service_owner_unique($service_id, $oug -> owner_id);
 				if ($account){
 					AccountOwner_api::pwreset($oug -> AccountOwner -> owner_id, $preset, $print);
 					$passwrd [$account -> account_login] = $preset;
+					$good++;
+				} else {
+					$fail++;
 				}
 					
 			}
-			$data['message'] = count($group -> list_OwnerUserGroup) . " users in $group_cn have been reset.";
+			$data['message'] = "Of " . count($group -> list_OwnerUserGroup) . " users in $group_cn, $good have been reset, $fail had no account in $service_id.";
 			$data['passwrd'] = $passwrd;
 		}
 		
