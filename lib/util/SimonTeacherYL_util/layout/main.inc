@@ -88,7 +88,7 @@
 								<?php 
 								foreach($data['semester'] as $semester) {
 									$selected = "";
-									if(isset($_POST['semester']) && (int)$_POST['semester'] == $semester['FileSeq']) {
+									if((isset($_POST['semester']) && (int)$_POST['semester'] == $semester['FileSeq']) || (!isset($_POST['semester']) && $semester['FileActiveFlag']) == '1') {
 										$selected  = " selected";
 									}
 									echo "<option value=\"" . (int)$semester['FileSeq'] . "\"$selected>" . web::escapeHTML($semester['FileYear'] . ", Semeser " . $semester['FileSemester']) . "</option>";

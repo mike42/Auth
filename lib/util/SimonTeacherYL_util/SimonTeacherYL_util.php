@@ -6,7 +6,7 @@ class SimonTeacherYL_util extends util {
 	/**
 	 * Most recent 4 semesters
 	 */
-	const QUERY_SEMESTER = "SELECT TOP 4 FileSeq, FileYear, FileSemester From FileSemesters ORDER BY FileYear DESC, FileSemester DESC;";
+	const QUERY_SEMESTER = "SELECT TOP 4 FileSeq, FileYear, FileSemester, FileActiveFlag From FileSemesters ORDER BY FileYear DESC, FileSemester DESC;";
 	
 	/**
 	 * Student email addresses for each class
