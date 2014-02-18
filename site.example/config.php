@@ -22,7 +22,8 @@ $config = array(
 			'url' => 'ldap://localhost',
 			'domain' => "dc=example,dc=com",
  			'service_id' => 'ldap1',
-			'admin' => array('admin')
+			'admin' => array('admin'),
+			'assistant' => array('')
 		),
 	'ReceiptPrinter' => array( // Receipt printer, or 0.0.0.0 for no printer
 			'ip' => '0.0.0.0',

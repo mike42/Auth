@@ -62,6 +62,7 @@ The above directories work with the following .htaccess file:
         # Handle everything else
         RewriteRule ^/?admin/(.*)$ /a/admin.php?p=$1 [PT,L,QSA]
         RewriteRule ^/?account/(.*)$ /a/account.php?p=$1 [PT,L,QSA]
+        RewriteRule ^/?assistant/(.*)$ /a/assistant.php?p=$1 [PT,L,QSA]
 
 If Auth is the only program that runs here, you might want to also make an index.php with this:
 
@@ -98,7 +99,8 @@ Under site/, create a file called bg.jpg, with some company artwork, and config.
                         'url' => 'ldap://localhost',
                             'domain' => "dc=example,dc=com",
                             'service_id' => 'ldap1',
-                            'admin' => array('admin')
+                            'admin' => array('admin'),
+                            'assistant' => array()
 		        )
 		'ReceiptPrinter' => array( // Receipt printer, or 0.0.0.0 for no printer
 				'ip' => '0.0.0.0',

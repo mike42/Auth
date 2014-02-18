@@ -9,6 +9,10 @@ if(isset($_SESSION['meta-auth']['account']['ldap_username']) && in_array($_SESSI
 	/* Redirect to admin if logged in */
 	header("location: /admin/");
 	exit(0);
+} else if(isset($_SESSION['meta-auth']['account']['ldap_username']) && in_array($_SESSION['meta-auth']['account']['ldap_username'], $conf['assistant'])) {
+	/* Redirect to assistant if logged in */
+	header("location: /assistant/");
+	exit(0);
 }
 
 $data = array('active' => 'info');
