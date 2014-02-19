@@ -140,5 +140,23 @@ class Account_model {
 		}
 		return $ret;
 	}
+	
+	public static function search_by_service_domain($term, $service_id, $domain_id) {
+		$sql = "SELECT DISTINCT Account.owner_id, account_login, owner_firstname, owner_surname " .
+				"FROM Account " .
+				"JOIN ListDomain ON ListDomain.domain_id = Account.account_domain " .
+				"JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id " .
+				"WHERE (account_login LIKE \"%%%s%%\" OR owner_firstname LIKE \"%%%s%%\" OR owner_surname LIKE \"%%%s%%\") " .
+				"AND Account.service_id = '%s' AND Account.account_domain = '%s' " .
+				"ORDER BY domain_name, owner_surname, owner_firstname, account_login " .
+				"LIMIT 0 , 20;";
+		$term = str_replace("%", "\"%", $term);
+		$res = Database::retrieve($sql, array($term, $term, $term, $service_id, $domain_id));
+		$ret = array();
+		while($row = Database::get_row($res)) {
+			$ret[] = new Account_model($row);
+		}
+		return $ret;
+	}
 }
 ?>

@@ -21,12 +21,11 @@ if(isset($_REQUEST['action'])) {
 
 switch($action) {
 	case 'search':
-		
 		if(isset($_POST['term'])) {
 			$term = $_POST['term'];
 		}
 		Auth::loadClass("Account_model");
-		echo json_encode(Account_model::search($term));
+		echo json_encode(Account_model::search_by_service_domain($term, $loginConf['assist']['service_id'], $loginConf['assist']['domain_id']));
 		exit(0);
 		break;
 	case 'logout':
@@ -35,9 +34,40 @@ switch($action) {
 		session_destroy();
 		exit(0);
 	default:
-		
+		Auth::loadClass("AccountOwner_api");
+		Auth::loadClass("Account_model");
+		if(isset($_POST['owner_id']) && isset($_POST['uname'])) {
+			$owner_id = $_POST['owner_id'];
+			$uname = $_POST['uname'];
+			try {
+				if($owner_id == "") {
+					/* Lookup */
+					$owner = AccountOwner_api::searchLogin($uname);
+				} else {
+					$owner = AccountOwner_api::get($owner_id);
+				}
+				
+				/* Verify this is in a domain which we are allowed to administer */
+				if(!$account = Account_model::get_by_service_owner_unique($loginConf['assist']['service_id'], $owner -> owner_id)) {
+					echo $loginConf['assist']['service_id'];
+					throw new Exception("You do not have permission to log on to that account.");
+				}
+				if($account -> account_domain != $loginConf['assist']['domain_id']) {
+					throw new Exception("You do not have permission to log on to that account.");
+				}
+				
+				/* Figure out which account to log in as */
+				if(!$login_account = Account_model::get_by_service_owner_unique($loginConf['service_id'], $owner -> owner_id)) {
+					throw new Exception("That account has no valid login for Auth, so can't log you in.");
+				}
+				$_SESSION['meta-auth']['account']['ldap_username'] = $login_account -> account_login;
+				header('location: /account/');
+				exit(0);
+			} catch(Exception $e) {
+				$data['message'] = $e -> getMessage();
+			}
+		}
 }
-
 
 showForm($form, $data);
 

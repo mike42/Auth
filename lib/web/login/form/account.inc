@@ -1,6 +1,6 @@
 <div class="login container">
 	<div class="row">
-		<div class="span6 offset3">
+		<div class="span10 offset1">
 			<div class="well">
 				<div style="padding: 10px;">
 					<ul class="nav nav-tabs">
