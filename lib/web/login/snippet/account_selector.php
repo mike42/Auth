@@ -5,9 +5,10 @@ $(function() {
 		source: function( request, response ) {
 			$.ajax({
 				type: "POST",
-				url: "/admin/Account/search/query.json",
+				url: "/assistant/search.json",
 				dataType: "json",
 				data: {
+					action: 'search',
 					term: request.term
 				},
 				success: function( data ) {

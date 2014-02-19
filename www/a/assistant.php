@@ -20,13 +20,22 @@ if(isset($_REQUEST['action'])) {
 }
 
 switch($action) {
+	case 'search':
+		
+		if(isset($_POST['term'])) {
+			$term = $_POST['term'];
+		}
+		Auth::loadClass("Account_model");
+		echo json_encode(Account_model::search($term));
+		exit(0);
+		break;
 	case 'logout':
 		/* Destroy session and return to the main page */
 		header('location: /account/');
 		session_destroy();
 		exit(0);
 	default:
-		//
+		
 }
 
 
@@ -39,4 +48,8 @@ function showForm($form, $data) {
 	include(dirname(__FILE__).'/../../lib/web/login/page.inc');
 }
 
+function search($term) {
+	$results = Account_model::search($term);
+	return $results;
+}
 ?>

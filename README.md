@@ -100,7 +100,12 @@ Under site/, create a file called bg.jpg, with some company artwork, and config.
                             'domain' => "dc=example,dc=com",
                             'service_id' => 'ldap1',
                             'admin' => array('admin'),
-                            'assistant' => array()
+                            'assistant' => array(),
+                            'assist' =>
+                                array(
+                                    'domain_id' => 'default',
+                                    'service_id' => 'ldap1'	
+                                )
 		        )
 		'ReceiptPrinter' => array( // Receipt printer, or 0.0.0.0 for no printer
 				'ip' => '0.0.0.0',
