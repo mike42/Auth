@@ -49,7 +49,6 @@ switch($action) {
 				
 				/* Verify this is in a domain which we are allowed to administer */
 				if(!$account = Account_model::get_by_service_owner_unique($loginConf['assist']['service_id'], $owner -> owner_id)) {
-					echo $loginConf['assist']['service_id'];
 					throw new Exception("You do not have permission to log on to that account.");
 				}
 				if($account -> account_domain != $loginConf['assist']['domain_id']) {
