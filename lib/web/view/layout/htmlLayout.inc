@@ -5,14 +5,11 @@
 <title>Auth admin panel</title>
 <link rel="stylesheet" type="text/css" href="/a/public/css/admin.css" />
 
-<!-- Admin template
-<link rel="stylesheet" type="text/css" href="/auth/css/theme.css" />
-<link rel="stylesheet" type="text/css" href="/auth/css/style.css" />
-<link rel="stylesheet" type="text/css" href="/auth/css/blue.css" /> -->
 <!-- jquery & jquery-ui -->
 <script src="/a/public/js/jquery-1.8.3.min.js"></script>
 <script src="/a/public/js/jquery-ui-1.9.1.custom.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/a/public/css/ui-lightness/jquery-ui-1.9.1.custom.min.css" />
+
 <!-- jquery.treeview -->
 <script src="/a/public/js/jquery.treeview/jquery.treeview.js"></script>
 <link rel="stylesheet" type="text/css" href="/a/public/js/jquery.treeview/jquery.treeview.css" />

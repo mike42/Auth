@@ -9,14 +9,14 @@
 					<label class="control-label" for="inputEmail">Username</label>
 					<div class="controls">
 						<input name="loginUsername" type="text" id="inputUname"
-							class="span2" placeholder="">
+							class="span2" placeholder="Login" autocomplete="off">
 					</div>
 				</div>
 				<div class="control-group">
 					<label class="control-label" for="inputPassword">Password</label>
 					<div class="controls">
 						<input name="loginPassword" type="password" class="span2"
-							id="inputPassword" placeholder="">
+							id="inputPassword" placeholder="Password">
 					</div>
 				</div>
 				<div class="control-group">

@@ -90,6 +90,8 @@ if(isset($_SESSION['meta-auth']['account']['ldap_username'])) {
 			$_SESSION['meta-auth']['account']['ldap_username'] = $username;
 			if(in_array($username, $conf['admin'])) {
 				header('location: /admin/');
+			} else if(in_array($username, $conf['admin'])) {
+				header('location: /assistant/');
 			} else {
 				header('location: /account/');
 			}
