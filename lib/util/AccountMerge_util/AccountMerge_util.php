@@ -68,17 +68,17 @@ class AccountMerge_util extends util {
 					}
 					
 					if($merge) {
-						/* Check for no groups */
-						$ao -> populate_list_OwnerUserGroup();
-						if(count($ao -> list_OwnerUserGroup) != 0) {
-							throw new Exception("Cannot merge owner $owner_id because it is in some groups (run 'prepare' first)");
-						}
-						
 						/* Check for same OU */
 						if($ou_id == -1) {
 							$ou_id = $ao -> ou_id;
 						} else if($ou_id != $ao -> ou_id) {
-							throw new Exception("Cannot merge $owner_id because it is in a different organizational unit (run 'prepare' first)");
+							throw new Exception("Cannot merge $owner_id because it is in a different organizational unit (hit 'prepare' to move it)");
+						}
+
+						/* Check for no groups */
+						$ao -> populate_list_OwnerUserGroup();
+						if(count($ao -> list_OwnerUserGroup) != 0) {
+							throw new Exception("Cannot merge owner $owner_id because it is in some groups (hit 'prepare' to move it out)");
 						}
 						
 						if($owner_firstname == false && $owner_surname == false) {
@@ -119,7 +119,7 @@ class AccountMerge_util extends util {
 						/* Check for no groups */
 						$ao -> populate_list_UserGroup();
 						if(count($ao -> list_UserGroup) != 0) {
-							throw new Exception("Cannot merge owner $owner_id because it is in some groups (run 'prepare' first)");
+							throw new Exception("Cannot merge owner $owner_id because it is in some groups (run 'prepare')");
 						}
 					
 						/* Check for same OU */
@@ -139,14 +139,24 @@ class AccountMerge_util extends util {
 			if($prepare) {
 				/* Move into the same OU, remove all groups */
 				$model = array_shift($found);
-				
+				$moved = false;
+
 				foreach($found as $ao) {
 					if($ao -> ou_id != $model -> ou_id) {
 						AccountOwner_api::move($ao -> owner_id, $model -> ou_id);
+						$moved = true;
 					}
 					
 					if($ao -> owner_firstname != $model -> owner_firstname || $ao -> owner_surname != $model -> owner_surname) {
 						AccountOwner_api::rename($ao -> owner_id, $model -> owner_firstname, $model -> owner_surname);	
+					}
+				}
+
+				if(!$moved) {
+					$ao -> populate_list_OwnerUserGroup();
+					foreach($ao -> list_OwnerUserGroup as $oug) {
+						/* Leave each group */
+						AccountOwner_api::rmfromgroup($oug -> owner_id, $oug -> group_id);
 					}
 				}
 			} else if($merge) {
