@@ -23,7 +23,7 @@ Dependencies, and which component they are used with (useful for troubleshooting
 Optional dependencies:
 - phpmyadmin, for managing the database and installing.
 - php5-curl, for the Google Apps service
-- freetds and sqsh, for plugins which interact with Microsoft SQL server
+- php5-odbc and FreeTDS, for plugins which interact with Microsoft SQL Server
 
 Installation
 ------------
@@ -139,10 +139,12 @@ The next steps are
 Auth must run over SSL, for obvious security reasons. On an internal network, you can simply follow [these instructions](https://wiki.debian.org/Self-Signed_Certificate) to set up a Self-Signed Certificate.
 
 To use the .htaccess file above, you need to set "AllowOverride All" in apache2.conf, and then enable mod_rewrite:
+
         a2enmod rewrite
         service apache2 reload
 
 Make MySQL timezone-aware with the [mysql_tzinfo_to_sql](http://dev.mysql.com/doc/refman/5.5/en/mysql-tzinfo-to-sql.html) tool.
+
         mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p
 
 Caveats
