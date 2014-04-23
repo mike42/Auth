@@ -8,13 +8,13 @@ The administrative interface lets you modify accounts, groups, and organizationa
 
 Requirements
 ------------
-This code is designed to run on Debian GNU/Linux 6.0 (squeeze) and 7.0 (wheezy). Note that due to changes in libcurl, the current Debian testing branch is not yet supported.
+This code is designed to run on Debian GNU/Linux 7.0 (wheezy) and 8.0 (jessie).
 
 Account databases supported:
 
 - OpenLDAP
 - Active Directory (all versions)
-- Google Apps, via the Provisioning API.
+- Google Apps, via the Directory API.
 
 Dependencies, and which component they are used with (useful for troubleshooting):
 - php5-ldap, for logging in via an LDAP or active directory server.
@@ -155,6 +155,5 @@ Auth will attempt to bring different services "into line" with eachother in term
 
 Credits
 -------
-
 - The default login background is modified from [this image](http://commons.wikimedia.org/wiki/File:Great_Barrier_Reef_105_%285383117759%29.jpg) on Wikimedia Commons, CC2.
 - The Google API [PHP client](https://code.google.com/p/google-api-php-client/) is included, and is under the Apache License.
