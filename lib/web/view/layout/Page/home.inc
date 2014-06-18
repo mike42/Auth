@@ -63,7 +63,7 @@
 
 <script>
 	// Set focus on search box
-	$("#<?php if(!isset($data['selected']) || $data['selected'] != 'group') { echo "uname"; } else { echo "gname"; ?>").focus();
+	$("#<?php if(!isset($data['selected']) || $data['selected'] != 'group') { echo "uname"; } else { echo "gname"; } ?>").focus();
 
 	function switchUser() {
 		$('#groupselect').hide();
