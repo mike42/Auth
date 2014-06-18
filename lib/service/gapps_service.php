@@ -792,7 +792,7 @@ class gapps_service extends account_service {
 					/* Check org unit */
 					if($user -> getOrgUnitPath() != $orgUnitPath) {
 						/* Incorrect org Unit */
-						outp("\t\tFixing orgUnit mis-match: Should be " . $orgUnitPath . " (not " . $orgUser -> getorgUnitPath() . ")");
+						outp("\t\tFixing orgUnit mis-match: Should be " . $orgUnitPath . " (not " . $user -> getorgUnitPath() . ")");
 						$user -> setOrgUnitPath($orgUnitPath);
 						$this -> gds -> users -> update($userEmail, $user);
 					}
