@@ -8,6 +8,7 @@ class Page_controller {
 	public static function view($page) {
 		$data = array('current' => 'Dashboard');
 		if(isset($_POST['owner_id']) && isset($_POST['uname'])) {
+			/* Selected a user */
 			$owner_id = $_POST['owner_id'];
 			$uname = $_POST['uname'];
 			try {
@@ -21,7 +22,25 @@ class Page_controller {
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();
 			}
+		} else if(isset($_POST['group_cn']) && isset($_POST['gname'])) {
+			/* Selected a group */
+			$group_cn = $_POST['group_cn'];
+			$gname = $_POST['gname'];
+			try {
+				if($group_cn == "") {
+					$group = UserGroup_api::get_by_group_cn($gname);
+				} else {
+					$group = UserGroup_api::get_by_group_cn($group_cn);
+				}
+			} catch(Exception $e) {
+				$data['message'] = $e -> getMessage();
+			}
 		}
+
+		if(isset($_POST['selected']) {
+			$data['selected'] == $_POST['selected'];
+		}
+
 		return $data;
 	}
 	

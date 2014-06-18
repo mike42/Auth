@@ -8,7 +8,7 @@
 	</div>
 
 	<div class="well">
-		<form style="text-align: center; margin: 3em;" method="post" id="accountselect">
+		<form style="text-align: center; margin: 3em;<?php if(isset($data['selected']) && $data['selected'] == 'group') { echo " display: none" ?>" method="post" id="accountselect">
 			<p>
 			<?php
 			if(isset($data['message'])) {
@@ -33,8 +33,17 @@
 			</div>
 		</form>
 
-		<form style="text-align: center; margin: 3em; display: none" method="post" id="groupselect">
+		<form style="text-align: center; margin: 3em;<?php if(!isset($data['selected']) || $data['selected'] != 'group') { echo " display: none" ?>" method="post" id="groupselect">
+			<p>
+			<?php
+			if(isset($data['message'])) {
+				echo "<b>".web::escapeHTML($data['message']) . "</b>";
+			}
+			?>
+			</p>
+
 			<div class="input-append">
+				<input type="hidden" name="selected" value="group" />
 				<input type="hidden" name="group_cn" id="group_cn" />
 				<div class="btn-group">
 					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
