@@ -38,7 +38,7 @@ class Page_controller {
 			}
 		}
 
-		if(isset($_POST['selected']) {
+		if(isset($_POST['selected'])) {
 			$data['selected'] == $_POST['selected'];
 		}
 
