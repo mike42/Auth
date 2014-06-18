@@ -32,6 +32,7 @@ class Page_controller {
 				} else {
 					$group = UserGroup_api::get_by_group_cn($group_cn);
 				}
+				Web::redirect(Web::constructURL("UserGroup", "view", array($group -> group_id), "html"));
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();
 			}
