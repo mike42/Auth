@@ -8,7 +8,7 @@
 	</div>
 
 	<div class="well">
-		<form style="text-align: center; margin: 3em;<?php if(isset($data['selected']) && $data['selected'] == 'group') { echo " display: none" ?>" method="post" id="accountselect">
+		<form style="text-align: center; margin: 3em;<?php if(isset($data['selected']) && $data['selected'] == 'group') { echo " display: none"; } ?>" method="post" id="accountselect">
 			<p>
 			<?php
 			if(isset($data['message'])) {
@@ -33,7 +33,7 @@
 			</div>
 		</form>
 
-		<form style="text-align: center; margin: 3em;<?php if(!isset($data['selected']) || $data['selected'] != 'group') { echo " display: none" ?>" method="post" id="groupselect">
+		<form style="text-align: center; margin: 3em;<?php if(!isset($data['selected']) || $data['selected'] != 'group') { echo " display: none"; } ?>" method="post" id="groupselect">
 			<p>
 			<?php
 			if(isset($data['message'])) {
