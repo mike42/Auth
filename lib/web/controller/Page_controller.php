@@ -39,7 +39,7 @@ class Page_controller {
 		}
 
 		if(isset($_POST['selected'])) {
-			$data['selected'] == $_POST['selected'];
+			$data['selected'] = $_POST['selected'];
 		}
 
 		return $data;
