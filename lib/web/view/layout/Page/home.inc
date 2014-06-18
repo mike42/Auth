@@ -8,7 +8,7 @@
 	</div>
 
 	<div class="well">
-		<form style="text-align: center; margin: 3em;" method="post">
+		<form style="text-align: center; margin: 3em;" method="post" id="accountselect">
 			<p>
 			<?php
 			if(isset($data['message'])) {
@@ -17,39 +17,37 @@
 			?>
 			</p>
 
-			<div id="accountselect">
-				<div class="input-append">
-					<input type="hidden" name="owner_id" id="owner_id" /> 
-					<div class="btn-group">
-						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-							User <span class="caret"></span>
-						</a>
-						<ul class="dropdown-menu">
-							<li><a href="#" onClick="return switchUser();">User</a></li>
-							<li><a href="#" onClick="return switchGroup();">Group</a></li>
-						</ul>
-					</div><input
-						type="text" name="uname" id="uname" class="span2" />
-					<button class="btn" type="submit">Go</button>
-				</div>
+			<div class="input-append">
+				<input type="hidden" name="owner_id" id="owner_id" /> 
+				<div class="btn-group">
+					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+						User <span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="#" onClick="return switchUser();">User</a></li>
+						<li><a href="#" onClick="return switchGroup();">Group</a></li>
+					</ul>
+				</div><input
+					type="text" name="uname" id="uname" class="span2" />
+				<button class="btn" type="submit">Go</button>
 			</div>
+		</form>
 
-			<div id="groupselect" style="display: none">
-				<div class="input-append">
-					<input type="hidden" name="group_cn" id="group_cn" />
-					<div class="btn-group">
-						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-							Group <span class="caret"></span>
-						</a>
-						<ul class="dropdown-menu">
-							<li><a href="#" onClick="return switchUser();">User</a></li>
-							<li><a href="#" onClick="return switchGroup();">Group</a></li>
-						</ul>
-					</div>
-					<input type="text" name="gname" id="gname" class="span2" />
-					<a class="btn" type="submit" />Go</a>
+		<form style="text-align: center; margin: 3em; display: none" method="post" id="groupselect">
+			<div class="input-append">
+				<input type="hidden" name="group_cn" id="group_cn" />
+				<div class="btn-group">
+					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+						Group <span class="caret"></span>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a href="#" onClick="return switchUser();">User</a></li>
+						<li><a href="#" onClick="return switchGroup();">Group</a></li>
+					</ul>
 				</div>
-			<div>
+				<input type="text" name="gname" id="gname" class="span2" />
+				<button class="btn" type="submit">Go</button>
+			</div>
 		</form>
 	</div>
 </div>
@@ -60,13 +58,13 @@
 
 	function switchUser() {
 		$('#groupselect').hide();
-		$('#accountselect').show(300);
+		$('#accountselect').show();
 		return false;
 	}
 
 	function switchGroup() {
 		$('#accountselect').hide();
-		$('#groupselect').show(300);
+		$('#groupselect').show();
 		return false;
 	}
 </script>
