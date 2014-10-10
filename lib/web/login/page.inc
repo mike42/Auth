@@ -2,7 +2,12 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Auth admin panel</title>
+<title><?php 
+		if($form == 'login') {
+			echo "Login";
+		} else {
+			echo "Manage Account";
+		}?> - Auth</title>
 <link rel="stylesheet" type="text/css" href="/a/public/css/admin.css" />
 
 <!-- jquery & jquery-ui -->

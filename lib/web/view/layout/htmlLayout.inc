@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Auth account management</title>
+<title>Admin panel - Auth</title>
 <link rel="stylesheet" type="text/css" href="/a/public/css/admin.css" />
 
 <!-- jquery & jquery-ui -->
