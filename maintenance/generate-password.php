@@ -6,7 +6,7 @@ Auth::loadClass("PasswordGen");
 /* Generate the given number of passwords, used for batch work */
 
 if(count($argv) < 2) {
-	die("Usage: " . $argv[0] . " number");
+	die("Usage: " . $argv[0] . " number\n");
 }
 
 $count = (int)$argv[1];
