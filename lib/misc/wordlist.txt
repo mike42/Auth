@@ -1066,8 +1066,6 @@ break
 breakfast
 breaking
 breaks
-breast
-breasts
 breath
 breathe
 breathed
@@ -1171,8 +1169,7 @@ bustle
 busy
 but
 butcher
-butler
-butt
+butl
 butter
 butterfly
 button
@@ -1568,7 +1565,6 @@ coast
 coasts
 coat
 coats
-cock
 cocked
 code
 codes
@@ -2086,9 +2082,8 @@ cuba
 cultivate
 cultivated
 cultivation
-culture
-cum
-cumberland
+cultu
+mberlnd
 cunning
 cup
 cupboard
@@ -2424,7 +2419,6 @@ diamonds
 diana
 diary
 dice
-dick
 dickens
 dictate
 dictated
