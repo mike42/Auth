@@ -2744,8 +2744,6 @@ dug
 duke
 dull
 duly
-dumb
-dungeon
 duration
 during
 durst
@@ -4367,7 +4365,6 @@ identification
 identified
 identify
 identity
-idiot
 idle
 idleness
 idly
@@ -8496,8 +8493,6 @@ stumbling
 stump
 stunned
 stupendous
-stupid
-stupidity
 sturdy
 style
 sub
