@@ -117,7 +117,7 @@ class ActionQueue_model {
 	}
 	
 	public static function get_next() {
-		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ActionQueue.aq_complete='0' AND ActionQueue.aq_date < CURRENT_TIMESTAMP ORDER BY ActionQueue.aq_date, ActionQueue.aq_id LIMIT 0, 1;";
+		$sql = "SELECT * FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ActionQueue.aq_complete='0' AND ActionQueue.aq_date < CURRENT_TIMESTAMP ORDER BY CASE WHEN ActionQueue.action_type = 'acctPasswd' THEN 1 ELSE 2 END, ActionQueue.aq_date, ActionQueue.aq_id LIMIT 0, 1;";
 		$res = Database::retrieve($sql, array());
 		if($row = Database::get_row($res)) {
 			return new ActionQueue_model($row);
