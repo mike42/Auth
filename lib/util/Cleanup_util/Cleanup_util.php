@@ -8,6 +8,8 @@ require_once(dirname(__FILE__) . "/../util.php");
 class Cleanup_util extends util {
 	private static $config;
 
+	private static $debug;
+
 	/**
 	 * Initialise utility
 	 */
@@ -17,6 +19,7 @@ class Cleanup_util extends util {
 		
 		Auth::loadClass("Ou_api");
 		Auth::loadClass("ActionQueue_api");
+		self::$debug = Auth::isDebug();
 	}
 
 	/**
@@ -69,12 +72,20 @@ class Cleanup_util extends util {
 						$data['message'] = "The queue has been emptied.";
 						break;
 					case 'eraseLocal':
-						self::eraseLocal();
-						$data['message'] = "All local entries have been erased.";
+						if(self::$debug) {
+							self::eraseLocal();
+							$data['message'] = "All local entries have been erased.";
+						} else {
+							$data['message'] = "This feature is disabled.";
+						}
 						break;
 					case 'dummyData':
-						self::dummyData();
-						$data['message'] = "Dummy data has been introduced.";
+						if(self::$debug) {
+							self::dummyData();
+							$data['message'] = "Dummy data has been introduced.";
+						} else {
+							$data['message'] = "This feature is disabled.";
+						}
 						break;
 					default:
 						throw new Exception("Unknown action: $action");
@@ -85,7 +96,8 @@ class Cleanup_util extends util {
 		}		
 		
 		$data['service-enabled'] = Service_model::list_by_service_enabled('1');
-		$data['service-disabled'] = Service_model::list_by_service_enabled('0');		
+		$data['service-disabled'] = Service_model::list_by_service_enabled('0');
+		$data['debug'] = self::$debug;
 		return $data;
 	}
 

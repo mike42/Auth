@@ -6,6 +6,7 @@ require_once(dirname(__FILE__). "/../../lib/Auth.php");
 try{
 	$pidfile = Auth::getConfig('pidfile');
 	$logfile = Auth::getConfig('logfile');
+	$isDebug = Auth::isDebug();
 	if(!$pf = fopen($pidfile, "w")) {
 		throw new Exception("Couldn't open PID file $pidfile. Check that it is write-able.");
 	}
@@ -47,8 +48,12 @@ if($count == 0) {
 		try {
 			if(process($next)) {
 				try {
-					$next -> aq_complete = 1;
-					$next -> update();
+					if($isDebug) {
+						$next -> aq_complete = 1;
+						$next -> update();
+					} else {
+						$next -> delete();
+					}
 				} catch(Exception $e) {
 					outp("\tProblem marking item as done; Was it cancelled while it was running?");
 				}

@@ -73,49 +73,9 @@ Now import the schema into phpmyadmin, from maintenance/schema/auth.sql, and the
 
 Now cd /usr/share/auth.
 
-Under site/, create a file called bg.jpg, with some company artwork, and config.php. Remembering database and LDAP settings, this is a basic config example.
+Copy site.example/ to site/, and replace bg.jpg and logo.png with some company artwork, and config.php. Remembering database and LDAP settings, enter these in config.php.
 
-        <?php
-        /* Timezone for the ActionQueue */
-        date_default_timezone_set('UTC');
-
-        /* All other options */
-        $config = array(
-            'Database' =>
-                array(
-                    'name' => 'auth_main',
-                        'host' => 'localhost',
-                        'user' => 'auth',
-                        'password' => '...password here...'
-                ),
-                'Util' =>
-                    array(
-                        'Cleanup'     => 'Directory Cleanup Tools'
-                    ),
-                'pidfile' => '/var/run/lock/meta-auth.pid',
-                'logfile' => '/var/log/meta-auth.log',
-                'login' =>
-                    array(
-                        'url' => 'ldap://localhost',
-                            'domain' => "dc=example,dc=com",
-                            'service_id' => 'ldap1',
-                            'admin' => array('admin'),
-                            'assistant' => array(),
-                            'assist' =>
-                                array(
-                                    'domain_id' => 'default',
-                                    'service_id' => 'ldap1'	
-                                )
-		        )
-		'ReceiptPrinter' => array( // Receipt printer, or 0.0.0.0 for no printer
-				'ip' => '0.0.0.0',
-				'port' => '9100',
-				'header' => 'Example',
-				'footer' => 'Terms and conditions'
-			)
-        );
-
-Note: Debian 6 Uses /var/lock, not /var/run/lock.
+(Note for lock files: Debian 6 Uses /var/lock, not /var/run/lock)
 
 Open the database up and look at the 'service' table. If you are administering LDAP on localhost (this is the default set-up), then correct the domain name and password to make it work. 
 

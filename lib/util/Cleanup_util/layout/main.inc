@@ -158,7 +158,7 @@
 					queue, you can clear the queue with this button:</p>
 				<a class="btn" href="#" onClick="emptyAq();">Empty the ActionQueue</a>
 			</div>
-
+<?php if($data['debug']) { ?>
 			<div class="alert alert-danger">
 				<h3>Danger zone</h3>
 				<h4>Erase local database</h4>
@@ -172,6 +172,7 @@
 				<a class="btn btn-danger" href="#" onClick="dummyData();">Add dummy
 					data</a>
 			</div>
+<?php } ?>
 		</div>
 	</div>
 </div>

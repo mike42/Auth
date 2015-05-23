@@ -83,5 +83,13 @@ class Auth {
 	static public function normaliseName($inp) {
 		return strtolower(preg_replace("#[^-a-zA-Z0-9.'_]+#", "", trim($inp)));
 	}
-
+	
+	/**
+	 * Return true if debugging is enabled, false if not. Some functions log less
+	 * data and remove dangerous features when debugging is off (a good idea for production installs)
+	 */
+	static public function isDebug() {
+		$conf = Auth::getConfig("login");
+		return isset($conf['debug']) && $conf['debug'] == true;
+	}
 }
