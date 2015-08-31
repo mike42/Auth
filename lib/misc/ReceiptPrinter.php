@@ -20,16 +20,20 @@ class ReceiptPrinter {
 			/* Header */
 			$printer -> setJustification(Escpos::JUSTIFY_CENTER);
 			if(isset(self::$conf['logo']) && file_exists(self::$conf['logo'])) {
-				/* Include top image if set & available */
-				$logofile = self::$conf['logo'];
-				$ser = $logofile . ".ser";
-				if(file_exists($ser)) {
-					$img = unserialize(file_get_contents($ser));
-				} else {
-					$img = new EscposImage($logofile);
-					@file_put_contents($ser, serialize($img)); // Attempt to cache
+				try {
+					/* Include top image if set & available */
+					$logofile = self::$conf['logo'];
+					$ser = $logofile . ".ser";
+					if(file_exists($ser)) {
+						$img = unserialize(file_get_contents($ser));
+					} else {
+						$img = new EscposImage($logofile);
+						@file_put_contents($ser, serialize($img)); // Attempt to cache
+					}
+					$printer -> bitImage($img);
+				} catch (Exception $e) {
+					trigger_error($e -> getMessage());
 				}
-				$printer -> bitImage($img);
 			}
 			$printer -> setEmphasis(true);
 			$printer -> text(self::$conf['header'] . "\n");
