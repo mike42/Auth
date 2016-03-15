@@ -23,7 +23,7 @@
 		</div>
 		<div class="span8">
 			<div class="alert alert-info">
-				<h3>SasStudent Utility</h3>
+				<h3>Student Database Utility</h3>
 			</div>
 			<?php 
 			if(isset($data['message'])) {
