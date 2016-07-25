@@ -16,9 +16,9 @@
 - name: find current and expected account details
   command: "{{ item }}"
   changed_when: false
-  no_log: true
+#  no_log: true
   register: result
-#  ignore_errors: True
+  ignore_errors: True
   with_items:
   - slappasswd -s "{{ ldap_password }}"
   - ldapsearch -H ldapi:// -LLL -Q -Y EXTERNAL -b "cn=config" "(olcRootDN={{ ldap_admin }})" dn olcRootPW
