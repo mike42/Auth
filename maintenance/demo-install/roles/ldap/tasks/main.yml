@@ -8,18 +8,23 @@
   with_items: [ 'slapd/domain', 'shared/organization' ]
 
 - name: openldap is installed
-  apt: package=slapd state=present
+  apt: package={{ item }} state=present
+  with_items:
+  - ldap-utils
+  - slapd
 
 - name: find current and expected account details
   command: "{{ item }}"
   changed_when: false
   no_log: true
   register: result
-  ignore_errors: True
+#  ignore_errors: True
   with_items:
   - slappasswd -s "{{ ldap_password }}"
   - ldapsearch -H ldapi:// -LLL -Q -Y EXTERNAL -b "cn=config" "(olcRootDN={{ ldap_admin }})" dn olcRootPW
   - ldapwhoami -vvv -H ldapi:// -D {{ ldap_admin }} -x -w "{{ ldap_password }}"
+
+- command: slapcat
 
 - name: expected account details setup applied to temp file
   copy:
