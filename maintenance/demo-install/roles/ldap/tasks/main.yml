@@ -16,7 +16,7 @@
 - name: find current and expected account details
   command: "{{ item }}"
   changed_when: false
-#  no_log: true
+  no_log: true
   register: result
   ignore_errors: True
   with_items:
