@@ -15,6 +15,6 @@ addons:
     - ansible
 
 script:
-  - which ansible
+  - (cd maintenance/demo-install && ansible-playbook -i inventory.local site.yml)
 ...
 

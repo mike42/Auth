@@ -1,0 +1,93 @@
+---
+- name: Install http and php etc
+  apt: name={{ item }} state=present update_cache=yes
+  with_items:
+   - apache2
+   - libapache2-mod-php5
+   - php5-mysql
+   - php5-ldap
+   - php5-cli
+   - php5
+   - git
+   - openssl
+   - ldap-utils
+
+- name: apache modules are enabled
+  apache2_module: state=present name={{ item }}
+  with_items:
+    - ssl
+    - rewrite
+  notify: restart apache
+
+- name: Synchronize app code
+  synchronize: src=../../../../../ dest=/usr/share/auth-web
+  
+# Alternative: Use a git checkout to remove the need to use the repo at all
+#- name: Copy the code from repository
+#  git: repo={{ auth_repository }} dest=https://auth.local/admin/
+
+- name: Create symlink to auth
+  file: src=/usr/share/auth-web/www/a dest=/var/www/html/a state=link
+
+- name: Disable default site
+  command: a2dissite 000-default
+  args:
+    removes: /etc/apache2/sites-enabled/000-default.conf
+  notify: reload apache
+
+- name: Add auth-web apache conf
+  template: src=auth-web.conf dest=/etc/apache2/sites-available/auth-web.conf owner=www-data group=www-data mode=0644
+  notify: reload apache
+
+- name: Enable auth-web site
+  command: a2ensite auth-web
+  args:
+    creates: /etc/apache2/sites-enabled/auth-web.conf
+
+- name: default webpage is removed
+  file: path=/var/www/html/index.html state=absent
+
+- name: redirect files are present in webroot
+  template: src={{ item }} dest=/var/www/html/{{ item }} owner=www-data group=www-data mode=0644
+  with_items:
+    - .htaccess
+    - index.php
+
+- name: site config folder exists
+  file: dest=/usr/share/auth-web/site state=directory
+  
+- name: site config default images are applied
+  file: src=/usr/share/auth-web/site.example/{{ item }} dest=/usr/share/auth-web/site/{{ item }} state=link
+  with_items:
+  - bg.jpg
+  - logo.png
+
+- name: site is configured
+  template: src=config.php dest=/usr/share/auth-web/site/config.php owner=www-data group=www-data mode=0644
+
+- name: test for schema existing
+  command: mysql "{{ auth_db_name }}" -e "desc Account;"
+  changed_when: false
+  ignore_errors: true
+  register: result
+
+- name: database schema is loaded
+  mysql_db: state=import name="{{ auth_db_name }}" target="/usr/share/auth-web/maintenance/schema/auth.sql"
+  when: result|failed
+
+- name: database default data is loaded
+  mysql_db: state=import name="{{ auth_db_name }}" target="/usr/share/auth-web/maintenance/schema/data/defaults.sql"
+  when: result|failed
+
+- name: test if log file exists
+  stat: path=/var/log/auth-web.log
+  register: result
+
+- name: ensure log file exists
+  file: path=/var/log/auth-web.log owner=www-data group=www-data mode=0644 state=touch
+  when: result.stat.exists is defined and not result.stat.exists
+
+- name: set example LDAP example service password
+  command: mysql "{{ auth_db_name }}" -e "UPDATE Service SET service_password='{{ ldap_password }}',service_username='{{ ldap_admin }}' WHERE service_id='ldap1';"
+  
+# TODO logrotate?

@@ -1,0 +1,10 @@
+---
+- name: restart ntp
+  service: name=ntp state=restarted
+
+- name: restart iptables
+  service: name=iptables state=restarted
+
+- name: restart iptables
+  service: name=iptables state=restarted
+

@@ -1,0 +1,9 @@
+---
+- name: ntp is installed
+  apt: package=ntp state=present update_cache=yes
+  tags: ntp
+
+- name: ntp is running and enabled
+  service: name=ntp state=running enabled=yes
+  tags: ntp
+
