@@ -11,6 +11,8 @@ php:
 
 addons:
   apt:
+    sources:
+    - sourceline: 'ppa:ansible/ansible'
     packages:
     - ansible
 
