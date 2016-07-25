@@ -1,0 +1,20 @@
+---
+# Use Ubuntu 'trusty' distribution
+sudo: required
+dist: trusty
+
+language: php
+
+php:
+  - 5.6
+  - 7.0
+
+addons:
+  apt:
+    packages:
+    - ansible
+
+script:
+  - which ansible
+...
+
