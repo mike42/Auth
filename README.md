@@ -1,13 +1,13 @@
-Auth
-====
+# Auth [![Build Status](https://travis-ci.org/mike42/Auth.svg?branch=master)](https://travis-ci.org/mike42/Auth)
+
 'Auth' is a scriptable Single Sign On (SSO) solution for organisations which have user accounts in lots of different places. It provides an interface to manage any number of user account databases centrally.
 
 Users can log in via a web portal to reset their password for all services, and view group membership.
 
 The administrative interface lets you modify accounts, groups, and organizational units via the web, and will create a queue of actions which are processed in the background.
 
-Requirements
-------------
+## Requirements
+
 This code is designed to run on Debian GNU/Linux 7.0 (wheezy) and 8.0 (jessie).
 
 Account databases supported:
@@ -25,8 +25,8 @@ Optional dependencies:
 - php5-curl, for the Google Apps service
 - php5-odbc and FreeTDS, for plugins which interact with Microsoft SQL Server
 
-Installation
-------------
+## Installation
+
 The installation steps here cover installing Auth as a standalone LDAP front-end.
 
 Install dependencies:
@@ -90,8 +90,8 @@ To test the authqueue, run this, and pay close attention to any errors you see:
         cd /usr/share/auth/maintenance/bin
         ./authqueue.php -x -v
 
-Apache/PHP/MySQL setup on Debian
---------------------------------
+## Apache/PHP/MySQL setup on Debian
+
 The next steps are
 - Set up a SSL virtual host
 - Change MySQL timezone settings.
@@ -107,13 +107,13 @@ Make MySQL timezone-aware with the [mysql_tzinfo_to_sql](http://dev.mysql.com/do
 
         mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p
 
-Caveats
--------
+## Caveats
+
 Auth does not know your LDAP schema, so by default it uses very basic data structures for groups and users. If you want to take advantage of extra LDAP features, then you should modify ldap_service.php to suit your organization.
 
 Auth will attempt to bring different services "into line" with eachother in terms of group membership and account locations. This process will be annoying, and you should screen-capture your group membership so that you can fix it.
 
-Credits
--------
+## Credits
+
 - The default login background is modified from [this image](http://commons.wikimedia.org/wiki/File:Great_Barrier_Reef_105_%285383117759%29.jpg) on Wikimedia Commons, CC2.
 - The Google API [PHP client](https://code.google.com/p/google-api-php-client/) is included, and is under the Apache License.
