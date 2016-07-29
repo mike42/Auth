@@ -1,117 +1,50 @@
-# Auth [![Build Status](https://travis-ci.org/mike42/Auth.svg?branch=master)](https://travis-ci.org/mike42/Auth)
+# Auth Web [![Build Status](https://travis-ci.org/mike42/Auth.svg?branch=master)](https://travis-ci.org/mike42/Auth)
 
-'Auth' is a scriptable Single Sign On (SSO) solution for organisations which have user accounts in lots of different places. It provides an interface to manage any number of user account databases centrally.
+Auth Web is a system to manage complex user account management setups through a simple web interface.
 
-Users can log in via a web portal to reset their password for all services, and view group membership.
+The aim of this project is to give every user the impression that they have exactly one user account in the organisation, no matter how complex the underlying infrastructure is. It does this by allowing administrators to link user accounts on different systems that are controlled by the same person, so that the person's access can be managed from one place. Each time an action is performed, Auth Web will interact with the relevant systems asynchronously to bring them up to speed.
 
-The administrative interface lets you modify accounts, groups, and organizational units via the web, and will create a queue of actions which are processed in the background.
+The use cases for this sort of web application include:
+
+- manage access to systems that don't/can't authenticate centrally
+- set a user's password, display name, or group membership on all accounts at once
+- set up accounts according to updates to the staff database
+- add a web interface so that admins can reset passwords and unlock accounts on the go
+
+The system ships with plugins for:
+
+- LDAP (intended for UNIX or RADIUS accounts)
+- Microsoft Active Directory 
+- Google Apps, via the Google Data REST API
 
 ## Requirements
 
-This code is designed to run on Debian GNU/Linux 7.0 (wheezy) and 8.0 (jessie).
+This code is intended to run on the following platforms:
 
-Account databases supported:
+- The most recent stable release of Debian GNU/Linux
+- The most recent LTS release of Ubuntu GNU/Linux
 
-- OpenLDAP
-- Active Directory (all versions)
-- Google Apps, via the Directory API.
+Required software:
 
-Dependencies, and which component they are used with (useful for troubleshooting):
-- php5-ldap, for logging in via an LDAP or active directory server.
-- php5-cli for processing the Action Queue
+- MySQL or MariaDB server
+- Apache webserver
+- PHP 5.6, with plugins: php5-ldap php5-cli
 
-Optional dependencies:
-- phpmyadmin, for managing the database and installing.
+Optional software:
+
+- phpmyadmin, may be used to perform the database setup through the web
 - php5-curl, for the Google Apps service
 - php5-odbc and FreeTDS, for plugins which interact with Microsoft SQL Server
 
 ## Installation
 
-The installation steps here cover installing Auth as a standalone LDAP front-end.
+A standalone example setup is used for testing. Ansible will configure the app and database to manage an empty OpenLDAP domain. For notes on how to install this on a spare Debian-based machine, see the notes under `maintenance/demo-install/README.md`.
 
-Install dependencies:
+## Gotchas
 
-        apt-get install git apache2 slapd mysql-server phpmyadmin php5-ldap php5-cli php5-curl libapache2-mod-php5 openssl ldap-utils
+Web Auth does not know your LDAP schema, so by default it uses very basic data structures for groups and users. If you want to take advantage of extra LDAP features, then you should modify `ldap_service.php` to use the features in your schema.
 
-Clone the repo into /usr/share/auth:
-
-        su
-        cd /usr/share
-        git clone --recursive https://github.com/mike42/Auth auth
-
-Configure apache! You need an ssl virtual host, with AllowOverride All set, mod_rewrite enabled, and its DocumentRoot at /var/www.
-
-These commands will link up your webserver:
-
-        cd /var/www
-        ln -s /usr/share/auth/www/a/ a
-        ln -s /usr/share/phpmyadmin/ phpmyadmin
-
-The above directories work with the following .htaccess file:
-
-        # Rewrite rules for auth
-        RewriteEngine On
-        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
-        RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d
-
-        # Handle stylesheets and scripts
-        RewriteRule ^/?admin/css/(.*)$ /a/public/admin/css/$1 [PT,L,QSA]
-        RewriteRule ^/?admin/img/(.*)$ /a/public/admin/img/$1 [PT,L,QSA]
-        RewriteRule ^/?admin/js/(.*)$ /a/public/admin/js/$1 [PT,L,QSA]
-
-        # Handle everything else
-        RewriteRule ^/?admin/(.*)$ /a/admin.php?p=$1 [PT,L,QSA]
-        RewriteRule ^/?account/(.*)$ /a/account.php?p=$1 [PT,L,QSA]
-        RewriteRule ^/?assistant/(.*)$ /a/assistant.php?p=$1 [PT,L,QSA]
-
-If Auth is the only program that runs here, you might want to also make an index.php with this:
-
-        <?php
-        header('location: /account/');
-
-Now import the schema into phpmyadmin, from maintenance/schema/auth.sql, and the default data from maintenance/schema/data/defaults.sql
-
-Now cd /usr/share/auth.
-
-Copy site.example/ to site/, and replace bg.jpg and logo.png with some company artwork, and config.php. Remembering database and LDAP settings, enter these in config.php.
-
-(Note for lock files: Debian 6 Uses /var/lock, not /var/run/lock)
-
-Open the database up and look at the 'service' table. If you are administering LDAP on localhost (this is the default set-up), then correct the domain name and password to make it work. 
-
-To prepare authqueue (a background processs that does all the heavy lifting), you should create its log file, with the right permissions. You could also get super crafty with rotating logs, if you are expecting to generate a lot of data:
-	
-        touch /var/log/meta-auth.log
-        chown www-data /var/log/meta-auth.log
-
-To test the authqueue, run this, and pay close attention to any errors you see:
-        
-        sudo -u www-data bash
-        cd /usr/share/auth/maintenance/bin
-        ./authqueue.php -x -v
-
-## Apache/PHP/MySQL setup on Debian
-
-The next steps are
-- Set up a SSL virtual host
-- Change MySQL timezone settings.
-
-Auth must run over SSL, for obvious security reasons. On an internal network, you can simply follow [these instructions](https://wiki.debian.org/Self-Signed_Certificate) to set up a Self-Signed Certificate.
-
-To use the .htaccess file above, you need to set "AllowOverride All" in apache2.conf, and then enable mod_rewrite:
-
-        a2enmod rewrite
-        service apache2 reload
-
-Make MySQL timezone-aware with the [mysql_tzinfo_to_sql](http://dev.mysql.com/doc/refman/5.5/en/mysql-tzinfo-to-sql.html) tool.
-
-        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root mysql -p
-
-## Caveats
-
-Auth does not know your LDAP schema, so by default it uses very basic data structures for groups and users. If you want to take advantage of extra LDAP features, then you should modify ldap_service.php to suit your organization.
-
-Auth will attempt to bring different services "into line" with eachother in terms of group membership and account locations. This process will be annoying, and you should screen-capture your group membership so that you can fix it.
+Auth will attempt to align users' group membership and account locations. If it is asked to synchronise two services that are very different, the results are currently quite messy. Ensure that you have done a trial run against a fake system 
 
 ## Credits
 
