@@ -1,6 +1,6 @@
 <?php
 /* Timezone for the ActionQueue */
-date_default_timezone_set('{{ ansible_date_time.tz }}');
+//date_default_timezone_set('{{ ansible_date_time.tz }}');
 
 /* All other options */
 $config = array(

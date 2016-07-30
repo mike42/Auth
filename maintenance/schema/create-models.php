@@ -1,5 +1,5 @@
 #!/usr/bin/php
-<?
+<?php
 /* This is an extremely crude model generator.
  * 	Works with phpmyadmin exports of this specific database.
  * 	Will probably not work on other datbases, other exports of
