@@ -19,3 +19,4 @@ auth_db_name = auth
 auth_db_user = auth
 auth_db_pass = vuKWRbx5T9LJKb32s2Yb
 
+php_ver = 5
