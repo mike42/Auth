@@ -1,0 +1,21 @@
+[auth-server]
+# The server to installl Auth on.
+localhost ansible_connection=local ansible_become=true ansible_become_user=root
+
+[all:vars]
+# Use something like `openssl rand -base64 15` to generate your own passwords
+# prior to deployment.
+
+# OpenLDAP server
+ldap_password = cNiZabG6BjRhaYTXnXbI
+ldap_domain = example.com
+ldap_domain_ldif = dc=example,dc=com
+ldap_admin = cn=admin,dc=example,dc=com
+
+# MySQL server
+mysql_host = localhost
+mysql_root_password = 0LxvzBIVcVTXaaQxorFN
+auth_db_name = auth
+auth_db_user = auth
+auth_db_pass = vuKWRbx5T9LJKb32s2Yb
+

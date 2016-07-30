@@ -1,0 +1,45 @@
+---
+- name: OpenLDAP domain is set in debconf
+  debconf:
+    name: 'slapd'
+    question: '{{ item }}'
+    vtype: 'string'
+    value: '{{ ldap_domain }}'
+  with_items: [ 'slapd/domain', 'shared/organization' ]
+
+- name: openldap is installed
+  apt: package={{ item }} state=present
+  with_items:
+  - ldap-utils
+  - slapd
+
+- name: find current and expected account details
+  command: "{{ item }}"
+  changed_when: false
+  no_log: true
+  register: result
+  ignore_errors: True
+  with_items:
+  - slappasswd -s "{{ ldap_password }}"
+  - ldapsearch -H ldapi:// -LLL -Q -Y EXTERNAL -b "cn=config" "(olcRootDN={{ ldap_admin }})" dn olcRootPW
+  - ldapwhoami -vvv -H ldapi:// -D {{ ldap_admin }} -x -w "{{ ldap_password }}"
+
+- command: slapcat
+
+- name: expected account details setup applied to temp file
+  copy:
+    content: |
+      {{ result.results[1].stdout_lines[0] }}
+      changetype: modify
+      replace: olcRootPW
+      olcRootPW: {{ result.results[0].stdout_lines[0] }}
+    dest: ~/.ldap_set
+  when: result|failed
+
+- name: admin account details are up to date
+  shell: ldapmodify -H ldapi:// -Q -Y EXTERNAL < ~/.ldap_set
+  when: result|failed
+
+- name: temp file is cleaned up
+  file: dest="~/.ldap_set" state=absent
+

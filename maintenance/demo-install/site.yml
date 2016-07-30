@@ -1,0 +1,10 @@
+---
+- name: Install Auth, PHP, Apache, MySQL, OpenLDAP.
+  hosts: auth-server
+
+  roles:
+    - common
+    - db
+    - ldap
+    - web
+

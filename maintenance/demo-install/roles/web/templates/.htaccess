@@ -1,0 +1,15 @@
+# Rewrite rules for auth
+RewriteEngine On
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-d
+
+# Handle stylesheets and scripts
+RewriteRule ^/?admin/css/(.*)$ /a/public/admin/css/$1 [PT,L,QSA]
+RewriteRule ^/?admin/img/(.*)$ /a/public/admin/img/$1 [PT,L,QSA]
+RewriteRule ^/?admin/js/(.*)$ /a/public/admin/js/$1 [PT,L,QSA]
+
+# Handle everything else
+RewriteRule ^/?admin/(.*)$ /a/admin.php?p=$1 [PT,L,QSA]
+RewriteRule ^/?account/(.*)$ /a/account.php?p=$1 [PT,L,QSA]
+RewriteRule ^/?assistant/(.*)$ /a/assistant.php?p=$1 [PT,L,QSA]
+
