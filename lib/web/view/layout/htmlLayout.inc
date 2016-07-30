@@ -14,6 +14,7 @@
 <script src="/a/public/js/jquery.treeview/jquery.treeview.js"></script>
 <link rel="stylesheet" type="text/css" href="/a/public/js/jquery.treeview/jquery.treeview.css" />
 
+<link rel="icon" type="image/png" href="/a/public/img/icons/user.png" />
 <!--[if IE]>
 <link rel="stylesheet" type="text/css" href="css/ie-sucks.css" />
 <![endif]-->

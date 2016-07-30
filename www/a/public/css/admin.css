@@ -2,4 +2,7 @@
 	background: white url('/auth/img/icons/ui-anim_basic_16x16.gif') right center no-repeat;
 }
 
+body {
+	overflow-y: scroll;
+}
 
