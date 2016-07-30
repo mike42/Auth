@@ -2,3 +2,4 @@ site/*
 .settings/*
 .buildpath
 *.bak
+vendor/

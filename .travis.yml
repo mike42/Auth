@@ -16,6 +16,9 @@ addons:
     packages:
     - ansible
 
+install:
+  - composer install
+
 script:
   - (cd maintenance/demo-install && ansible-playbook -i inventory.local site.yml)
 ...
