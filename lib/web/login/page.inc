@@ -16,6 +16,7 @@
 <link rel="stylesheet" type="text/css" href="/a/public/css/ui-lightness/jquery-ui-1.9.1.custom.min.css" />
 <script type="text/javascript"src="/a/public/js/jquery.backstretch.min.js"></script>
 
+<link rel="icon" type="image/png" href="/a/public/img/icons/user.png" />
 <!--[if IE]>
 <link rel="stylesheet" type="text/css" href="css/ie-sucks.css" />
 <![endif]-->

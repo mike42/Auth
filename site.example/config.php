@@ -1,7 +1,4 @@
 <?php
-/* Timezone for the ActionQueue */
-date_default_timezone_set('UTC');
-
 /* All other options */
 $config = array(
 	'Database' =>

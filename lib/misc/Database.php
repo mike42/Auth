@@ -9,39 +9,28 @@ class Database {
 	public static function init() {
 		/* Get configuration for this class and connect to the database */
 		self::$conf = Auth::getConfig(__CLASS__);
-		if(!Database::connect()) {
-			throw new Exception("Failed to connect to database.");
-		}
+		Database::connect();
 	}
 	
 	private static function connect() {
-		self::$conn = mysql_connect(database::$conf['host'], database::$conf['user'], database::$conf['password']);
-		return mysql_select_db(database::$conf['name']);
+		self::$conn = new PDO("mysql:host=" . database::$conf['host'] . ";dbname=" . database::$conf['name'] . ";charset=utf8mb4", database::$conf['user'], database::$conf['password']);
 	}
-	
-	private static function query($query) {
-		return mysql_query($query);
-	}
-	
+
 	public static function get_row($result) {
-		if($result == false) {
+		if(!$result) {
 			return false;
-		} else {
-			return mysql_fetch_array($result);
 		}
-	}
-	
-	public static function escape($str) {
-		return mysql_real_escape_string($str);
+		return $result -> fetch(PDO::FETCH_ASSOC);
 	}
 	
 	public static function insert_id() {
-		return mysql_insert_id();
+		return Database::$conn -> lastInsertId();
 	}
 	
 	public static function close() {
 		/* Close connection */
-		return mysql_close(database::$conn);
+		$this -> conn = null;
+		return true;
 	}
 	
 	public static function retrieve($query, array $arg) {
@@ -65,32 +54,12 @@ class Database {
 	
 	private static function doQuery($query, array $arg) {
 		/* Query wrapper to be sure everything is escaped. All SQL must go through here! */
-		foreach($arg as $key => $val) {
-			$arg[$key] = database::retrieve_arg($val);
-		}
-		
-		array_unshift($arg, $query);
-		$query = call_user_func_array('sprintf', $arg);
-		
-		$res = database::query($query);
-		
-		/* Die on database errors */
-		if(!$res) {
-			$errmsg = 'Query failed:' . $query." ". mysql_error();;
-			throw new Exception($errmsg);
-		}
-		
-		return $res;
+		$query = str_replace("'%s'", "?", $query);
+		$stmt = self::$conn -> prepare($query);
+		$stmt -> execute($arg);
+		return $stmt;
 	}
-	
-	public static function retrieve_arg($arg) {
-		/* Escape an argument for an SQL query, or return false if there was none */
-		if($arg) {
-			return database::escape($arg);
-		}
-		return false;
-	}
-	
+
 	public static function row_from_template($row, $template) {
 		/* This copies an associative array from the database, copying only fields which exist in this template */
 		$res = $template;
