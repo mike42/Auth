@@ -1,4 +1,6 @@
 <?php
+use Auth\web\Web;
+
 class Account_view {
 	
 	public static function init() {

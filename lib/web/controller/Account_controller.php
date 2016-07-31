@@ -1,4 +1,6 @@
-<?php 
+<?php
+use Auth\web\Web;
+
 class Account_controller {
 	public static function init() {
 		Auth::loadClass("Account_api");
@@ -20,7 +22,7 @@ class Account_controller {
 					case "delete":
 						$owner_id = $data['Account'] -> owner_id;
 						Account_api::delete($data['Account'] -> account_id);
-						web::redirect(web::constructURL("AccountOwner", "view", array($owner_id), "html"));
+						Web::redirect(Web::constructURL("AccountOwner", "view", array($owner_id), "html"));
 						break;
 					case "disable":
 						$data['Account'] = Account_api::disable($data['Account'] -> account_id);
@@ -92,7 +94,7 @@ class Account_controller {
 			try {
 				$account_login = $_POST['account_login'];
 				Account_api::rename($data['Account'] -> account_id, $account_login);
-				web::redirect(web::constructURL("Account", "view", array($data['Account'] -> account_id), "html"));
+				Web::redirect(Web::constructURL("Account", "view", array($data['Account'] -> account_id), "html"));
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();
 			}

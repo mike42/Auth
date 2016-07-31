@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script type="text/javascript">
 	$(function() {
 		$("#tree").treeview({
@@ -33,11 +36,11 @@
 
 			<?php 
 				if(isset($data['message'])) {
-					echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+					echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 				}
 			?>
 			<div class="well">
-				Select the organizational unit which <b><?php echo web::escapeHTML($data['Ou'] -> ou_name); ?></b> should go in:
+				Select the organizational unit which <b><?php echo Web::escapeHTML($data['Ou'] -> ou_name); ?></b> should go in:
 				<ul class="treeview" id="tree" style="padding: 5px;">
 				<li><a href="#" onClick='moveOu(<?php echo (int)$data['Ou'] -> ou_id; ?>,<?php echo (int)$data['Ou_root'] -> ou_id; ?>)'>root</a>
 				<ul>

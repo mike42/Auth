@@ -6,5 +6,10 @@
         "squizlabs/php_codesniffer": "^2.6",
         "phpunit/phpunit": "^5.3",
         "phpunit/phpunit-selenium": ">=1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Auth\\": "lib"
+        }
     }
 }

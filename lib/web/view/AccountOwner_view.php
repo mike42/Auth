@@ -1,4 +1,6 @@
 <?php
+use Auth\web\Web;
+
 class AccountOwner_view {
 	public static function init() {
 		Web::loadView("Page_view");

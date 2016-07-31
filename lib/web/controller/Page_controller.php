@@ -1,4 +1,5 @@
-<?php 
+<?php
+use Auth\web\Web;
 
 class Page_controller {
 	public static function init() {

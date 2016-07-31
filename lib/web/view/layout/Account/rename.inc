@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script type="text/javascript">
 	$(function() {
 		$("#account-login").focus();
@@ -20,7 +23,7 @@
 
 			<?php 
 			if(isset($data['message'])) {
-				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+				echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 			}
 			?>
 			<div>
@@ -38,7 +41,7 @@
 						<tr>
 							<th>Login name:</th>
 							<td><input type="text" name="account_login" id="account-login"
-								value="<?php echo web::escapeHTML($data['Account'] -> account_login); ?>" />
+								value="<?php echo Web::escapeHTML($data['Account'] -> account_login); ?>" />
 							</td>
 						</tr>
 						<tr>

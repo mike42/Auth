@@ -1,5 +1,4 @@
-<?php 
-
+<?php
 class Page_view {
 	public static function view_html($data) {
 		self::useTemplate('home', $data);

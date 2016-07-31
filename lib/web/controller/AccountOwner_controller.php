@@ -1,4 +1,6 @@
 <?php
+use Auth\web\Web;
+
 class AccountOwner_controller {
 	/**
 	 * 
@@ -78,7 +80,7 @@ class AccountOwner_controller {
 				}
 				
 				$ao = AccountOwner_api::create($ou_id, $owner_firstname, $owner_surname, $account_login, $domain_id, $services);
-				web::redirect(web::constructURL("AccountOwner", "view", array((int)$ao -> owner_id), "html"));
+				Web::redirect(Web::constructURL("AccountOwner", "view", array((int)$ao -> owner_id), "html"));
 			}
 		} catch(Exception $e) {
 			$data['message'] = $e -> getMessage();
@@ -106,7 +108,7 @@ class AccountOwner_controller {
 			try {
 				$group = UserGroup_api::get_by_group_cn($group_cn);
 				AccountOwner_api::addtogroup($data['AccountOwner'] -> owner_id, $group -> group_id);
-				web::redirect(web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), "html"));
+				Web::redirect(Web::constructURL("AccountOwner", "view", array((int)$data['AccountOwner'] -> owner_id), "html"));
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();
 			}

@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script>
 	function updateNow() {
 		$("#action").val('update');

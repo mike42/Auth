@@ -1,4 +1,6 @@
 <?php
+use Auth\web\Web;
+
 require_once(dirname(__FILE__) . "/../util.php");
 
 /**

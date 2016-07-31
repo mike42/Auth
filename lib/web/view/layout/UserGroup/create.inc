@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script type="text/javascript">
 	$(function() {
 		$("#group-name").focus();
@@ -23,11 +26,11 @@
 			</div>
 			<?php 
 				if(isset($data['message'])) {
-					echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+					echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 				}
 			?>
 			<div>
-				<form action="<?php echo web::constructURL("UserGroup", "create", array((int)$data['Parent'] -> ou_id), 'html'); ?>" method="post">
+				<form action="<?php echo Web::constructURL("UserGroup", "create", array((int)$data['Parent'] -> ou_id), 'html'); ?>" method="post">
 					<table class="table-bordered" style="margin-left: auto; margin-right: auto">
 						<tr>
 							<th>
@@ -50,7 +53,7 @@
 								Create in:
 							</th>
 							<td>
-								<?php echo web::escapeHTML($data['Parent'] -> ou_name); ?>
+								<?php echo Web::escapeHTML($data['Parent'] -> ou_name); ?>
 							</td>
 						</tr>
 						<tr>
@@ -63,7 +66,7 @@
 									"<option value=\"\">(select domain)</option>";
 							foreach($data['ListDomain'] as $domain) {
 								$selected = (isset($_POST['domain_id']) && $_POST['domain_id'] == $domain -> domain_id) ? " selected": "";
-								echo "<option value=\"".web::escapeHTML($domain -> domain_id)."\"$selected>" . web::escapeHTML($domain -> domain_name) . "</option>\n";
+								echo "<option value=\"".Web::escapeHTML($domain -> domain_id)."\"$selected>" . Web::escapeHTML($domain -> domain_name) . "</option>\n";
 							}
 							?>
 							</td>

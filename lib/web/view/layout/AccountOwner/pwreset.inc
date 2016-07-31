@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script type="text/javascript">
 	$(function() {
 		updateView();
@@ -27,7 +30,7 @@
 		<div class="span8">
 			<div class="alert alert-info">
 				<h3>
-					<?php echo web::escapeHTML($data['AccountOwner'] -> owner_firstname . " ". $data['AccountOwner'] -> owner_surname); ?>
+					<?php echo Web::escapeHTML($data['AccountOwner'] -> owner_firstname . " ". $data['AccountOwner'] -> owner_surname); ?>
 				</h3>
 			</div>
 
@@ -38,7 +41,7 @@
 				} else {
 					echo "<div class=\"alert\">";
 				}
-				echo web::escapeHTML($data['message']) . "</div>";
+				echo Web::escapeHTML($data['message']) . "</div>";
 			}?>
 
 			<div class="well">

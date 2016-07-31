@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <!DOCTYPE html>
 <html>
 <head>

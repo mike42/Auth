@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <?php include(dirname(__FILE__)."/../snippet/account_selector.php"); ?>
 <?php include(dirname(__FILE__)."/../snippet/group_selector.php"); ?>
 <div id="rightnow">
@@ -12,7 +15,7 @@
 			<p>
 			<?php
 			if(isset($data['message'])) {
-				echo "<b>".web::escapeHTML($data['message']) . "</b>";
+				echo "<b>".Web::escapeHTML($data['message']) . "</b>";
 			}
 			?>
 			</p>
@@ -37,7 +40,7 @@
 			<p>
 			<?php
 			if(isset($data['message'])) {
-				echo "<b>".web::escapeHTML($data['message']) . "</b>";
+				echo "<b>".Web::escapeHTML($data['message']) . "</b>";
 			}
 			?>
 			</p>

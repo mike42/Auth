@@ -4,7 +4,8 @@
  * 
  * @author Michael Billington <michael.billington@gmail.com>
  */
-class Auth {	
+
+class Auth {
 	/**
 	 * Load a class by name
 	 * 

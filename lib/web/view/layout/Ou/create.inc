@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script type="text/javascript">
 	$(function() {
 		$("#ou-name").focus();
@@ -21,11 +24,11 @@
 
 			<?php 
 				if(isset($data['message'])) {
-					echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+					echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 				}
 			?>
 			<div>
-				<form action="<?php echo web::constructURL("Ou", "create", array((int)$data['Parent'] -> ou_id), 'html'); ?>" method="post">
+				<form action="<?php echo Web::constructURL("Ou", "create", array((int)$data['Parent'] -> ou_id), 'html'); ?>" method="post">
 					<table class="table-bordered" style="margin-left: auto; margin-right: auto">
 						<tr>
 							<th>
@@ -40,7 +43,7 @@
 								Create in:
 							</th>
 							<td>
-								<?php echo web::escapeHTML($data['Parent'] -> ou_name); ?>
+								<?php echo Web::escapeHTML($data['Parent'] -> ou_name); ?>
 							</td>
 						</tr>
 						<tr>
