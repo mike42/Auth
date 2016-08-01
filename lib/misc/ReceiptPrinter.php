@@ -1,4 +1,6 @@
 <?php
+namespace Auth\misc;
+
 use Auth\Auth;
 
 class ReceiptPrinter {

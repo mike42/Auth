@@ -7,6 +7,8 @@
 
 namespace Auth;
 
+use \Exception;
+
 class Auth {
 	/**
 	 * Load a class by name
@@ -21,6 +23,7 @@ class Auth {
 				/* If there are no underscores, it should be in misc */
 				$sp[0] = self::alphanumeric($sp[0]);
 				$fn = dirname(__FILE__)."/misc/".$sp[0].".php";
+				$init = "Auth\\misc\\" . $sp[0];
 			} else {
 				/* Otherwise look in the folder suggested by the name */
 				$folder = self::alphanumeric(array_pop($sp));
@@ -28,12 +31,14 @@ class Auth {
 				if($folder == "util") {
 					/* Utilities are self-contained in their own folder */
 					$fn = dirname(__FILE__)."/$folder/$classfile/$classfile.php";
+					$init = "Auth\\$folder\\$classfile\\$classfile";
 				} else {
 					$fn = dirname(__FILE__)."/$folder/$classfile.php";
+					$init = "Auth\\$folder\\$classfile";
 				}
 			}
 
-			self::loadClassFromFile($fn, $className);
+			self::loadClassFromFile($fn, $className, $init);
 		}
 	}
 	
@@ -44,14 +49,14 @@ class Auth {
 	 * @param string $className	Name of the class being loaded
 	 * @throws Exception
 	 */
-	static public function loadClassFromFile($fn, $className) {
+	static public function loadClassFromFile($fn, $className, $init) {
 		if(!file_exists($fn)) {
 			throw new Exception("The class '$className' could not be found at $fn.");
 		}
-		
+
 		require_once($fn);
-		if(is_callable($className . "::init")) {
-			call_user_func($className . "::init");
+		if(is_callable($init . "::init")) {
+			call_user_func($init . "::init");
 		}
 	}
 	
@@ -62,6 +67,7 @@ class Auth {
 	 */
 	static public function getConfig($section) {
 		include(dirname(__FILE__) . "/../site/config.php");
+		$section = array_pop(explode("\\", $section));
 		if(!isset($config[$section])) {
 			throw new Exception("No configuration found for '$section'");
 		}

@@ -1,5 +1,13 @@
 <?php
+namespace Auth\web\controller;
+
+use \Exception;
+use Auth\api\Account_api;
+use Auth\api\AccountOwner_api;
 use Auth\Auth;
+use Auth\model\Account_model;
+use Auth\model\ListDomain_model;
+use Auth\web\controller\Account_controller;
 use Auth\web\Web;
 
 class Account_controller {

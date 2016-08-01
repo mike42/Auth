@@ -1,5 +1,18 @@
 <?php
+namespace Auth\api;
+
+use Auth\api\Account_api;
+use Auth\api\AccountOwner_api;
+use Auth\api\ActionQueue_api;
+use Auth\api\Ou_api;
+use Auth\api\UserGroup_api;
 use Auth\Auth;
+use Auth\model\Account_model;
+use Auth\model\AccountOwner_model;
+use Auth\model\ListDomain_model;
+use Auth\model\ListServiceDomain_model;
+use Auth\model\OwnerUserGroup_model;
+use \Exception;
 
 /**
  * This class provides an interface for managing accounts in the local database.

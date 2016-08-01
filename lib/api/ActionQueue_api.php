@@ -1,5 +1,14 @@
 <?php
+namespace Auth\api;
+
+use Auth\api\ActionQueue_api;
 use Auth\Auth;
+use Auth\model\ActionQueue_model;
+use Auth\model\ListActionType_model;
+use Auth\model\ListDomain_model;
+use Auth\model\ListServiceDomain_model;
+use Auth\model\Service_model;
+use \Exception;
 
 /**
  * This class provides an interface for interacting with the ActionQueue.

@@ -1,4 +1,6 @@
 <?php
+namespace Auth\misc;
+
 class PasswordGen {
 	static private $words;
 

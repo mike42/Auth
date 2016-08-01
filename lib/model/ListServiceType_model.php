@@ -1,5 +1,10 @@
 <?php
+namespace Auth\model;
+
 use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\ListServiceType_model;
+use Auth\model\Service_model;
 
 class ListServiceType_model {
 	/* Fields */

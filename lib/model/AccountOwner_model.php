@@ -1,5 +1,12 @@
 <?php
+namespace Auth\model;
+
 use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\Account_model;
+use Auth\model\AccountOwner_model;
+use Auth\model\Ou_model;
+use Auth\model\OwnerUserGroup_model;
 
 class AccountOwner_model {
 	/* Fields */

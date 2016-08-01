@@ -1,5 +1,11 @@
 <?php
+namespace Auth\web\controller;
+
+use \Exception;
+use Auth\api\Ou_api;
 use Auth\Auth;
+use Auth\model\Ou_model;
+use Auth\web\controller\Ou_controller;
 use Auth\web\Web;
 
 class Ou_controller {

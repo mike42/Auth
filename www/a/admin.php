@@ -1,7 +1,9 @@
 <?php
 require_once(dirname(__FILE__) . "/../../vendor/autoload.php");
-use Auth\web\Web;
+
 use Auth\Auth;
+use Auth\api\ActionQueue_api;
+use Auth\web\Web;
 
 /* Require user to be logged in as admin */
 $loginConf = Auth::getConfig('login');
@@ -65,15 +67,16 @@ if(count($arg) > 2) {
 try {
 	/* Execute controller code */
 	if($controller == "Utility" && $action != "view") {
-		$controllerClassName = $action.'_util';
+	    $controllerClassName = "${action}_util";
+	    Auth::loadClass($controllerClassName);
+		$controllerClassName = "Auth\\util\\$controllerClassName\\$controllerClassName";
 		$controllerMethodName = "admin";
-		Auth::loadClass($controllerClassName);
 		$viewMethodName = "admin_" . $fmt;
 	} else {
-		$controllerClassName = $controller.'_controller';
+	    $controllerClassName = "${controller}_controller";
+	    Web::loadController($controllerClassName);
+		$controllerClassName = "Auth\\web\\controller\\$controllerClassName";
 		$controllerMethodName = $action;
-		Web::loadController($controllerClassName);
-		
 		$viewMethodName = $action . "_" . $fmt;
 	}
 	$viewClassName = $controller.'_view';
@@ -99,6 +102,7 @@ try {
 	}
 
 	/* Run view code */
+	$viewClassName = "Auth\\web\\view\\$viewClassName";
 	if(!is_callable($viewClassName . "::" .$viewMethodName)) {
 		Web::fizzle("View '$viewClassName' does not have method '$viewMethodName'");
 	}

@@ -1,5 +1,14 @@
 <?php
+namespace Auth\model;
+
 use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\Account_model;
+use Auth\model\ActionQueue_model;
+use Auth\model\ListDomain_model;
+use Auth\model\ListServiceDomain_model;
+use Auth\model\Service_model;
+use Auth\model\UserGroup_model;
 
 class ListDomain_model {
 	/* Fields */

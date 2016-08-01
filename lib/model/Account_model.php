@@ -1,5 +1,12 @@
 <?php
+namespace Auth\model;
+
 use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\Account_model;
+use Auth\model\AccountOwner_model;
+use Auth\model\ListDomain_model;
+use Auth\model\Service_model;
 
 class Account_model {
 	/* Fields */

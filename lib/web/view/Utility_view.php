@@ -1,4 +1,10 @@
 <?php
+namespace Auth\web\view;
+
+use Auth\Auth;
+use Auth\util\util;
+use Auth\web\view\Page_view;
+use Auth\web\view\Utility_view;
 use Auth\web\Web;
 
 class Utility_view {

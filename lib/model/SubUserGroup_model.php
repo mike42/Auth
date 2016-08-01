@@ -1,5 +1,10 @@
 <?php
+namespace Auth\model;
+
 use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\SubUserGroup_model;
+use Auth\model\UserGroup_model;
 
 class SubUserGroup_model {
 	/* Fields */

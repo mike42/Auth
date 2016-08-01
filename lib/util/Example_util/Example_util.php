@@ -1,5 +1,10 @@
 <?php
+namespace Auth\util\Example_util;
+
+use \Exception;
 use Auth\Auth;
+use Auth\util\Example_util\Example_util;
+use Auth\util\util;
 use Auth\web\Web;
 
 require_once(dirname(__FILE__) . "/../util.php");

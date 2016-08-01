@@ -1,5 +1,11 @@
 <?php
+namespace Auth\util\AccountMerge_util;
+
+use \Exception;
+use Auth\api\AccountOwner_api;
 use Auth\Auth;
+use Auth\util\AccountMerge_util\AccountMerge_util;
+use Auth\util\util;
 use Auth\web\Web;
 
 require_once(dirname(__FILE__) . "/../util.php");

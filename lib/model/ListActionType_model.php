@@ -1,5 +1,10 @@
 <?php
+namespace Auth\model;
+
 use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\ActionQueue_model;
+use Auth\model\ListActionType_model;
 
 class ListActionType_model {
 	/* Fields */
