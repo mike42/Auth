@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 /**
  *	Wrapper for mySQL extension to manage connection and avoid injection.
  */

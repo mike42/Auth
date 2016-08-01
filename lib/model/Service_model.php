@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class Service_model {
 	/* Fields */
 	public $service_id;

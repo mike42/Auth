@@ -1,4 +1,5 @@
-<?php 
+<?php
+use Auth\Auth;
 
 require_once(dirname(__FILE__) . "/account_service.php");
 require_once(dirname(__FILE__) . "/../misc/Provisioning_Email.php");

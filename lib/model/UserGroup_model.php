@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class UserGroup_model {
 	/* Fields */
 	public $group_id;

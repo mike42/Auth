@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 /**
  * This class provides an interface for managing accounts in the local database.
  * It ensures that changes are pushed onto the ActionQueue.

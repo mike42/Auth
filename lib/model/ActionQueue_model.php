@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class ActionQueue_model {
 	/* Fields */
 	public $aq_id;

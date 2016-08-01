@@ -1,6 +1,7 @@
 <?php
 require_once(dirname(__FILE__) . "/../../vendor/autoload.php");
 use Auth\web\Web;
+use Auth\Auth;
 
 Auth::loadClass('AccountOwner_api');
 $conf = Auth::getConfig('login');

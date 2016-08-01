@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 /**
  * This class provides an interface for interacting with the ActionQueue.
  * The returned data is free from sensitive information such as passwords.

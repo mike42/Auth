@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class Account_model {
 	/* Fields */
 	public $account_id;

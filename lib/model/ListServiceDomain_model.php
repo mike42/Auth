@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class ListServiceDomain_model {
 	/* Fields */
 	public $service_id;

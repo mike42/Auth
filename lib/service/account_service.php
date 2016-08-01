@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /**
  * This is the API to interact with all account services.
  * 

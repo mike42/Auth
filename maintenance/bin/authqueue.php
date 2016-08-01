@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
-require_once(dirname(__FILE__). "/../../lib/Auth.php");
+require_once(dirname(__FILE__). "/../../vendor/autoload.php");
+use Auth\Auth;
 
 /* Get lock and open log file*/
 try{

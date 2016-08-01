@@ -5,6 +5,8 @@
  * @author Michael Billington <michael.billington@gmail.com>
  */
 
+namespace Auth;
+
 class Auth {
 	/**
 	 * Load a class by name

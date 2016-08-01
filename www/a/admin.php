@@ -1,9 +1,9 @@
 <?php
 require_once(dirname(__FILE__) . "/../../vendor/autoload.php");
 use Auth\web\Web;
+use Auth\Auth;
 
 /* Require user to be logged in as admin */
-require_once(dirname(__FILE__)."/../../lib/web/Web.php");
 $loginConf = Auth::getConfig('login');
 
 /* Start session and output */

@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class AccountOwner_model {
 	/* Fields */
 	public $owner_id;

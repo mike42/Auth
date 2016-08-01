@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class ListActionType_model {
 	/* Fields */
 	public $action_type;

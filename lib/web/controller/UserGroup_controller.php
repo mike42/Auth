@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class UserGroup_controller {
 	public static function init() {
 		Auth::loadClass("UserGroup_api");	

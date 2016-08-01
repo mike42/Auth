@@ -1,4 +1,5 @@
 <?php
+use Auth\Auth;
 use Auth\web\Web;
 
 class Page_controller {

@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class Ou_model {
 	/* Fields */
 	public $ou_id;

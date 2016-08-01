@@ -1,4 +1,5 @@
 <?php
+use Auth\Auth;
 
 /**
  * Provides an interface for working with individual accounts (logins).

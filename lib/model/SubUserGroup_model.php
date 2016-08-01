@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class SubUserGroup_model {
 	/* Fields */
 	public $parent_group_id;

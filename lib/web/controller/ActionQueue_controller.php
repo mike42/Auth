@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class ActionQueue_controller {
 	public static function init() {
 		Auth::loadClass("ActionQueue_api");

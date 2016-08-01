@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class ListDomain_model {
 	/* Fields */
 	public $domain_id;

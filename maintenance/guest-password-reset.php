@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php 
-require_once(dirname(__FILE__) . "/../lib/Auth.php");
+require_once(dirname(__FILE__). "/../../vendor/autoload.php");
+use Auth\Auth;
+
 Auth::loadClass("PasswordGen");
 Auth::loadClass("Account_model");
 Auth::loadClass("AccountOwner_api");

@@ -1,4 +1,6 @@
 <?php
+use Auth\Auth;
+
 class ListServiceType_model {
 	/* Fields */
 	public $service_type;

@@ -2,8 +2,7 @@
 
 namespace Auth\web;
 
-require_once(dirname(__FILE__)."/../Auth.php");
-use \Auth;
+use Auth\Auth;
 
 class Web {
 	public static $config;
