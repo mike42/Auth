@@ -16,28 +16,28 @@ class Auth {
 	 * @param string $className The name of the class to load.
 	 */
 	static public function loadClass($className) {
-		if(!class_exists($className)) {
-			$sp = explode("_", $className);
-			
-			if(count($sp) == 1) {
-				/* If there are no underscores, it should be in misc */
-				$sp[0] = self::alphanumeric($sp[0]);
-				$fn = dirname(__FILE__)."/misc/".$sp[0].".php";
-				$init = "Auth\\misc\\" . $sp[0];
-			} else {
-				/* Otherwise look in the folder suggested by the name */
-				$folder = self::alphanumeric(array_pop($sp));
-				$classfile = Auth::alphanumeric($className);
-				if($folder == "util") {
-					/* Utilities are self-contained in their own folder */
-					$fn = dirname(__FILE__)."/$folder/$classfile/$classfile.php";
-					$init = "Auth\\$folder\\$classfile\\$classfile";
-				} else {
-					$fn = dirname(__FILE__)."/$folder/$classfile.php";
-					$init = "Auth\\$folder\\$classfile";
-				}
-			}
+		$sp = explode("_", $className);
 
+		if(count($sp) == 1) {
+			/* If there are no underscores, it should be in misc */
+			$sp[0] = self::alphanumeric($sp[0]);
+			$fn = dirname(__FILE__)."/misc/".$sp[0].".php";
+			$init = "Auth\\misc\\" . $sp[0];
+		} else {
+			/* Otherwise look in the folder suggested by the name */
+			$folder = self::alphanumeric(array_pop($sp));
+			$classfile = Auth::alphanumeric($className);
+			if($folder == "util") {
+				/* Utilities are self-contained in their own folder */
+				$fn = dirname(__FILE__)."/$folder/$classfile/$classfile.php";
+				$init = "Auth\\$folder\\$classfile\\$classfile";
+			} else {
+				$fn = dirname(__FILE__)."/$folder/$classfile.php";
+				$init = "Auth\\$folder\\$classfile";
+			}
+		}
+
+		if(!class_exists($init)) {
 			self::loadClassFromFile($fn, $className, $init);
 		}
 	}
