@@ -37,7 +37,7 @@ class Auth {
 			}
 		}
 
-		if(!class_exists($init)) {
+		if(!class_exists($init, false)) {
 			self::loadClassFromFile($fn, $className, $init);
 		}
 	}
@@ -55,6 +55,7 @@ class Auth {
 		}
 
 		require_once($fn);
+
 		if(is_callable($init . "::init")) {
 			call_user_func($init . "::init");
 		}

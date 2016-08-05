@@ -1,6 +1,6 @@
 # Auth Web [![Build Status](https://travis-ci.org/mike42/Auth.svg?branch=master)](https://travis-ci.org/mike42/Auth)
 
-Auth Web is a system to manage complex user account management setups through a simple web interface.
+Auth Web is a system to handle complex user account management setups through a simple web interface.
 
 The aim of this project is to give every user the impression that they have exactly one user account in the organisation, no matter how complex the underlying infrastructure is. It does this by allowing administrators to link user accounts on different systems that are controlled by the same person, so that the person's access can be managed from one place. Each time an action is performed, Auth Web will interact with the relevant systems asynchronously to bring them up to speed.
 

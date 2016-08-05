@@ -147,7 +147,7 @@ function process(ActionQueue_model $aq) {
 
 	/* Retrieve info and call function in service */
 	if(substr($aq -> action_type, 0, 4) == "acct") {
-		Auth::loadClass("Auth\\model\\Account_model");
+		Auth::loadClass("Account_model");
 	}
 
 	switch($aq -> action_type) {
