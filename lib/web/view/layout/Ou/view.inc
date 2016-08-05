@@ -1,5 +1,6 @@
 <?php
 use Auth\web\Web;
+use Auth\model\Ou_model;
 ?>
 <script type="text/javascript">
 	$(function() {

@@ -14,10 +14,11 @@ class Web {
 	 * 
 	 * @param string $className
 	 */
-	function loadController($className) {
+	static public function loadController($className) {
 		if(!class_exists($className)) {
-			$fn = dirname(__FILE__)."/controller/".Auth::alphanumeric($className).".php";
-			Auth::loadClassFromFile($fn, $className);
+		    $className = Auth::alphanumeric($className);
+			$fn = dirname(__FILE__)."/controller/${className}.php";
+			Auth::loadClassFromFile($fn, $className, "Auth\\web\\controller\\${className}");
 		}
 	}
 	
@@ -26,10 +27,11 @@ class Web {
 	 * 
 	 * @param string $className
 	 */
-	function loadView($className) {
+	static public function loadView($className) {
 		if(!class_exists($className)) {
-			$fn = dirname(__FILE__)."/view/".Auth::alphanumeric($className).".php";
-			Auth::loadClassFromFile($fn, $className);
+		    $className = Auth::alphanumeric($className);
+			$fn = dirname(__FILE__)."/view/${className}.php";
+			Auth::loadClassFromFile($fn, $className, "Auth\\web\\view\\${className}");
 		}
 	}
 	
@@ -38,7 +40,7 @@ class Web {
 	 * 
 	 * @param string $error	A description of the error
 	 */
-	function fizzle($error) {
+	static public function fizzle($error) {
 		header("HTTP/1.1 500 Internal Server Error");
 		echo "<h1>500 Internal Server Error</h1>";
 		echo "<p>".htmlentities($error)."</p>";
@@ -46,7 +48,7 @@ class Web {
 		die();
 	}
 
-	static function redirect($to) {
+	static public function redirect($to) {
 		/* Run queue first if necessary */
 		ActionQueue_api::start();
 

@@ -31,7 +31,7 @@ class ListServiceDomain_model {
 	 * Create new ListServiceDomain based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function ListServiceDomain_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> service_id   = isset($row['service_id'])   ? $row['service_id']  : '';
 		$this -> domain_id    = isset($row['domain_id'])    ? $row['domain_id']   : '';
 		$this -> sd_root      = isset($row['sd_root'])      ? $row['sd_root']     : '';

@@ -24,7 +24,7 @@ class AccountOwner_controller {
 	 * @param unknown_type $owner_id
 	 * @return multitype:string NULL 
 	 */
-	public function view($owner_id) {
+	public static function view($owner_id) {
 		$data = array('current' => 'Ou');
 		try {
 			$data['AccountOwner'] = AccountOwner_api::get($owner_id);

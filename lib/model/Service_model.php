@@ -48,7 +48,7 @@ class Service_model {
 	 * Create new Service based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function Service_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> service_id        = isset($row['service_id'])        ? $row['service_id']       : '';
 		$this -> service_name      = isset($row['service_name'])      ? $row['service_name']     : '';
 		$this -> service_enabled   = isset($row['service_enabled'])   ? $row['service_enabled']  : '';

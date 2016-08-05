@@ -61,13 +61,14 @@ class Auth {
 	}
 	
 	/**
-	 * @param unknown_type $section
+	 * @param unknown_type $classname
 	 * @throws Exception
 	 * @return unknown
 	 */
-	static public function getConfig($section) {
+	static public function getConfig($classname) {
 		include(dirname(__FILE__) . "/../site/config.php");
-		$section = array_pop(explode("\\", $section));
+		$classnameParts = explode("\\", $classname);
+		$section = array_pop($classnameParts);
 		if(!isset($config[$section])) {
 			throw new Exception("No configuration found for '$section'");
 		}

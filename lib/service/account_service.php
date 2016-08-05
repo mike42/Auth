@@ -1,5 +1,17 @@
 <?php
 
+namespace Auth\service;
+
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\Account_model;
+use Auth\model\AccountOwner_model;
+use Auth\model\ListDomain_model;
+use Auth\model\Ou_model;
+use Auth\model\Service_model;
+use Auth\model\UserGroup_model;
+use Auth\service\account_service;
+
 /**
  * This is the API to interact with all account services.
  * 

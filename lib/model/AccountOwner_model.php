@@ -36,7 +36,7 @@ class AccountOwner_model {
 	 * Create new AccountOwner based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function AccountOwner_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> owner_id        = isset($row['owner_id'])        ? $row['owner_id']       : '';
 		$this -> owner_firstname = isset($row['owner_firstname']) ? $row['owner_firstname']: '';
 		$this -> owner_surname   = isset($row['owner_surname'])   ? $row['owner_surname']  : '';

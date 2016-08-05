@@ -1,7 +1,14 @@
 #!/usr/bin/env php
 <?php
 require_once(dirname(__FILE__). "/../../vendor/autoload.php");
+
+use Auth\api\ActionQueue_api;
+use Auth\api\Ou_api;
 use Auth\Auth;
+use Auth\model\Account_model;
+use Auth\model\ActionQueue_model;
+use Auth\model\Ou_model;
+use Auth\model\UserGroup_model;
 
 /* Get lock and open log file*/
 try{
@@ -126,11 +133,12 @@ function process(ActionQueue_model $aq) {
 	
 	if(!isset($services[$aq -> service_id])) {
 		/* Load up service */
-		$class = $aq -> Service -> service_type . "_service";
-		outp("\tInitialising " . $aq -> service_id . ".. (an " . $class . ")");
-		Auth::loadClass($class);
+		$className = $aq -> Service -> service_type . "_service";
+		outp("\tInitialising " . $aq -> service_id . ".. (an " . $className . ")");
+		Auth::loadClass($className);
 		try {
-			$services[$aq -> service_id] = new $class($aq -> Service);
+		    $fullClassName = "Auth\\service\\${className}";
+			$services[$aq -> service_id] = new $fullClassName($aq -> Service);
 		} catch(Exception $e) {
 			outp("\tInitialisation error: " . $e -> getMessage());
 			return false;
@@ -139,7 +147,7 @@ function process(ActionQueue_model $aq) {
 
 	/* Retrieve info and call function in service */
 	if(substr($aq -> action_type, 0, 4) == "acct") {
-		Auth::loadClass("Account_model");
+		Auth::loadClass("Auth\\model\\Account_model");
 	}
 
 	switch($aq -> action_type) {

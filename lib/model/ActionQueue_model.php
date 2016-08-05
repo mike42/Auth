@@ -41,7 +41,7 @@ class ActionQueue_model {
 	 * Create new ActionQueue based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function ActionQueue_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> aq_id       = isset($row['aq_id'])       ? $row['aq_id']      : '';
 		$this -> aq_attempts = isset($row['aq_attempts']) ? $row['aq_attempts']: '';
 		$this -> aq_date     = isset($row['aq_date'])     ? $row['aq_date']    : '';
@@ -115,7 +115,7 @@ class ActionQueue_model {
 	}
 
 	/* Non-generated functions */
-	public function get_overview() {
+	public static function get_overview() {
 		$sql = "SELECT Service.*, ListDomain.*, ActionQueue.aq_id, ActionQueue.aq_id, ActionQueue.aq_attempts, ActionQueue.aq_date, ActionQueue.service_id, ActionQueue.domain_id, ActionQueue.action_type, ActionQueue.aq_target FROM ActionQueue LEFT JOIN Service ON ActionQueue.service_id = Service.service_id LEFT JOIN ListDomain ON ActionQueue.domain_id = ListDomain.domain_id LEFT JOIN ListActionType ON ActionQueue.action_type = ListActionType.action_type LEFT JOIN ListServiceType ON Service.service_type = ListServiceType.service_type WHERE ActionQueue.aq_complete='0' ORDER BY aq_date;";
 		$res = Database::retrieve($sql, array());
 		$ret = array();
