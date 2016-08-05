@@ -1,4 +1,6 @@
 <?php
+namespace Auth\misc;
+
 /**
  * Access components of an email address
  * 

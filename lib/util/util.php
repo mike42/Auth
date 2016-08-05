@@ -1,4 +1,8 @@
 <?php
+namespace Auth\util;
+
+use Auth\Auth;
+
 abstract class util {
 	static protected $util_name;
 	

@@ -1,4 +1,17 @@
 <?php
+namespace Auth\web\controller;
+
+use \Exception;
+use Auth\api\AccountOwner_api;
+use Auth\api\Ou_api;
+use Auth\api\UserGroup_api;
+use Auth\Auth;
+use Auth\model\ListDomain_model;
+use Auth\model\Ou_model;
+use Auth\model\UserGroup_model;
+use Auth\web\controller\UserGroup_controller;
+use Auth\web\Web;
+
 class UserGroup_controller {
 	public static function init() {
 		Auth::loadClass("UserGroup_api");	

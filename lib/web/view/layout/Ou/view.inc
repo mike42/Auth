@@ -1,3 +1,7 @@
+<?php
+use Auth\web\Web;
+use Auth\model\Ou_model;
+?>
 <script type="text/javascript">
 	$(function() {
 		$("#tree").treeview({
@@ -57,7 +61,7 @@
 			</div>
 			<?php 
 			if(isset($data['message'])) {
-				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+				echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 			}
 
 			/* Displaying sub-units */
@@ -67,14 +71,14 @@
 					"<tr>\n" .
 					"<th colspan='1'>Organizational units\n" .
 					"<div class='btn-group pull-right'>\n" .
-					"<a class='btn' href=\"".web::constructURL("Ou", "create", array($data['Ou'] -> ou_id), "html")."\">New Unit</a>\n" .
+					"<a class='btn' href=\"".Web::constructURL("Ou", "create", array($data['Ou'] -> ou_id), "html")."\">New Unit</a>\n" .
 					"</div></th>\n" .
 					"</tr>\n" .
 					"</thead>\n";
 			foreach($data['Ou'] -> list_Ou as $ou) {
 				echo "<tr><td>" .
-						"<a href=\"".web::constructURL("Ou", "view", array($ou -> ou_id), "html")."\">" .
-						web::escapeHTML($ou -> ou_name) . "</a>" .
+						"<a href=\"".Web::constructURL("Ou", "view", array($ou -> ou_id), "html")."\">" .
+						Web::escapeHTML($ou -> ou_name) . "</a>" .
 						"</td></td>";
 			}
 			echo "</table>";
@@ -85,14 +89,14 @@
 					"<tr>\n" .
 					"<th colspan='1'>Groups\n" .
 					"<div class='btn-group pull-right'>\n" .
-					"<a class='btn' href=\"".web::constructURL("UserGroup", "create", array($data['Ou'] -> ou_id), "html")."\">New Group</a>\n" .
+					"<a class='btn' href=\"".Web::constructURL("UserGroup", "create", array($data['Ou'] -> ou_id), "html")."\">New Group</a>\n" .
 					"</div></th>\n" .
 					"</tr>\n" .
 					"</thead>\n";
 			foreach($data['Ou'] -> list_UserGroup as $ug) {
 				echo "<tr><td>" .
-						"<a href=\"".web::constructURL("UserGroup", "view", array($ug -> group_id), "html")."\">" .
-						web::escapeHTML($ug -> group_name . " (" . $ug -> group_cn . ")") . "</a>" .
+						"<a href=\"".Web::constructURL("UserGroup", "view", array($ug -> group_id), "html")."\">" .
+						Web::escapeHTML($ug -> group_name . " (" . $ug -> group_cn . ")") . "</a>" .
 						"</td></td>";
 			}
 			echo "</table>";
@@ -103,14 +107,14 @@
 					"<tr>\n" .
 					"<th colspan='1'>Users\n" .
 					"<div class='btn-group pull-right'>\n" .
-					"<a class='btn' href=\"".web::constructURL("AccountOwner", "create", array($data['Ou'] -> ou_id), "html")."\">New User</a>\n" .
+					"<a class='btn' href=\"".Web::constructURL("AccountOwner", "create", array($data['Ou'] -> ou_id), "html")."\">New User</a>\n" .
 					"</div></th>\n" .
 					"</tr>\n" .
 					"</thead>\n";
 			foreach($data['Ou'] -> list_AccountOwner as $ao) {
 				echo "<tr><td>" .
-						"<a href=\"".web::constructURL("AccountOwner", "view", array($ao -> owner_id), "html")."\">" .
-						web::escapeHTML($ao -> owner_firstname . " " . $ao -> owner_surname) . "</a>" .
+						"<a href=\"".Web::constructURL("AccountOwner", "view", array($ao -> owner_id), "html")."\">" .
+						Web::escapeHTML($ao -> owner_firstname . " " . $ao -> owner_surname) . "</a>" .
 						"</td></td>";
 			}
 			echo "</table>";
@@ -139,17 +143,17 @@
 
 <!-- Forms used for hitting buttons -->
 <form style="display: none" id="deleteOu"
-	action="<?php echo web::constructURL("Ou", "view", array($data['Ou'] -> ou_id), 'html'); ?>"
+	action="<?php echo Web::constructURL("Ou", "view", array($data['Ou'] -> ou_id), 'html'); ?>"
 	method="post">
 	<input type="hidden" name="action" value="delete">
 </form>
 
 <form style="display: none" id="renameOu"
-	action="<?php echo web::constructURL("Ou", "rename", array($data['Ou'] -> ou_id), 'html'); ?>"
+	action="<?php echo Web::constructURL("Ou", "rename", array($data['Ou'] -> ou_id), 'html'); ?>"
 	method="post"></form>
 
 <form style="display: none" id="moveOu"
-	action="<?php echo web::constructURL("Ou", "move", array($data['Ou'] -> ou_id), 'html'); ?>"
+	action="<?php echo Web::constructURL("Ou", "move", array($data['Ou'] -> ou_id), 'html'); ?>"
 	method="post"></form>
 
 <?php 

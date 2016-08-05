@@ -1,4 +1,11 @@
 <?php
+namespace Auth\model;
+
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\ListServiceType_model;
+use Auth\model\Service_model;
+
 class ListServiceType_model {
 	/* Fields */
 	public $service_type;
@@ -18,7 +25,7 @@ class ListServiceType_model {
 	 * Create new ListServiceType based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function ListServiceType_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> service_type = isset($row['service_type']) ? $row['service_type']: '';
 	}
 

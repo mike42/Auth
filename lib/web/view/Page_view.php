@@ -1,4 +1,9 @@
-<?php 
+<?php
+namespace Auth\web\view;
+
+use Auth\Auth;
+use Auth\web\view\Page_view;
+use Auth\web\Web;
 
 class Page_view {
 	public static function view_html($data) {

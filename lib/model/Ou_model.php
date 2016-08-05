@@ -1,4 +1,12 @@
 <?php
+namespace Auth\model;
+
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\AccountOwner_model;
+use Auth\model\Ou_model;
+use Auth\model\UserGroup_model;
+
 class Ou_model {
 	/* Fields */
 	public $ou_id;
@@ -27,11 +35,10 @@ class Ou_model {
 	 * Create new Ou based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function Ou_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> ou_id        = isset($row['ou_id'])        ? $row['ou_id']       : '';
 		$this -> ou_parent_id = isset($row['ou_parent_id']) ? $row['ou_parent_id']: '';
 		$this -> ou_name      = isset($row['ou_name'])      ? $row['ou_name']     : '';
-
 		/* Fields from related tables */
 		/* Self-reference excluded to prevent an infinite loop */
 //		$this -> Ou = new Ou_model($row);

@@ -1,4 +1,11 @@
 <?php
+namespace Auth\web\view;
+
+use Auth\Auth;
+use Auth\web\view\Page_view;
+use Auth\web\view\UserGroup_view;
+use Auth\web\Web;
+
 class UserGroup_view {
 	public static function init() {
 		Web::loadView("Page_view");

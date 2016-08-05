@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <div class="container">
 	<div class="row">
 		<div class="span4">
@@ -21,7 +24,7 @@
 				} else {
 					echo "<ul>";
 					foreach($data['util'] as $key => $caption) {
-						echo "<li><a href=\"" . web::constructURL("Utility", $key, array(''), "html") . "\">".web::escapeHTML($caption)."</a></li>";
+						echo "<li><a href=\"" . Web::constructURL("Utility", $key, array(''), "html") . "\">".Web::escapeHTML($caption)."</a></li>";
 					}
 					echo "</ul>";
 				}

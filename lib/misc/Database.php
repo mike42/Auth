@@ -1,10 +1,15 @@
 <?php
+namespace Auth\misc;
+
+use Auth\Auth;
+use \PDO;
+
 /**
  *	Wrapper for mySQL extension to manage connection and avoid injection.
  */
 class Database {
-	private static $conn; /* Database connection */
-	private static $conf; /* Config */
+	private static $conn = null; /* Database connection */
+	private static $conf = null; /* Config */
 	
 	public static function init() {
 		/* Get configuration for this class and connect to the database */
@@ -53,6 +58,9 @@ class Database {
 	}
 	
 	private static function doQuery($query, array $arg) {
+	    if(!self::$conn) {
+	        self::init();
+	    }
 		/* Query wrapper to be sure everything is escaped. All SQL must go through here! */
 		$query = str_replace("'%s'", "?", $query);
 		$stmt = self::$conn -> prepare($query);

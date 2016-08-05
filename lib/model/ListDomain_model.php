@@ -1,4 +1,15 @@
 <?php
+namespace Auth\model;
+
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\Account_model;
+use Auth\model\ActionQueue_model;
+use Auth\model\ListDomain_model;
+use Auth\model\ListServiceDomain_model;
+use Auth\model\Service_model;
+use Auth\model\UserGroup_model;
+
 class ListDomain_model {
 	/* Fields */
 	public $domain_id;
@@ -28,7 +39,7 @@ class ListDomain_model {
 	 * Create new ListDomain based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function ListDomain_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> domain_id      = isset($row['domain_id'])      ? $row['domain_id']     : '';
 		$this -> domain_name    = isset($row['domain_name'])    ? $row['domain_name']   : '';
 		$this -> domain_enabled = isset($row['domain_enabled']) ? $row['domain_enabled']: '';

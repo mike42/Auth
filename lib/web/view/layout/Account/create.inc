@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script type="text/javascript">
 	var sel = '';
 	function genUname() {
@@ -54,12 +57,12 @@
 
 			<?php 
 			if(isset($data['message'])) {
-				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+				echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 			}
 			?>
 			<div>
 				<form
-					action="<?php echo web::constructURL("Account", "create", array((int)$data['AccountOwner'] -> owner_id), 'html'); ?>"
+					action="<?php echo Web::constructURL("Account", "create", array((int)$data['AccountOwner'] -> owner_id), 'html'); ?>"
 					method="post">
 					<table class="table-bordered"
 						style="margin-left: auto; margin-right: auto">
@@ -72,7 +75,7 @@
 						<tr>
 							<th>Login name:</th>
 							<td><input type="text" name="account_login" id="account-login"
-								value="<?php if(isset($_POST['account_login'])) { echo web::escapeHTML($_POST['account_login']); } ?>" />
+								value="<?php if(isset($_POST['account_login'])) { echo Web::escapeHTML($_POST['account_login']); } ?>" />
 							</td>
 						</tr>
 						<tr>
@@ -83,13 +86,13 @@
 									"<option value=\"\">(select domain)</option>";
 							foreach($data['ListDomain'] as $domain) {
 								$selected = (isset($_POST['domain_id']) && $_POST['domain_id'] == $domain -> domain_id) ? " selected": "";
-								echo "<option value=\"".web::escapeHTML($domain -> domain_id)."\"$selected>" . web::escapeHTML($domain -> domain_name) . "</option>\n";
+								echo "<option value=\"".Web::escapeHTML($domain -> domain_id)."\"$selected>" . Web::escapeHTML($domain -> domain_name) . "</option>\n";
 							}
 							echo "</select>";
 
 							foreach($data['ListDomain'] as $domain) {
-								echo "<div style=\"display: none\" id=\"domain-".web::escapeHTML($domain -> domain_id)."\">";
-								echo "<select name=\"services-".web::escapeHTML($domain -> domain_id)."\">";
+								echo "<div style=\"display: none\" id=\"domain-".Web::escapeHTML($domain -> domain_id)."\">";
+								echo "<select name=\"services-".Web::escapeHTML($domain -> domain_id)."\">";
 								echo "<option value=\"\">(select a service)</option>\n";
 								foreach($domain -> list_ListServiceDomain as $sd) {
 									$s = $sd -> Service; // Shorthand
@@ -97,8 +100,8 @@
 									if(isset($_POST['domain_id']) && isset($_POST['services-' . $sd -> domain_id]) && $_POST['domain_id'] == $sd -> domain_id && $_POST['services-' . $sd -> domain_id] == $sd -> service_id) {
 										$selected = " selected";
 									}
-									echo "<option value=\"" . web::escapeHTML($s -> service_id) . "\"$selected> " .
-											web::escapeHTML($s -> service_name);
+									echo "<option value=\"" . Web::escapeHTML($s -> service_id) . "\"$selected> " .
+											Web::escapeHTML($s -> service_name);
 									echo "</option>\n";
 								}
 								echo "</select></div>";

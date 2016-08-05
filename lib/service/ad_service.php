@@ -1,6 +1,12 @@
 <?php 
+namespace Auth\service;
 
-require_once(dirname(__FILE__) . "/ldap_service.php");
+use \Exception;
+use Auth\Auth;
+use Auth\model\Account_model;
+use Auth\model\Service_model;
+use Auth\service\ad_service;
+use Auth\service\ldap_service;
 
 class ad_service extends ldap_service {
 	private $userAccountControl_enabled;

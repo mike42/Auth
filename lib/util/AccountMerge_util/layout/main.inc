@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <?php include(dirname(__FILE__)."/../../../web/view/layout/snippet/account_selector.php"); ?>
 <script>
 	function prepare() {

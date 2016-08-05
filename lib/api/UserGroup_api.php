@@ -1,5 +1,16 @@
 <?php
- 
+namespace Auth\api;
+
+use Auth\api\ActionQueue_api;
+use Auth\api\Ou_api;
+use Auth\api\UserGroup_api;
+use Auth\Auth;
+use Auth\model\ListDomain_model;
+use Auth\model\Ou_model;
+use Auth\model\SubUserGroup_model;
+use Auth\model\UserGroup_model;
+use \Exception;
+
 /**
  * This class provides an interface for managing user groups in the local database.
  * It ensures that changes are pushed onto the ActionQueue.

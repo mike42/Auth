@@ -1,4 +1,13 @@
 <?php
+namespace Auth\model;
+
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\Account_model;
+use Auth\model\AccountOwner_model;
+use Auth\model\ListDomain_model;
+use Auth\model\Service_model;
+
 class Account_model {
 	/* Fields */
 	public $account_id;
@@ -27,7 +36,7 @@ class Account_model {
 	 * Create new Account based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function Account_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> account_id      = isset($row['account_id'])      ? $row['account_id']     : '';
 		$this -> account_login   = isset($row['account_login'])   ? $row['account_login']  : '';
 		$this -> account_domain  = isset($row['account_domain'])  ? $row['account_domain'] : '';

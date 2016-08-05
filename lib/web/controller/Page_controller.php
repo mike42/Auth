@@ -1,4 +1,12 @@
-<?php 
+<?php
+namespace Auth\web\controller;
+
+use \Exception;
+use Auth\api\AccountOwner_api;
+use Auth\api\UserGroup_api;
+use Auth\Auth;
+use Auth\web\controller\Page_controller;
+use Auth\web\Web;
 
 class Page_controller {
 	public static function init() {

@@ -1,4 +1,15 @@
 <?php
+namespace Auth\api;
+
+use Auth\api\Account_api;
+use Auth\api\AccountOwner_api;
+use Auth\api\ActionQueue_api;
+use Auth\Auth;
+use Auth\model\Account_model;
+use Auth\model\ListDomain_model;
+use Auth\model\ListServiceDomain_model;
+use Auth\model\Service_model;
+use \Exception;
 
 /**
  * Provides an interface for working with individual accounts (logins).

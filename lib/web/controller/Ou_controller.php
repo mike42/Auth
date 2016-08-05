@@ -1,4 +1,13 @@
 <?php
+namespace Auth\web\controller;
+
+use \Exception;
+use Auth\api\Ou_api;
+use Auth\Auth;
+use Auth\model\Ou_model;
+use Auth\web\controller\Ou_controller;
+use Auth\web\Web;
+
 class Ou_controller {
 	public static function init() {
 		Auth::loadClass("Ou_api");
@@ -25,7 +34,7 @@ class Ou_controller {
 			if($_POST['action'] == "delete") {
 				try {
 					Ou_api::delete($ou_id);
-					web::redirect(web::constructURL("Ou", "view", array($data['Ou'] -> ou_parent_id), "html"));
+					Web::redirect(Web::constructURL("Ou", "view", array($data['Ou'] -> ou_parent_id), "html"));
 					return $data;
 				} catch(Exception $e) {
 					$data['message'] = $e -> getMessage();
@@ -53,7 +62,7 @@ class Ou_controller {
 			$ou_name = $_POST['ou_name'];
 			try {
 				$ou = ou_api::create($ou_name, $parent -> ou_id);
-				web::redirect(web::constructURL("Ou", "view", array($ou -> ou_parent_id), "html"));
+				Web::redirect(Web::constructURL("Ou", "view", array($ou -> ou_parent_id), "html"));
 			} catch(Exception $e) {
 				$data['message'] = $e -> getMessage();
 			}

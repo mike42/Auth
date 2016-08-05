@@ -1,4 +1,11 @@
 <?php
+namespace Auth\web\view;
+
+use Auth\Auth;
+use Auth\web\view\AccountOwner_view;
+use Auth\web\view\Page_view;
+use Auth\web\Web;
+
 class AccountOwner_view {
 	public static function init() {
 		Web::loadView("Page_view");

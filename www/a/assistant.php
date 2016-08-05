@@ -1,6 +1,11 @@
 <?php
+require_once(dirname(__FILE__) . "/../../vendor/autoload.php");
+
+use Auth\Auth;
+use Auth\api\AccountOwner_api;
+use Auth\web\Web;
+
 /* Require user to be logged in as assistant */
-require_once(dirname(__FILE__)."/../../lib/web/Web.php");
 $loginConf = Auth::getConfig('login');
 
 /* Start session and output */

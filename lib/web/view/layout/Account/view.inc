@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script type="text/javascript">
 	function deleteAccount() {
 		if(confirm('Are you sure you want to delete this account?')) {
@@ -20,42 +23,42 @@
 	<div class="row">
 		<div class="span4">
 			<div class="well">
-				<?php echo "<a href=\"" . web::constructURL("AccountOwner", "view", array($data['Account'] -> owner_id), "html"). "\">" .
-						"&larr; Back to '" . web::escapeHTML($data['Account'] -> AccountOwner -> owner_firstname . ' ' . $data['Account'] -> AccountOwner -> owner_surname) . "'</a>";?>
+				<?php echo "<a href=\"" . Web::constructURL("AccountOwner", "view", array($data['Account'] -> owner_id), "html"). "\">" .
+						"&larr; Back to '" . Web::escapeHTML($data['Account'] -> AccountOwner -> owner_firstname . ' ' . $data['Account'] -> AccountOwner -> owner_surname) . "'</a>";?>
 			</div>
 		</div>
 		<div class="span8">
 			<div class="alert alert-info">
 				<h3>
-					<?php echo web::escapeHTML($data['Account'] -> account_login . " on " . $data['Account'] -> Service -> service_name); ?>
+					<?php echo Web::escapeHTML($data['Account'] -> account_login . " on " . $data['Account'] -> Service -> service_name); ?>
 				</h3>
 			</div>
 
 			<?php 
 			if(isset($data['message'])) {
-				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+				echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 			} ?>
 
 			<table class='table table-bordered'>
 				<tr>
 					<th>Login</th>
-					<td><?php echo web::escapeHTML($data['Account'] -> account_login); ?>
+					<td><?php echo Web::escapeHTML($data['Account'] -> account_login); ?>
 					</td>
 				</tr>
 				<tr>
 					<th>Service</th>
-					<td><?php echo web::escapeHTML($data['Account'] -> Service -> service_name); ?>
+					<td><?php echo Web::escapeHTML($data['Account'] -> Service -> service_name); ?>
 					</td>
 				</tr>
 				<tr>
 					<th>Domain</th>
-					<td><?php echo web::escapeHTML($data['Account'] -> ListDomain -> domain_name); ?>
+					<td><?php echo Web::escapeHTML($data['Account'] -> ListDomain -> domain_name); ?>
 					</td>
 				</tr>
 				<tr>
 					<th>Owner</th>
-					<td><?php echo "<a href=\"" . web::constructURL("AccountOwner", "view", array($data['Account'] -> owner_id), "html"). "\">" .
-							web::escapeHTML($data['Account'] -> AccountOwner -> owner_firstname . ' ' . $data['Account'] -> AccountOwner -> owner_surname) . "</a>"; ?>
+					<td><?php echo "<a href=\"" . Web::constructURL("AccountOwner", "view", array($data['Account'] -> owner_id), "html"). "\">" .
+							Web::escapeHTML($data['Account'] -> AccountOwner -> owner_firstname . ' ' . $data['Account'] -> AccountOwner -> owner_surname) . "</a>"; ?>
 					</td>
 				</tr>
 				<tr>
@@ -79,7 +82,7 @@
 			<div class='well'>
 				<h3>Account options</h3>
 				<?php 
-				echo "<a class='btn' href=\"" . web::constructURL("Account", "rename", array($data['Account'] -> account_id), "html") . "\">Change login name</a>";
+				echo "<a class='btn' href=\"" . Web::constructURL("Account", "rename", array($data['Account'] -> account_id), "html") . "\">Change login name</a>";
 				?>
 			</div>
 
@@ -94,17 +97,17 @@
 </div>
 <?php
 echo "<form style=\"display: none\" id=\"deleteAccount\" " .
-		"action=\"" . web::constructURL("Account", "view", array($data['Account'] -> account_id), 'html') ."\" " .
+		"action=\"" . Web::constructURL("Account", "view", array($data['Account'] -> account_id), 'html') ."\" " .
 		"method=\"post\">\n " .
 		"<input type=\"hidden\" name=\"action\" value=\"delete\">" .
 		"</form>";
 echo "<form style=\"display: none\" id=\"enableAccount\" " .
-		"action=\"" . web::constructURL("Account", "view", array($data['Account'] -> account_id), 'html') ."\" " .
+		"action=\"" . Web::constructURL("Account", "view", array($data['Account'] -> account_id), 'html') ."\" " .
 		"method=\"post\">\n " .
 		"<input type=\"hidden\" name=\"action\" value=\"enable\">" .
 		"</form>";
 echo "<form style=\"display: none\" id=\"disableAccount\" " .
-		"action=\"" . web::constructURL("Account", "view", array($data['Account'] -> account_id), 'html') ."\" " .
+		"action=\"" . Web::constructURL("Account", "view", array($data['Account'] -> account_id), 'html') ."\" " .
 		"method=\"post\">\n " .
 		"<input type=\"hidden\" name=\"action\" value=\"disable\">" .
 		"</form>";

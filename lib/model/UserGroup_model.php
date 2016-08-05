@@ -1,4 +1,14 @@
 <?php
+namespace Auth\model;
+
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\ListDomain_model;
+use Auth\model\Ou_model;
+use Auth\model\OwnerUserGroup_model;
+use Auth\model\SubUserGroup_model;
+use Auth\model\UserGroup_model;
+
 class UserGroup_model {
 	/* Fields */
 	public $group_id;
@@ -30,7 +40,7 @@ class UserGroup_model {
 	 * Create new UserGroup based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function UserGroup_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> group_id     = isset($row['group_id'])     ? $row['group_id']    : '';
 		$this -> group_cn     = isset($row['group_cn'])     ? $row['group_cn']    : '';
 		$this -> group_name   = isset($row['group_name'])   ? $row['group_name']  : '';

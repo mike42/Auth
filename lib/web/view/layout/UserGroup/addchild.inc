@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <?php include(dirname(__FILE__)."/../snippet/group_selector.php"); ?>
 <div class="container">
 	<div class="row">
@@ -13,25 +16,25 @@
 			<div class="alert alert-info">
 				<h3>
 					Add group to
-					<?php echo "\"" . web::escapeHTML($data['UserGroup'] -> group_name) . "\""; ?>
+					<?php echo "\"" . Web::escapeHTML($data['UserGroup'] -> group_name) . "\""; ?>
 				</h3>
 			</div>
 			<?php 
 			if(isset($data['message'])) {
-				echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+				echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 			}
 			?>
 
 			<div class="well">
 				<form style="text-align: center; margin: 3em;"
-					action="<?php echo web::constructURL("UserGroup", "addchild", array($data['UserGroup'] -> group_id), "html"); ?>"
+					action="<?php echo Web::constructURL("UserGroup", "addchild", array($data['UserGroup'] -> group_id), "html"); ?>"
 					method="post" id="groupselect">
 					<p>Enter the name of the group to add:</p>
 					<div class="input-append">
 						<input type="hidden" name="group_cn" id="group_cn" /> <input
 							type="text" name="gname" id="gname" class="span2" /> <a
 							class="btn"
-							href="<?php echo web::constructURL("UserGroup", "view", array($data['UserGroup'] -> group_id), "html"); ?>">Cancel</a>
+							href="<?php echo Web::constructURL("UserGroup", "view", array($data['UserGroup'] -> group_id), "html"); ?>">Cancel</a>
 						<button class="btn" type="submit">
 						Add
 						</button>

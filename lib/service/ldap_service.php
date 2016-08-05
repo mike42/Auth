@@ -1,4 +1,24 @@
-<?php 
+<?php
+namespace Auth\service;
+
+use \Exception;
+use Auth\api\Account_api;
+use Auth\api\AccountOwner_api;
+use Auth\api\ActionQueue_api;
+use Auth\api\Ou_api;
+use Auth\api\UserGroup_api;
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\Account_model;
+use Auth\model\AccountOwner_model;
+use Auth\model\ListDomain_model;
+use Auth\model\Ou_model;
+use Auth\model\OwnerUserGroup_model;
+use Auth\model\Service_model;
+use Auth\model\SubUserGroup_model;
+use Auth\model\UserGroup_model;
+use Auth\service\account_service;
+use Auth\service\ldap_service;
 
 require_once(dirname(__FILE__) . "/account_service.php");
 

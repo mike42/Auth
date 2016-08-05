@@ -1,4 +1,11 @@
 <?php
+namespace Auth\model;
+
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\ActionQueue_model;
+use Auth\model\ListActionType_model;
+
 class ListActionType_model {
 	/* Fields */
 	public $action_type;
@@ -18,7 +25,7 @@ class ListActionType_model {
 	 * Create new ListActionType based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function ListActionType_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> action_type = isset($row['action_type']) ? $row['action_type']: '';
 	}
 

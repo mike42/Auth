@@ -1,4 +1,20 @@
 <?php
+namespace Auth\util\SimonTeacherYL_util;
+
+use \Exception;
+use Auth\api\AccountOwner_api;
+use Auth\api\UserGroup_api;
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\Account_model;
+use Auth\model\ListDomain_model;
+use Auth\model\Ou_model;
+use Auth\model\Service_model;
+use Auth\model\UserGroup_model;
+use Auth\util\SimonTeacherYL_util\SimonTeacherYL_util;
+use Auth\util\util;
+use Auth\web\Web;
+
 require_once(dirname(__FILE__) . "/../util.php");
 require_once(dirname(__FILE__) . "/../../misc/Provisioning_Email.php");
 

@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <script type="text/javascript">
 	$(function() {
 		$("#ou-name").focus();
@@ -20,18 +23,18 @@
 
 			<?php 
 				if(isset($data['message'])) {
-					echo "<div class=\"alert\">".web::escapeHTML($data['message']) . "</div>";
+					echo "<div class=\"alert\">".Web::escapeHTML($data['message']) . "</div>";
 				}
 			?>
 			<div>
-				<form action="<?php echo web::constructURL("Ou", "rename", array((int)$data['Ou'] -> ou_id), 'html'); ?>" method="post">
+				<form action="<?php echo Web::constructURL("Ou", "rename", array((int)$data['Ou'] -> ou_id), 'html'); ?>" method="post">
 					<table class="table-bordered" style="margin-left: auto; margin-right: auto">
 						<tr>
 							<th>
 								New unit name:
 							</th>
 							<td>
-								<input type="text" name="ou_name" id="ou-name" value="<?php echo web::escapeHTML($data['Ou'] -> ou_name); ?>" />
+								<input type="text" name="ou_name" id="ou-name" value="<?php echo Web::escapeHTML($data['Ou'] -> ou_name); ?>" />
 							</td>
 						</tr>
 						<tr>

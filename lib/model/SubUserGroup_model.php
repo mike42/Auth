@@ -1,4 +1,11 @@
 <?php
+namespace Auth\model;
+
+use Auth\Auth;
+use Auth\misc\Database;
+use Auth\model\SubUserGroup_model;
+use Auth\model\UserGroup_model;
+
 class SubUserGroup_model {
 	/* Fields */
 	public $parent_group_id;
@@ -19,7 +26,7 @@ class SubUserGroup_model {
 	 * Create new SubUserGroup based on a row from the database.
 	 * @param array $row The database row to use.
 	*/
-	public function SubUserGroup_model(array $row = array()) {
+	public function __construct(array $row = array()) {
 		$this -> parent_group_id = isset($row['parent_group_id']) ? $row['parent_group_id']: '';
 		$this -> group_id        = isset($row['group_id'])        ? $row['group_id']       : '';
 
