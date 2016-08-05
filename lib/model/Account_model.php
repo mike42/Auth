@@ -128,10 +128,10 @@ class Account_model {
 				"FROM Account " .
 				"JOIN ListDomain ON ListDomain.domain_id = Account.account_domain " .
 				"JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id " .
-				"WHERE account_login LIKE \"%%%s%%\" OR owner_firstname LIKE \"%%%s%%\" OR owner_surname LIKE \"%%%s%%\" " .
+				"WHERE account_login LIKE '%s' OR owner_firstname LIKE '%s' OR owner_surname LIKE '%s' " .
 				"ORDER BY domain_name, owner_surname, owner_firstname, account_login " .
 				"LIMIT 0 , 20;";
-		$term = str_replace("%", "\"%", $term);
+		$term = "%$term%";
 		$res = Database::retrieve($sql, array($term, $term, $term));
 		$ret = array();
 		while($row = Database::get_row($res)) {
@@ -155,11 +155,11 @@ class Account_model {
 				"FROM Account " .
 				"JOIN ListDomain ON ListDomain.domain_id = Account.account_domain " .
 				"JOIN AccountOwner ON Account.owner_id = AccountOwner.owner_id " .
-				"WHERE (account_login LIKE \"%%%s%%\" OR owner_firstname LIKE \"%%%s%%\" OR owner_surname LIKE \"%%%s%%\") " .
+				"WHERE (account_login LIKE '%s' OR owner_firstname LIKE '%s' OR owner_surname LIKE '%s') " .
 				"AND Account.service_id = '%s' AND Account.account_domain = '%s' " .
 				"ORDER BY domain_name, owner_surname, owner_firstname, account_login " .
 				"LIMIT 0 , 20;";
-		$term = str_replace("%", "\"%", $term);
+		$term = "%$term%";
 		$res = Database::retrieve($sql, array($term, $term, $term, $service_id, $domain_id));
 		$ret = array();
 		while($row = Database::get_row($res)) {
