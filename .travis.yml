@@ -15,9 +15,16 @@ addons:
     - sourceline: 'ppa:ansible/ansible'
     packages:
     - ansible
+    - ruby-dev
+    - ruby-capybara
+    - cucumber
 
 install:
+  - sudo gem install capybara-screenshot selenium-webdriver
   - composer install
+  - ruby --version
+  - cucumber --version
+  - gem list
 
 script:
   - (cd maintenance/demo-install && ansible-playbook -i inventory.local site.yml)
