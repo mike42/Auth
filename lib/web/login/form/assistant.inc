@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <?php require(dirname(__FILE__)."/../snippet/account_selector.php"); ?>
 
 <div id="rightnow">
@@ -12,7 +15,7 @@
 			id="accountselect">
 			<p>
 				<?php	if(isset($data['message'])) {
-					echo "<b>".web::escapeHTML($data['message']) . "</b>";
+					echo "<b>".Web::escapeHTML($data['message']) . "</b>";
 				} else {
 					echo "Enter a username:";
 				} ?>

@@ -89,5 +89,5 @@
 
 - name: set example LDAP example service password
   command: mysql "{{ auth_db_name }}" -e "UPDATE Service SET service_password='{{ ldap_password }}',service_username='{{ ldap_admin }}' WHERE service_id='ldap1';"
-  
+
 # TODO logrotate?

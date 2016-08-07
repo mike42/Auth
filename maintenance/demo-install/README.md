@@ -19,10 +19,10 @@ Copy `inventory.example` to a new file called `inventory`, and update some
 values:
 
 - The hostname of the target box
-- The three install-time passwords
+- The install-time passwords
 
-If you have not used ansible before, then simply run `ssh-copy-id root@target.example`
-to avoid configuring password prompts.
+If you have not used ansible before, then start by running
+`ssh-copy-id root@target.example` to avoid password prompts.
 
 ## Install
 
@@ -34,7 +34,7 @@ ansible-playbook -i inventory site.yml
 
 Access the application over HTTPS in a web browser.
 
-Log in as user `admin`, using the `ldap_password` that you set in the inventory.
+Log in as any of the users that you set in the inventory.
 
 To get started quickly, locate "Utilities" -> "Directory Cleanup Tools" ->
 "Create dummy data".

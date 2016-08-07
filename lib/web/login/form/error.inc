@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <div class="login container">
 	<div class="span4">
 		<div class="well">

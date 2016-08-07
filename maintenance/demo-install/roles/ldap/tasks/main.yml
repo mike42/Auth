@@ -13,6 +13,7 @@
   - ldap-utils
   - slapd
 
+# Admin account
 - name: find current and expected account details
   command: "{{ item }}"
   changed_when: false
@@ -23,8 +24,6 @@
   - slappasswd -s "{{ ldap_password }}"
   - ldapsearch -H ldapi:// -LLL -Q -Y EXTERNAL -b "cn=config" "(olcRootDN={{ ldap_admin }})" dn olcRootPW
   - ldapwhoami -vvv -H ldapi:// -D {{ ldap_admin }} -x -w "{{ ldap_password }}"
-
-- command: slapcat
 
 - name: expected account details setup applied to temp file
   copy:
@@ -43,3 +42,50 @@
 - name: temp file is cleaned up
   file: dest="~/.ldap_set" state=absent
 
+# Test accounts
+- name: check if we have made test accounts already
+  shell: ldapsearch -H ldapi:// -LLL -Q -Y EXTERNAL -b "{{ ldap_domain_ldif }}" cn={{ test_admin_name }} cn | grep "dn:"
+  register: result
+  ignore_errors: True
+  changed_when: false
+
+- name: load in test acct password
+  shell: slappasswd -s "{{ item }}" | base64
+  changed_when: false
+  no_log: true
+  register: testpw
+  ignore_errors: True
+  with_items:
+  - "{{ test_admin_password }}"
+  - "{{ test_assistant_password }}"
+
+- debug:
+    var: testpw
+
+- name: test account details are in temp file
+  copy:
+    content: |
+      dn: cn={{ test_admin_name }},{{ ldap_domain_ldif }}
+      changetype: add
+      objectClass: simpleSecurityObject
+      objectClass: organizationalRole
+      cn: {{ test_admin_name }}
+      description: {{ test_admin_name }}
+      userPassword:: {{ testpw.results[0].stdout }}
+      
+      dn: cn={{ test_assistant_name }},{{ ldap_domain_ldif }}
+      changetype: add
+      objectClass: simpleSecurityObject
+      objectClass: organizationalRole
+      cn: {{ test_assistant_name }}
+      description: {{ test_assistant_name }}
+      userPassword:: {{ testpw.results[1].stdout }}
+    dest: ~/.ldap_set
+  when: result|failed
+
+- name: test account details are up to date
+  shell: ldapmodify -H ldapi:// -D {{ ldap_admin }} -x -w "{{ ldap_password }}" < ~/.ldap_set
+  when: result|failed
+
+- name: temp file is cleaned up
+  file: dest="~/.ldap_set" state=absent

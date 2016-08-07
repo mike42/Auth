@@ -3,3 +3,7 @@ site/*
 .buildpath
 *.bak
 vendor/
+.settings/*
+.project
+.buildpath
+maintenance/demo-install/inventory

@@ -1,3 +1,6 @@
+<?php
+use Auth\web\Web;
+?>
 <div class="login container">
 	<div class="row">
 		<div class="span10 offset1">
@@ -27,7 +30,7 @@
 							</thead>";
 							foreach($data['AccountOwner'] -> list_OwnerUserGroup as $ownerGroup) {
 								echo "<tr>";
-								echo "<td>".web::escapeHTML($ownerGroup -> UserGroup -> group_name). " (".web::escapeHTML($ownerGroup -> UserGroup -> group_cn).")</td>";
+								echo "<td>".Web::escapeHTML($ownerGroup -> UserGroup -> group_name). " (".Web::escapeHTML($ownerGroup -> UserGroup -> group_cn).")</td>";
 								echo "</tr>";
 							}
 							echo "</table>";
@@ -50,9 +53,9 @@
 								</thead>";
 								foreach($data['AccountOwner'] -> list_Account as $account) {
 									echo "<tr>";
-									echo "<td>".web::escapeHTML($account -> Service -> service_name)."</td>";
-									echo "<td>".web::escapeHTML($account -> account_login)."</td>";
-									echo "<td>".web::escapeHTML($account -> account_domain)."</td>";
+									echo "<td>".Web::escapeHTML($account -> Service -> service_name)."</td>";
+									echo "<td>".Web::escapeHTML($account -> account_login)."</td>";
+									echo "<td>".Web::escapeHTML($account -> account_domain)."</td>";
 									echo "</tr>";
 								}
 								echo "</table>";

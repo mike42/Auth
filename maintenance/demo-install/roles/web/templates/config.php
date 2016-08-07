@@ -22,8 +22,8 @@ $config = array(
 			'url' => 'ldap://localhost',
 			'domain' => "{{ ldap_domain_ldif }}",
  			'service_id' => 'ldap1',
-			'admin' => array('admin'),
-			'assistant' => array(''),
+			'admin' => array('{{ test_admin_name }}'),
+			'assistant' => array('{{ test_assistant_name }}'),
 			'assist' =>
 				array(
 					'domain_id' => 'default',

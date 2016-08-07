@@ -1,6 +1,10 @@
 #!/usr/bin/env php
 <?php 
-require_once(dirname(__FILE__) . "/../lib/Auth.php");
+require_once(dirname(__FILE__). "/../vendor/autoload.php");
+
+use Auth\Auth;
+use Auth\misc\PasswordGen;
+
 Auth::loadClass("PasswordGen");
 
 /* Generate the given number of passwords, used for batch work */

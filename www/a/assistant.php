@@ -4,6 +4,7 @@ require_once(dirname(__FILE__) . "/../../vendor/autoload.php");
 use Auth\Auth;
 use Auth\api\AccountOwner_api;
 use Auth\web\Web;
+use Auth\model\Account_model;
 
 /* Require user to be logged in as assistant */
 $loginConf = Auth::getConfig('login');
