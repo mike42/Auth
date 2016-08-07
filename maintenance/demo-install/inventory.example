@@ -19,4 +19,17 @@ auth_db_name = auth
 auth_db_user = auth
 auth_db_pass = vuKWRbx5T9LJKb32s2Yb
 
+# PHP versions included in package installs
 php_ver = 5
+
+# Test accounts for access via the web
+test_admin_name = testadmin
+test_admin_password = password
+test_assistant_name = testassistant
+test_assistant_password = password
+test_user_name = jack
+test_user_password = password
+
+# Path to cucumber support file
+test_env_file = ../../test/cucumber/features/support/app.rb
+
