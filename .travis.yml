@@ -21,5 +21,6 @@ install:
 
 script:
   - (cd maintenance/demo-install && ansible-playbook -i inventory.local site.yml)
+  - (cd test/cucumber/ && xvfb-run cucumber)
 ...
 

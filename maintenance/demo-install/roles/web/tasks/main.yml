@@ -90,4 +90,10 @@
 - name: set example LDAP example service password
   command: mysql "{{ auth_db_name }}" -e "UPDATE Service SET service_password='{{ ldap_password }}',service_username='{{ ldap_admin }}' WHERE service_id='ldap1';"
 
+- name: machine detail template for test
+  template: src=app.rb dest=~/.app.rb
+
+- name: machine details copied locally
+  fetch: src=~/.app.rb dest=./../../test/cucumber/features/support/app.rb flat=yes
+
 # TODO logrotate?

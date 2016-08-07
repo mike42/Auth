@@ -7,3 +7,5 @@ vendor/
 .project
 .buildpath
 maintenance/demo-install/inventory
+test/cucumber/features/support/app.rb
+test/cucumber/*.png
