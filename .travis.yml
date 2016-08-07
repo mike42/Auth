@@ -13,18 +13,19 @@ addons:
   apt:
     sources:
     - sourceline: 'ppa:ansible/ansible'
+    - sourceline: 'ppa:brightbox/ruby-ng'
     packages:
+    - ruby2.3
+    - ruby2.3-dev
     - ansible
-    - ruby-dev
-    - ruby-capybara
-    - cucumber
 
 install:
-  - sudo gem install capybara-screenshot selenium-webdriver
   - composer install
   - ruby --version
   - cucumber --version
-  - gem list
+  - ruby2.3 --version
+  - gem2.3 --version
+  - sudo gem2.3 install cucumber capybara capybara-screenshot selenium-webdriver
 
 script:
   - (cd maintenance/demo-install && ansible-playbook -i inventory.local site.yml)
