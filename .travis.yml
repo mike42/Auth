@@ -22,9 +22,9 @@ addons:
 install:
   - composer install
   - ruby --version
-  - cucumber --version
-  - ruby2.3 --version
-  - gem2.3 --version
+  - cucumber --version || true
+  - ruby2.3 --version || true
+  - gem2.3 --version || true
   - sudo gem2.3 install cucumber capybara capybara-screenshot selenium-webdriver
 
 script:
