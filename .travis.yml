@@ -26,7 +26,7 @@ install:
   - gem --version || true
   - composer install
   - which gem
-  - gem install cucumber capybara capybara-screenshot selenium-webdriver
+  - gem install cucumber capybara capybara-screenshot selenium-webdriver rspec
 
 script:
   - (cd maintenance/demo-install && ansible-playbook -i inventory.local site.yml)
