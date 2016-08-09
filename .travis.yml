@@ -20,11 +20,10 @@ addons:
     - ansible
 
 install:
+  - dpkg -l
+  - ruby --version || true
+  - gem --version || true
   - composer install
-  - ruby --version
-  - cucumber --version || true
-  - ruby2.3 --version || true
-  - gem2.3 --version || true
   - sudo gem2.3 install cucumber capybara capybara-screenshot selenium-webdriver
 
 script:
