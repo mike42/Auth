@@ -20,7 +20,7 @@ addons:
     - ansible
 
 install:
-  - sudo apt-get remove ruby2.0 ruby1.9.1 
+  - sudo apt-get -y remove ruby2.0 ruby1.9.1 libruby1.9.1
   - dpkg -l
   - ruby --version || true
   - gem --version || true
