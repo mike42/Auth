@@ -25,7 +25,8 @@ install:
   - ruby --version || true
   - gem --version || true
   - composer install
-  - sudo gem install cucumber capybara capybara-screenshot selenium-webdriver
+  - which gem
+  - gem install cucumber capybara capybara-screenshot selenium-webdriver
 
 script:
   - (cd maintenance/demo-install && ansible-playbook -i inventory.local site.yml)
