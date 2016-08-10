@@ -21,6 +21,7 @@ addons:
 
 install:
   - sudo apt-get -y remove ruby2.0 ruby1.9.1 libruby1.9.1
+  - ip addr show
   - dpkg -l
   - ruby --version || true
   - gem --version || true
