@@ -23,6 +23,8 @@ install:
   - sudo apt-get -y remove ruby2.0 ruby1.9.1 libruby1.9.1
   - ip addr show
   - cat /etc/hosts
+  - sed -i '/^[^:].*:.*localhost.*$/d'
+  - cat /etc/hosts
   - hostname
   - ping -c 1 `hostname`
   - dpkg -l
