@@ -59,9 +59,6 @@
   - "{{ test_admin_password }}"
   - "{{ test_assistant_password }}"
 
-- debug:
-    var: testpw
-
 - name: test account details are in temp file
   copy:
     content: |

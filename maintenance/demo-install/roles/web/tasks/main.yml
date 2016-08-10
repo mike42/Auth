@@ -11,6 +11,7 @@
    - git
    - openssl
    - ldap-utils
+   - sudo
 
 - name: apache modules are enabled
   apache2_module: state=present name={{ item }}
@@ -55,7 +56,7 @@
 
 - name: site config folder exists
   file: dest=/usr/share/auth-web/site state=directory
-  
+
 - name: site config default images are applied
   file: src=/usr/share/auth-web/site.example/{{ item }} dest=/usr/share/auth-web/site/{{ item }} state=link
   with_items:
@@ -89,6 +90,16 @@
 
 - name: set example LDAP example service password
   command: mysql "{{ auth_db_name }}" -e "UPDATE Service SET service_password='{{ ldap_password }}',service_username='{{ ldap_admin }}' WHERE service_id='ldap1';"
+
+- name: test data is loaded
+  command: php -r "require '/usr/share/auth-web/vendor/autoload.php'; use \\Auth\\util\\Cleanup_util\\Cleanup_util; Cleanup_util::eraseLocal(); Cleanup_util::dummyData();"
+  become: true
+  become_user: www-data
+
+- name: auth queue has run
+  command: /usr/share/auth-web/maintenance/bin/authqueue.php
+  become: true
+  become_user: www-data
 
 - name: machine detail template for test
   template: src=app.rb dest=~/.app.rb
